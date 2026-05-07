@@ -68,6 +68,13 @@ public class AdminController {
         if (password == null || password.isBlank())
             return ResponseEntity.badRequest().body(Map.of("message", "Mot de passe requis"));
 
+        List<String> allowedDomains = List.of("esprit.tn", "talan.com", "gmail.com", "outlook.com", "yahoo.com", "hotmail.com");
+        String emailLower = email.trim().toLowerCase();
+        boolean domainOk = allowedDomains.stream().anyMatch(emailLower::endsWith);
+        if (!domainOk)
+            return ResponseEntity.badRequest().body(Map.of("message",
+                "Domaine email non autorisé. Domaines acceptés : " + String.join(", ", allowedDomains)));
+
         try {
             keycloakAdmin.createUser(email.trim().toLowerCase(),
                     password, fullName != null ? fullName : email);

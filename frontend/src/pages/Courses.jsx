@@ -142,9 +142,11 @@ export default function Courses() {
     </Layout>
   );
 
+  const isMobile = window.innerWidth < 640;
+
   return (
     <Layout title={ui.subtitle}>
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px 80px' }}>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: isMobile ? '16px 12px 60px' : '40px 24px 80px' }}>
 
         {/* ── Header ── */}
         <div style={{ marginBottom: 44 }}>
@@ -172,7 +174,7 @@ export default function Courses() {
               <div key={level} style={{ borderRadius: 20, overflow: 'hidden', border: `1.5px solid ${accessible ? cfg.color + '35' : C.border}`, background: C.white, opacity: accessible ? 1 : 0.55 }}>
 
                 {/* Section header */}
-                <div style={{ padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 14, background: accessible ? cfg.soft : '#F9FAFB', borderBottom: courses.length > 0 ? `1px solid ${accessible ? cfg.color + '20' : C.border}` : 'none' }}>
+                <div style={{ padding: isMobile ? '14px 14px' : '18px 22px', display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, background: accessible ? cfg.soft : '#F9FAFB', borderBottom: courses.length > 0 ? `1px solid ${accessible ? cfg.color + '20' : C.border}` : 'none' }}>
                   <div style={{ width: 44, height: 44, borderRadius: 14, background: accessible ? cfg.color : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {accessible
                       ? <LevelIcon style={{ width: 20, height: 20, color: 'white' }} />
@@ -228,7 +230,7 @@ export default function Courses() {
 
                           {/* Title + progress */}
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontWeight: 700, fontSize: '0.88rem', color: isUnlocked ? C.dark : C.muted, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{course.title}</p>
+                            <p style={{ fontWeight: 700, fontSize: isMobile ? '0.8rem' : '0.88rem', color: isUnlocked ? C.dark : C.muted, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: isMobile ? 'normal' : 'nowrap' }}>{course.title}</p>
                             {isUnlocked && !isCompleted && pct > 0 && (
                               <div style={{ marginTop: 5, height: 3, background: cfg.soft, borderRadius: 999, overflow: 'hidden' }}>
                                 <div style={{ height: '100%', width: `${pct}%`, background: cfg.color, borderRadius: 999 }} />
@@ -242,16 +244,16 @@ export default function Courses() {
                             <button
                               disabled={!!enrolling}
                               onClick={e => { e.stopPropagation(); isEnrolled ? navigate(`/courses/${course.id}`) : handleEnroll(course.id); }}
-                              style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 10, fontWeight: 700, fontSize: '0.72rem', color: isCompleted ? cfg.color : 'white', background: isCompleted ? cfg.soft : cfg.color, border: 'none', cursor: 'pointer', transition: 'opacity .15s' }}
+                              style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5, padding: isMobile ? '7px 10px' : '7px 14px', borderRadius: 10, fontWeight: 700, fontSize: '0.7rem', color: isCompleted ? cfg.color : 'white', background: isCompleted ? cfg.soft : cfg.color, border: 'none', cursor: 'pointer', transition: 'opacity .15s' }}
                               onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
                               onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
                               {enrolling === course.id
                                 ? <Loader2 style={{ width: 13, height: 13, animation: 'spin 1s linear infinite' }} />
                                 : isCompleted
-                                  ? <><BookOpen style={{ width: 13, height: 13 }} /> {ui.btnReview}</>
+                                  ? <><BookOpen style={{ width: 13, height: 13 }} />{!isMobile && ` ${ui.btnReview}`}</>
                                   : isEnrolled
-                                    ? <><PlayCircle style={{ width: 13, height: 13 }} /> {ui.btnContinue}</>
-                                    : <><Zap style={{ width: 13, height: 13 }} /> {ui.btnStart}</>}
+                                    ? <><PlayCircle style={{ width: 13, height: 13 }} />{!isMobile && ` ${ui.btnContinue}`}</>
+                                    : <><Zap style={{ width: 13, height: 13 }} />{!isMobile && ` ${ui.btnStart}`}</>}
                             </button>
                           )}
                         </div>

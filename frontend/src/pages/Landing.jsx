@@ -159,10 +159,8 @@ export default function Landing() {
             <span style={{ color: C.pink }}>{t.headline2}</span>{t.headlineEnd}
           </h1>
 
-          <p style={{ fontWeight: 500, fontSize: '1.05rem', color: C.mid, margin: '0 auto 44px', maxWidth: 500, lineHeight: 2, letterSpacing: '0.02em' }}>
-            {t.sub.split(' · ').map((part, i, arr) => (
-              <span key={i}>{part}{i < arr.length - 1 && <span style={{ margin: '0 10px', opacity: 0.35 }}>·</span>}</span>
-            ))}
+          <p style={{ fontWeight: 500, fontSize: '1rem', color: C.mid, margin: '0 auto 40px', maxWidth: 460, lineHeight: 1.65 }}>
+            {t.sub}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 56 }}>

@@ -82,7 +82,15 @@ export default function Landing() {
   const { lang, setLang } = useLanguage();
   const t = T[lang] || T.fr;
 
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
   const [stats, setStats] = useState({ learners: 200, levels: 6, languages: 2, satisfaction: 98 });
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const handler = e => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     api.get('/api/public/stats').then(res => {
@@ -101,7 +109,7 @@ export default function Landing() {
     <div style={{ fontFamily: "'Plus Jakarta Sans','Nunito',system-ui,sans-serif", background: C.bg, color: C.dark, minHeight: '100vh', overflowX: 'hidden' }}>
 
       {/* ── NAV ── */}
-      <nav style={{ background: C.white, borderBottom: `1px solid ${C.border}`, padding: '0 clamp(20px,5vw,80px)', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 12px rgba(28,43,58,0.04)' }}>
+      <nav style={{ background: C.white, borderBottom: `1px solid ${C.border}`, padding: `0 ${isMobile ? '16px' : 'clamp(20px,5vw,80px)'}`, position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 12px rgba(28,43,58,0.04)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
           {/* Logo */}
@@ -112,28 +120,31 @@ export default function Landing() {
             <span style={{ fontWeight: 900, fontSize: '1rem', color: C.dark }}>Speak<span style={{ color: C.teal }}>Coach</span></span>
           </Link>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10 }}>
 
             {/* ── FR / EN toggle ── */}
             <div style={{ display: 'flex', gap: 3, background: C.bg, borderRadius: 10, padding: 3, border: `1.5px solid ${C.border}` }}>
               {['fr', 'en'].map(l => (
                 <button key={l} onClick={() => setLang(l)}
                   style={{
-                    padding: '5px 13px', borderRadius: 7, fontWeight: 800,
+                    padding: isMobile ? '5px 8px' : '5px 13px', borderRadius: 7, fontWeight: 800,
                     fontSize: '0.75rem', border: 'none', cursor: 'pointer',
                     background: lang === l ? C.teal : 'transparent',
                     color: lang === l ? 'white' : C.mid,
                     transition: 'all .15s',
                     boxShadow: lang === l ? `0 2px 8px ${C.teal}40` : 'none',
+                    display: 'flex', alignItems: 'center', gap: isMobile ? 0 : 4,
                   }}>
                   <img src={`https://flagcdn.com/16x12/${l === 'fr' ? 'fr' : 'gb'}.png`} width="16" height="12" alt={l.toUpperCase()} style={{ borderRadius: 2, flexShrink: 0 }} />
-                  {l.toUpperCase()}
+                  {!isMobile && l.toUpperCase()}
                 </button>
               ))}
             </div>
 
-            <Link className="nav-login" to="/login" style={{ width: 120, textAlign: 'center', padding: '8px 0', borderRadius: 10, fontWeight: 700, fontSize: '0.85rem', color: C.mid, textDecoration: 'none', border: `1.5px solid ${C.border}`, background: C.white, transition: 'all 0.2s' }}>{t.login}</Link>
-            <Link className="nav-start" to="/login" style={{ width: 150, textAlign: 'center', padding: '8px 0', borderRadius: 10, fontWeight: 800, fontSize: '0.85rem', background: C.teal, color: 'white', textDecoration: 'none', boxShadow: `0 4px 14px ${C.teal}44`, borderBottom: `3px solid ${C.tealDark}`, transition: 'all 0.2s' }}>{t.start}</Link>
+            {!isMobile && (
+              <Link to="/login" style={{ width: 120, textAlign: 'center', padding: '8px 0', borderRadius: 10, fontWeight: 700, fontSize: '0.85rem', color: C.mid, textDecoration: 'none', border: `1.5px solid ${C.border}`, background: C.white, transition: 'all 0.2s' }}>{t.login}</Link>
+            )}
+            <Link to="/login" style={{ padding: isMobile ? '8px 14px' : '8px 0', width: isMobile ? 'auto' : 150, textAlign: 'center', borderRadius: 10, fontWeight: 800, fontSize: isMobile ? '0.78rem' : '0.85rem', background: C.teal, color: 'white', textDecoration: 'none', boxShadow: `0 4px 14px ${C.teal}44`, borderBottom: `3px solid ${C.tealDark}`, transition: 'all 0.2s' }}>{isMobile ? t.cta : t.start}</Link>
           </div>
         </div>
       </nav>
@@ -163,12 +174,12 @@ export default function Landing() {
             {t.sub}
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 56 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? 28 : 56 }}>
             <Link to="/login"
-              style={{ 
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9, 
-                width: '100%', maxWidth: 300, padding: '16px 0', borderRadius: 999, fontWeight: 900, 
-                fontSize: '1rem', background: C.teal, color: 'white', textDecoration: 'none', 
+              style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9,
+                width: '100%', maxWidth: isMobile ? 260 : 300, padding: '16px 0', borderRadius: 999, fontWeight: 900,
+                fontSize: '1rem', background: C.teal, color: 'white', textDecoration: 'none',
                 boxShadow: `0 8px 28px ${C.teal}50`, borderBottom: `3px solid ${C.tealDark}`,
                 transition: 'transform 0.2s'
               }}
@@ -179,21 +190,21 @@ export default function Landing() {
             </Link>
 
             {/* Score card */}
-            <div style={{ display: 'inline-block', background: C.white, borderRadius: 24, border: `1.5px solid ${C.border}`, borderBottom: `4px solid ${C.border}`, padding: '24px 32px', boxShadow: '0 16px 48px rgba(28,43,58,0.09)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-              <div style={{ width: 56, height: 56, borderRadius: '50%', background: `linear-gradient(135deg,${C.teal},${C.tealDark})`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 20px ${C.teal}44` }}>
-                <Mic style={{ width: 24, height: 24, color: 'white' }} />
+            <div style={{ display: 'inline-block', background: C.white, borderRadius: 24, border: `1.5px solid ${C.border}`, borderBottom: `4px solid ${C.border}`, padding: isMobile ? '16px 18px' : '24px 32px', boxShadow: '0 16px 48px rgba(28,43,58,0.09)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 14 : 24 }}>
+              <div style={{ width: isMobile ? 44 : 56, height: isMobile ? 44 : 56, borderRadius: '50%', background: `linear-gradient(135deg,${C.teal},${C.tealDark})`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 20px ${C.teal}44`, flexShrink: 0 }}>
+                <Mic style={{ width: isMobile ? 18 : 24, height: isMobile ? 18 : 24, color: 'white' }} />
               </div>
               <div style={{ textAlign: 'left' }}>
-                <p style={{ fontWeight: 900, fontSize: '2rem', color: C.teal, margin: 0, letterSpacing: '-0.04em', lineHeight: 1 }}>87<span style={{ fontSize: '1rem', color: C.muted, fontWeight: 600 }}>/100</span></p>
+                <p style={{ fontWeight: 900, fontSize: isMobile ? '1.6rem' : '2rem', color: C.teal, margin: 0, letterSpacing: '-0.04em', lineHeight: 1 }}>87<span style={{ fontSize: '1rem', color: C.muted, fontWeight: 600 }}>/100</span></p>
                 <p style={{ fontWeight: 700, fontSize: '0.65rem', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '4px 0 0' }}>{t.score_label}</p>
               </div>
-              <div style={{ background: `linear-gradient(135deg,${C.coral},${C.coralDark})`, borderRadius: 12, padding: '10px 16px', boxShadow: `0 6px 16px ${C.coral}40` }}>
+              <div style={{ background: `linear-gradient(135deg,${C.coral},${C.coralDark})`, borderRadius: 12, padding: isMobile ? '8px 12px' : '10px 16px', boxShadow: `0 6px 16px ${C.coral}40`, flexShrink: 0 }}>
                 <p style={{ fontWeight: 900, fontSize: '1.2rem', color: 'white', margin: 0, lineHeight: 1 }}>B2</p>
                 <p style={{ fontWeight: 700, fontSize: '0.5rem', color: 'rgba(255,255,255,0.85)', margin: '3px 0 0' }}>Niveau</p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', marginTop: 16, height: 24, justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', marginTop: 14, height: 24, justifyContent: 'center' }}>
               {[0.4,0.7,1,0.6,0.9,0.5,0.8,1,0.6,0.7,0.4,0.8].map((h,i) => (
                 <div key={i} style={{ width: 4, borderRadius: 2, height: `${h*24}px`, background: i%2===0?C.teal:C.coral, animation: `wBar ${0.5+i*0.08}s ease-in-out infinite alternate` }} />
               ))}
@@ -268,10 +279,7 @@ export default function Landing() {
       <style>{`
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
         @keyframes wBar  { from{transform:scaleY(0.4)} to{transform:scaleY(1)} }
-        
         @media (max-width: 640px) {
-          .nav-login { display: none !important; }
-          .nav-start { width: 120px !important; padding: 8px !important; font-size: 0.8rem !important; }
           .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
         }
       `}</style>

@@ -131,7 +131,8 @@ const css = `
 
 /* ══════════════════════════════════════════════════════════════════════ */
 export default function CEFRTest() {
-  const { updateUser } = useAuth();
+  const { updateUser, user } = useAuth();
+  const userName = user?.fullName || user?.name || user?.email?.split('@')[0] || '';
   const { lang }       = useLanguage();
   const navigate       = useNavigate();
   const isFr           = lang !== 'en';
@@ -719,7 +720,9 @@ export default function CEFRTest() {
                       </div>
                     )}
                   </div>
-                  <p style={{ fontSize:13, color:C.dark, lineHeight:1.7, fontWeight:500 }}>{lastFeedback}</p>
+                  <p style={{ fontSize:13, color:C.dark, lineHeight:1.7, fontWeight:500 }}>
+                    {userName ? lastFeedback.replace(/\bAlex\b/gi, userName) : lastFeedback}
+                  </p>
                 </div>
               )}
 

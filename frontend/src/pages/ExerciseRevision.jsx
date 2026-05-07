@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import Layout from '../components/layout/Layout';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
-import { getDueItems, getSoundsDue, markReviewed } from '../api/spacedRepetition';
+import { getDueItems, markReviewed } from '../api/spacedRepetition';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Volume2, Trophy, ArrowRight } from 'lucide-react';
@@ -222,7 +222,8 @@ function WordRevisionTab({ level, lang }) {
     }
 
     if (items.length === 0) { setWords([]); setPhase('done'); return; }
-    setWords(items); setPhase('ready'); setListened(false);
+    // Limit to 15 words max to avoid overwhelming the user
+    setWords(items.slice(0, 15)); setPhase('ready'); setListened(false);
   };
 
   const currentWord = words[current];
@@ -467,246 +468,6 @@ function WordRevisionTab({ level, lang }) {
   );
 }
 
-// ── TAB: Sound Revision (no LLM, static examples) ────────────────────────────
-function SoundRevisionTab({ level, lang }) {
-  const navigate = useNavigate();
-  const t = T[lang] || T.fr;
-  const [sounds, setSounds]     = useState([]);
-  const [current, setCurrent]   = useState(0);
-  const [phase, setPhase]       = useState('loading');
-  const [result, setResult]     = useState(null);
-  const [results, setResults]   = useState([]);
-  const [error, setError]       = useState(null);
-  const [cardAnim, setCardAnim] = useState('');
-  const [practiceWord, setPracticeWord] = useState('');
-  const { isRecording, startRecording, stopRecording, resetRecording } = useAudioRecorder();
-
-  useEffect(() => {
-    getSoundsDue().then(res => {
-      let due = res.data?.sounds || [];
-      if (due.some(s => s.lang)) due = due.filter(s => !s.lang || s.lang === lang);
-      if (due.length === 0) { setPhase('done'); return; }
-      setSounds(due);
-      const label = due[0].soundLabel || due[0].soundKey || '';
-      setPracticeWord(getSoundWord(label) || label);
-      setPhase('ready');
-    }).catch(() => { setSounds([]); setPhase('done'); });
-  }, [lang]);
-
-  const currentSound = sounds[current];
-  const label = currentSound?.soundLabel || currentSound?.soundKey || '';
-  const color = '#80DCDC';
-  const progressPct = sounds.length > 0 ? (current / sounds.length) * 100 : 0;
-
-  const speakIt = (text) => {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang === 'fr' ? 'fr-FR' : 'en-US'; u.rate = 0.8;
-    window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-  };
-
-  const handleRecord = async () => {
-    if (isRecording) {
-      const blob = await stopRecording();
-      if (!blob || blob.size < 100) { setError(t.tooShort); return; }
-      setPhase('processing'); setError(null);
-      const fd = new FormData();
-      fd.append('file', blob, 'audio.webm');
-      fd.append('expectedPhrase', practiceWord);
-      fd.append('lang', lang); fd.append('level', level);
-      try {
-        const res = await api.post('/api/exercises/analyze', fd);
-        const data = computeResult(res.data, lang);
-        if (data.stt_error) { setError(t.tooShort); setPhase('ready'); return; }
-        setResult(data);
-        const passed = data.score >= 70;
-        setCardAnim(passed ? 'success' : 'fail');
-        setTimeout(() => setCardAnim(''), 700);
-        if (passed && currentSound?.id) {
-          confetti({ particleCount: 60, spread: 50, origin: { y: 0.6 }, colors: ['#80DCDC','#5BBFBF','#22C55E'] });
-          markReviewed(currentSound.id).catch(() => {});
-        }
-        setPhase('result');
-      } catch { setError(t.networkError); setPhase('ready'); }
-    } else {
-      setError(null); await startRecording(); setPhase('recording');
-    }
-  };
-
-  const handleNext = () => {
-    setResults(r => [...r, { label, score: result?.score || 0 }]);
-    resetRecording(); setResult(null); setError(null);
-    const next = current + 1;
-    if (next >= sounds.length) { setPhase('done'); return; }
-    setCurrent(next);
-    const nextLabel = sounds[next]?.soundLabel || sounds[next]?.soundKey || '';
-    setPracticeWord(getSoundWord(nextLabel) || nextLabel);
-    setPhase('ready');
-  };
-
-  // ── Loading ──
-  if (phase === 'loading') return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'40vh', gap:16 }}>
-      <div style={{ fontSize:'3rem', animation:'pulse 1.5s ease infinite' }}>🔊</div>
-      <p style={{ fontWeight:800, color:'#9BB0C2', margin:0 }}>{t.loading}</p>
-    </div>
-  );
-
-  // ── Done ──
-  if (phase === 'done') {
-    const avg = results.length > 0 ? Math.round(results.reduce((a,b) => a + b.score, 0) / results.length) : 0;
-    return (
-      <div style={{ maxWidth:480, margin:'0 auto', animation:'slideUp 0.4s ease' }}>
-        <div style={{ background:'linear-gradient(135deg,#80DCDC,#5BBFBF)', borderRadius:28, padding:'40px 28px', color:'white', textAlign:'center', marginBottom:20 }}>
-          <div style={{ fontSize:'4rem', marginBottom:12 }}>{results.length === 0 ? '✅' : '🏆'}</div>
-          <h2 style={{ fontWeight:900, fontSize:'1.5rem', margin:'0 0 8px' }}>
-            {results.length === 0 ? t.noSounds : t.soundsRevised}
-          </h2>
-          {results.length > 0
-            ? <p style={{ opacity:0.9, margin:0 }}>{results.length} {t.soundsDone} · {t.avgScore}: <strong>{avg}/100</strong></p>
-            : <p style={{ opacity:0.85, fontSize:'0.88rem', margin:'12px 0 0', lineHeight:1.6 }}>{t.noSoundsDesc}</p>
-          }
-        </div>
-        {results.length > 0 && (
-          <div style={{ background:'white', borderRadius:20, border:'1.5px solid #F3F4F6', padding:'20px', marginBottom:16 }}>
-            {results.map((r, i) => (
-              <div key={i} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 0', borderBottom: i < results.length-1 ? '1px solid #F9FAFB' : 'none' }}>
-                <div style={{ width:40, height:40, borderRadius:12, background:'linear-gradient(135deg,#80DCDC,#5BBFBF)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', color:'white', fontWeight:900, flexShrink:0 }}>🔊</div>
-                <span style={{ flex:1, fontWeight:800, color:'#1C2B3A' }}>{r.label}</span>
-                <span style={{ fontSize:'0.7rem', fontWeight:700, color: r.score >= 70 ? '#15803D' : '#DC2626' }}>
-                  {r.score >= 70 ? t.removed : t.kept}
-                </span>
-                <ScoreRing score={r.score} size={44} />
-              </div>
-            ))}
-          </div>
-        )}
-        <button onClick={() => window.location.reload()} style={{ width:'100%', background:'#F9FAFB', border:'1.5px solid #F3F4F6', borderRadius:14, padding:'12px', fontWeight:800, cursor:'pointer', color:'#5F7183' }}>{t.restart}</button>
-      </div>
-    );
-  }
-
-  if (!currentSound) return null;
-
-  // Example words for this sound
-  const examples = SOUND_WORDS[label] || [];
-
-  return (
-    <div style={{ maxWidth:480, margin:'0 auto' }}>
-      {/* Progress */}
-      <div style={{ marginBottom:24 }}>
-        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-          <span style={{ fontWeight:800, fontSize:'0.7rem', color:'#0284C7', textTransform:'uppercase', letterSpacing:'0.08em' }}>{t.progress}</span>
-          <span style={{ fontWeight:800, fontSize:'0.75rem', color:'#9BB0C2' }}>{current + 1} / {sounds.length}</span>
-        </div>
-        <div style={{ height:8, background:'#F3F4F6', borderRadius:999, overflow:'hidden' }}>
-          <div style={{ height:'100%', width:`${progressPct}%`, background:'linear-gradient(90deg,#80DCDC,#5BBFBF)', borderRadius:999, transition:'width .5s' }} />
-        </div>
-      </div>
-
-      {/* Sound card */}
-      <div key={currentSound.id} style={{
-        background:'white', borderRadius:28, border:'2px solid #80DCDC25',
-        padding:'36px 24px', textAlign:'center', marginBottom:20,
-        boxShadow:'0 12px 40px rgba(128,220,220,0.12)',
-        animation: cardAnim === 'success' ? 'popSuccess 0.6s ease' : cardAnim === 'fail' ? 'shake 0.5s ease' : 'bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1)',
-      }}>
-        {/* Sound visual */}
-        <div style={{ display:'flex', justifyContent:'center', marginBottom:22 }}>
-          <div style={{ width:120, height:120, borderRadius:32, background:'linear-gradient(135deg,#80DCDC,#5BBFBF)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3.2rem', boxShadow:'0 8px 28px rgba(128,220,220,0.4)' }}>
-            🔊
-          </div>
-        </div>
-
-        {/* Sound label */}
-        <div style={{ fontWeight:900, fontSize:'2.4rem', color:'#1C2B3A', marginBottom:8, letterSpacing:'1px' }}>
-          {label}
-        </div>
-
-        {/* Practice word */}
-        <div style={{ fontWeight:800, fontSize:'1.3rem', color:'#0284C7', marginBottom:16 }}>
-          → <em>"{practiceWord}"</em>
-        </div>
-
-        {/* Example words */}
-        {examples.length > 0 && (
-          <div style={{ marginBottom:18 }}>
-            <span style={{ fontWeight:700, fontSize:'0.7rem', color:'#9BB0C2', textTransform:'uppercase', display:'block', marginBottom:8 }}>{t.examples}</span>
-            <div style={{ display:'flex', gap:6, justifyContent:'center', flexWrap:'wrap' }}>
-              {examples.slice(0,4).map(w => (
-                <button key={w} onClick={() => speakIt(w)} style={{ background:'#F0F9FF', border:'none', borderRadius:10, padding:'5px 12px', cursor:'pointer', fontWeight:800, color:'#0284C7', fontSize:'0.85rem', transition:'background 0.2s' }}>
-                  {w} <Volume2 style={{ width:11, height:11, verticalAlign:'middle', opacity:0.6 }} />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Listen button */}
-        <button onClick={() => speakIt(practiceWord)} style={{
-          background:'#F0F9FF', border:'2px solid #80DCDC35', borderRadius:16,
-          padding:'10px 24px', cursor:'pointer', display:'inline-flex', alignItems:'center', gap:8,
-          fontWeight:800, fontSize:'0.9rem', color:'#0284C7',
-        }}>
-          <Volume2 style={{ width:18, height:18 }} /> {t.listen}
-        </button>
-      </div>
-
-      {/* Result */}
-      {phase === 'result' && result && (
-        <div style={{ marginBottom:16, animation:'slideUp 0.35s ease' }}>
-          <div style={{
-            background: result.score >= 70 ? '#F0FDF4' : result.score >= 50 ? '#FFFBEB' : '#FEF2F2',
-            border:`2px solid ${result.score >= 70 ? '#86EFAC' : result.score >= 50 ? '#FCD34D' : '#FCA5A5'}`,
-            borderRadius:20, padding:'16px 20px', display:'flex', alignItems:'center', gap:14, marginBottom:12,
-          }}>
-            <ScoreRing score={result.score} size={72} />
-            <div style={{ flex:1 }}>
-              <p style={{ fontWeight:900, fontSize:'1.05rem', margin:'0 0 4px',
-                color: result.score >= 70 ? '#15803D' : result.score >= 50 ? '#B45309' : '#DC2626' }}>
-                {result.score >= 85 ? t.perfect : result.score >= 70 ? t.excellent : result.score >= 55 ? t.good : t.rework}
-              </p>
-              {result.feedback && <p style={{ fontSize:'0.78rem', color:'#5F7183', margin:0, lineHeight:1.5 }}>{result.feedback}</p>}
-            </div>
-          </div>
-          <button onClick={handleNext} style={{
-            width:'100%', background:'linear-gradient(135deg,#80DCDC,#5BBFBF)',
-            color:'white', border:'none', borderRadius:16, padding:'14px',
-            fontWeight:900, fontSize:'1rem', cursor:'pointer',
-            display:'flex', alignItems:'center', justifyContent:'center', gap:8,
-            boxShadow:'0 4px 16px rgba(128,220,220,0.4)',
-          }}>
-            {current + 1 >= sounds.length
-              ? <><Trophy style={{width:18,height:18}}/> {t.finish}</>
-              : <>{t.next} <ArrowRight style={{width:18,height:18}}/></>}
-          </button>
-        </div>
-      )}
-
-      {/* Record */}
-      {(phase === 'ready' || phase === 'recording' || phase === 'processing') && (
-        <div style={{ textAlign:'center' }}>
-          {error && <div style={{ background:'#FEF2F2', border:'1.5px solid #FCA5A5', borderRadius:12, padding:'8px 14px', marginBottom:12, color:'#DC2626', fontWeight:700, fontSize:'0.8rem' }}>{error}</div>}
-          <p style={{ fontWeight:700, fontSize:'0.8rem', color:'#9BB0C2', marginBottom:16 }}>{t.soundHint}</p>
-          <button onClick={handleRecord} disabled={phase === 'processing'} style={{
-            width:92, height:92, borderRadius:'50%', border:'none',
-            cursor: phase === 'processing' ? 'default' : 'pointer',
-            background: phase === 'recording' ? '#EF4444' : '#80DCDC',
-            color:'white', fontSize:'2.2rem',
-            boxShadow: phase === 'recording' ? '0 0 0 0 rgba(239,68,68,0.4)' : '0 8px 28px rgba(128,220,220,0.5)',
-            animation: phase === 'recording' ? 'recordPulse 1.5s ease infinite' : 'none',
-            transition:'background 0.2s',
-            display:'inline-flex', alignItems:'center', justifyContent:'center',
-          }}>
-            {phase === 'processing' ? '⏳' : phase === 'recording' ? '⏹' : '🎙️'}
-          </button>
-          <p style={{ fontWeight:700, fontSize:'0.76rem', color:'#5F7183', marginTop:10 }}>
-            {phase === 'processing' ? t.analysing : phase === 'recording' ? t.stop : t.speak}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ── MAIN PAGE ─────────────────────────────────────────────────────────────────
 export default function ExerciseRevision() {
@@ -715,38 +476,15 @@ export default function ExerciseRevision() {
   const { lang } = useLanguage();
   const level = getCefrLevel() || 'B1';
   const t = T[lang] || T.fr;
-  const [activeTab, setActiveTab] = useState('words');
 
   return (
     <Layout title={t.title}>
       <style>{CSS}</style>
       <div style={{ maxWidth:800, margin:'0 auto', padding:'20px 16px' }}>
 
-        {/* Tabs */}
-        <div style={{ display:'flex', gap:10, justifyContent:'center', marginBottom:28 }}>
-          {[
-            { key:'words', label:t.tabWords, active:'#E8926A' },
-            { key:'sounds', label:t.tabSounds, active:'#80DCDC' },
-          ].map(tab => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
-              background: activeTab === tab.key ? tab.active : 'white',
-              color: activeTab === tab.key ? 'white' : '#5F7183',
-              border: activeTab === tab.key ? 'none' : '1.5px solid #F3F4F6',
-              borderRadius:14, padding:'10px 24px', cursor:'pointer',
-              fontWeight:800, fontSize:'0.88rem', transition:'all 0.2s',
-              boxShadow: activeTab === tab.key ? `0 4px 14px ${tab.active}40` : 'none',
-            }}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
         {/* Card container */}
         <div style={{ background:'white', borderRadius:24, border:'1.5px solid #F3F4F6', padding:'32px 24px', boxShadow:'0 10px 30px rgba(0,0,0,0.02)' }}>
-          {activeTab === 'words'
-            ? <WordRevisionTab level={level} lang={lang} />
-            : <SoundRevisionTab level={level} lang={lang} />
-          }
+          <WordRevisionTab level={level} lang={lang} />
         </div>
 
         <div style={{ textAlign:'center', marginTop:28 }}>

@@ -146,17 +146,17 @@ public class OllamaService implements IOllamaService {
         }
 
         String systemPrompt = "fr".equals(lang)
-                ? "Coach prononciation expert. Format OBLIGATOIRE â€” utilise ces 3 emojis exactement:\nðŸŽ¯ <Ã©valuation honnÃªte de ce qui a Ã©tÃ© prononcÃ©>\nâŒ <erreurs ou mots manquants>\nðŸ’¡ <conseil concret>\nSi l'apprenant n'a pas dit la phrase complÃ¨te, dis-le clairement. Max 80 mots total."
-                : "Expert pronunciation coach. REQUIRED format â€” use exactly these 3 emojis:\nðŸŽ¯ <honest assessment of what was said>\nâŒ <errors or missing words>\nðŸ’¡ <concrete tip>\nIf the learner didn't say the full phrase, state it clearly. Max 80 words total.";
+                ? "Coach prononciation expert. Reponds en 3 parties numerotees sans emojis : 1. Evaluation de ce qui a ete prononce. 2. Erreurs ou mots manquants. 3. Conseil concret. Si l'apprenant n'a pas dit la phrase complete, dis-le clairement. Max 80 mots. Pas d'emojis."
+                : "Expert pronunciation coach. Reply in 3 numbered parts, no emojis: 1. Honest assessment of what was said. 2. Errors or missing words. 3. Concrete tip. If the learner did not say the full phrase, state it clearly. Max 80 words. No emojis.";
 
         String userMsg = "fr".equals(lang)
                 ? String.format(
-                        "Niveau %s\nPhrase attendue : Â«%sÂ»\nTranscrit : Â«%sÂ»\nScore : %s/100\nDÃ©tails:\n%s",
+                        "Niveau %s\nPhrase attendue : \"%s\"\nTranscrit : \"%s\"\nScore : %s/100\nDetails:\n%s",
                         level, expectedPhrase, cleanTranscription, scoreResult.get("score"), errors)
                 : String.format("Level %s\nExpected: \"%s\"\nTranscribed: \"%s\"\nScore: %s/100\nDetails:\n%s",
                         level, expectedPhrase, cleanTranscription, scoreResult.get("score"), errors);
 
-        return callOllama(systemPrompt, userMsg, 160, 0.3);
+        return stripEmojis(callOllama(systemPrompt, userMsg, 160, 0.3));
     }
 
     public String generateChatbotResponse(
@@ -802,4 +802,12 @@ public class OllamaService implements IOllamaService {
             return false;
         }
     }
-}
+
+    private String stripEmojis(String s) {
+        if (s == null) return "";
+        // Remove surrogate pairs (supplementary plane emojis like U+1F3AF)
+        s = s.replaceAll("[\\uD800-\\uDFFF]", "");
+        // Remove other symbol chars in BMP (most remaining emojis)
+        s = s.replaceAll("\\p{So}", "");
+        return s.trim();
+    }}

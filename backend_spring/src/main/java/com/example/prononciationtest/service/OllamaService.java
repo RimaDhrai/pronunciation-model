@@ -420,7 +420,12 @@ public class OllamaService implements IOllamaService {
               + "Give personalized feedback in 2-3 short sentences: mention the sound \"" + soundLabel
               + "\", give a practical tip, encourage. No dashes or numbers.";
 
-        String raw = callOllama("", prompt, 80, 0.4);
+        String system = "fr".equals(lang)
+            ? "Tu es un coach de prononciation. INTERDIT d'utiliser le nom Alex. Appelle l'apprenant uniquement par son prenom: " + learner + ". Reponds en 2-3 phrases courtes. Pas de tirets."
+            : "You are a pronunciation coach. FORBIDDEN to use the name Alex. Address the learner only by their name: " + learner + ". Reply in 2-3 short sentences. No dashes.";
+        String raw = callOllama(system, prompt, 80, 0.4);
+        // Strip any remaining "Alex" hallucination and replace with real name
+        raw = raw.replaceAll("(?i)\\bAlex\\b", learner);
         return raw.length() > 20 ? raw : buildLevelTestFeedbackFallback(lang, soundLabel, contextWords, score);
     }
 

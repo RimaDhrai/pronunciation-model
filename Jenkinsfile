@@ -102,7 +102,9 @@ pipeline {
         // ── 8. QUALITY GATE ──────────────────────────────────────────────────
         stage('Quality Gate') {
             steps {
-                echo 'Quality Gate: configure SonarQube webhook to enable (http://host.docker.internal:8088/sonarqube-webhook/)'
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
 

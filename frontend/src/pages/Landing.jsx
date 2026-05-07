@@ -32,11 +32,11 @@ const T = {
     headline1:     'Là où apprendre',
     headline2:     'devient',
     headlineEnd:   ' une aventure',
-    sub:           'IA de prononciation · Niveau CEFR · Exercices personnalisés',
+    sub:           'Coach vocal intelligent · Évaluation du niveau · Exercices personnalisés',
     cta:           'Commencer gratuitement',
     score_label:   'Score de prononciation',
     features_title:'Ce que vous obtenez',
-    features:      ['Test CEFR', 'Exercices A1 → C2', 'Suivi en temps réel', 'Feedback instantané'],
+    features:      ['Test de niveau', 'Exercices A1 → C2', 'Suivi en temps réel', 'Feedback instantané'],
     statLabels:    ['Apprenants', 'Niveaux', 'Langues', 'Satisfaction'],
     cta2_title:    'Prêt à parler comme un natif ?',
     cta2_btn:      'Commencer maintenant',
@@ -49,11 +49,11 @@ const T = {
     headline1:     'Where learning',
     headline2:     'becomes',
     headlineEnd:   ' an adventure',
-    sub:           'AI Pronunciation · CEFR Level · Personalized Exercises',
+    sub:           'Smart voice coaching · Level assessment · Personalized exercises',
     cta:           'Start for free',
     score_label:   'Pronunciation score',
     features_title:'What you get',
-    features:      ['CEFR Test', 'Exercises A1 → C2', 'Real-time tracking', 'Instant feedback'],
+    features:      ['Level test', 'Exercises A1 → C2', 'Real-time tracking', 'Instant feedback'],
     statLabels:    ['Learners', 'Levels', 'Languages', 'Satisfaction'],
     cta2_title:    'Ready to speak like a native?',
     cta2_btn:      'Start now',
@@ -159,8 +159,10 @@ export default function Landing() {
             <span style={{ color: C.pink }}>{t.headline2}</span>{t.headlineEnd}
           </h1>
 
-          <p style={{ fontWeight: 500, fontSize: '1rem', color: C.mid, margin: '0 auto 40px', maxWidth: 460, lineHeight: 1.65 }}>
-            {t.sub}
+          <p style={{ fontWeight: 500, fontSize: '1.05rem', color: C.mid, margin: '0 auto 44px', maxWidth: 500, lineHeight: 2, letterSpacing: '0.02em' }}>
+            {t.sub.split(' · ').map((part, i, arr) => (
+              <span key={i}>{part}{i < arr.length - 1 && <span style={{ margin: '0 10px', opacity: 0.35 }}>·</span>}</span>
+            ))}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 56 }}>
@@ -190,7 +192,7 @@ export default function Landing() {
               </div>
               <div style={{ background: `linear-gradient(135deg,${C.coral},${C.coralDark})`, borderRadius: 12, padding: '10px 16px', boxShadow: `0 6px 16px ${C.coral}40` }}>
                 <p style={{ fontWeight: 900, fontSize: '1.2rem', color: 'white', margin: 0, lineHeight: 1 }}>B2</p>
-                <p style={{ fontWeight: 700, fontSize: '0.5rem', color: 'rgba(255,255,255,0.85)', margin: '3px 0 0' }}>CEFR</p>
+                <p style={{ fontWeight: 700, fontSize: '0.5rem', color: 'rgba(255,255,255,0.85)', margin: '3px 0 0' }}>Niveau</p>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', marginTop: 16, height: 24, justifyContent: 'center' }}>

@@ -415,7 +415,7 @@ function Podium({ users }) {
     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
       {order.map((u, i) => {
         const realRank = top3.indexOf(u) + 1;
-        const podiumColors = ['#E8926A', '#F0C85A', '#9580D4'];
+        const podiumColors = ['#F0C85A', '#B0BEC5', '#CD9A5A'];
         const podiumColor  = podiumColors[realRank - 1] || '#9BB0C2';
         return (
           <div key={u.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
@@ -707,8 +707,8 @@ export default function AdminUsers() {
               })}
             </div>
 
-            {/* Podium — top 3 by selected sort */}
-            {sortBy === 'xp' && <Podium users={filtered} />}
+            {/* Podium — always top 3 by XP */}
+            <Podium users={sortUsers(users, 'xp')} />
 
             {/* Ranked list */}
             <div>

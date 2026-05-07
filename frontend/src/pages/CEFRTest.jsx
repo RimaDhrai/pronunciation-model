@@ -207,7 +207,7 @@ export default function CEFRTest() {
     } catch (e) {
       const data = e.response?.data;
       setError(e.response?.status === 503 || data?.error === 'OLLAMA_DOWN'
-        ? t('⚠️ Service IA indisponible. Réessaie dans quelques instants.', '⚠️ AI service unavailable. Please try again in a moment.')
+        ? t('⚠️ Service indisponible. Réessaie dans quelques instants.', '⚠️ Service unavailable. Please try again in a moment.')
         : t('Erreur : ', 'Error: ') + (data?.message || data?.error || e.message));
       setPhase('intro');
     }
@@ -335,7 +335,7 @@ export default function CEFRTest() {
           .catch(() => {});
 
       } catch {
-        setError(t('Serveur IA lent, continue quand même.', 'AI server slow, continue anyway.'));
+        setError(t('Analyse lente, continue quand même.', 'Analysis slow, continue anyway.'));
       } finally {
         setLlmLoading(false);
       }
@@ -401,8 +401,8 @@ export default function CEFRTest() {
           </h1>
           <p style={{ fontSize:13.5, color:C.mid, textAlign:'center', marginBottom:22, lineHeight:1.65 }}>
             {t(
-              "Prononce 20 phrases courtes. L'IA analyse ta voix et révèle ton niveau CEFR en temps réel.",
-              "Speak 20 short phrases. The AI analyses your voice and reveals your CEFR level in real time."
+              "Prononce 20 phrases courtes. Notre coach analyse ta voix et révèle ton niveau en temps réel.",
+              "Speak 20 short phrases. Our coach analyses your voice and reveals your level in real time."
             )}
           </p>
 
@@ -410,7 +410,7 @@ export default function CEFRTest() {
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:9, marginBottom:18 }}>
             {[
               { emoji:'🎙', label:t('20 phrases','20 phrases'), color:C.teal,   bg:`${C.teal}12`   },
-              { emoji:'⚡', label:t('IA adaptative','Adaptive AI'), color:C.violet, bg:`${C.violet}12` },
+              { emoji:'⚡', label:t('Coach adaptatif','Adaptive coach'), color:C.violet, bg:`${C.violet}12` },
               { emoji:'🏆', label:'A1 → C2',           color:C.coral,  bg:`${C.coral}12`  },
             ].map(({ emoji, label, color, bg }) => (
               <div key={label} style={{
@@ -781,7 +781,7 @@ export default function CEFRTest() {
                     {llmLoading && (
                       <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:10, color:C.muted, fontWeight:700 }}>
                         <Loader2 size={11} style={{ animation:'spin 1s linear infinite' }} />
-                        {t('IA…','AI…')}
+                        {t('Analyse…','Analysing…')}
                       </div>
                     )}
                   </div>

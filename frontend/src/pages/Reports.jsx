@@ -90,10 +90,18 @@ export default function Reports() {
   const { user } = useAuth();
   const { lang } = useLanguage();
   const ui = UI[lang] || UI.fr;
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
   const [sessions, setSessions]     = useState([]);
   const [selected, setSelected]     = useState(null);
   const [filter, setFilter]         = useState('all');
   const [cefrTests, setCefrTests]   = useState([]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const handler = e => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   // Parse any date string into a JS Date object
   const parseDate = (d) => {
@@ -209,7 +217,7 @@ export default function Reports() {
       <div className="max-w-6xl mx-auto animate-fade-up space-y-6">
 
         {/* ── Stats summary header (Ascent style) ── */}
-        <div className="bg-card" style={{borderRadius:'2.5rem',border:'2px solid var(--border)',borderBottom:'8px solid var(--border)',padding:'2rem 2.5rem',position:'relative',overflow:'hidden',boxShadow:'0 8px 32px -8px rgba(28,43,58,0.08)'}}>
+        <div className="bg-card" style={{borderRadius: isMobile ? '1.5rem' : '2.5rem',border:'2px solid var(--border)',borderBottom:'8px solid var(--border)',padding: isMobile ? '1.25rem' : '2rem 2.5rem',position:'relative',overflow:'hidden',boxShadow:'0 8px 32px -8px rgba(28,43,58,0.08)'}}>
           <div style={{position:'absolute',width:180,height:180,borderRadius:'50%',border:'4px solid #E8476A',opacity:.1,top:-70,right:60,pointerEvents:'none'}} />
           <div style={{position:'absolute',width:14,height:14,border:'3px solid #F0C85A',transform:'rotate(45deg)',opacity:.45,top:24,right:90,pointerEvents:'none'}} />
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:16,position:'relative',zIndex:1}}>
@@ -217,7 +225,7 @@ export default function Reports() {
               <div style={{display:'inline-flex',alignItems:'center',gap:6,background:'hsla(var(--primary), 0.12)',borderRadius:999,padding:'4px 14px',marginBottom:10,fontSize:11,fontWeight:900,letterSpacing:'0.1em',color:'hsl(var(--primary))',textTransform:'uppercase',border:'1px solid hsla(var(--primary), 0.25)'}}>
                 {ui.myReports}
               </div>
-              <h2 className="text-foreground" style={{fontWeight:900,fontSize:'1.8rem',margin:'0 0 4px'}}>
+              <h2 className="text-foreground" style={{fontWeight:900,fontSize: isMobile ? '1.3rem' : '1.8rem',margin:'0 0 4px'}}>
                 {ui.sessions(sessions.length)}
               </h2>
               {scores.length > 1 && (
@@ -229,10 +237,10 @@ export default function Reports() {
           </div>
         </div>
 
-        <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:24,alignItems:'start'}}>
+        <div style={{display:'grid',gridTemplateColumns: isMobile ? '1fr' : '280px 1fr',gap: isMobile ? 14 : 24,alignItems:'start'}}>
 
           {/* ── Session list ── */}
-          <div className="rpt-card" style={{position:'sticky',top:80}}>
+          <div className="rpt-card" style={{position: isMobile ? 'static' : 'sticky',top:80}}>
             {/* Filter tabs */}
             <div style={{display:'flex',background:'#F5F7FF',borderRadius:'.75rem',padding:4,marginBottom:12}}>
               {[['all',ui.filterAll],['week',ui.filterWeek],['month',ui.filterMonth]].map(([k,l]) => (
@@ -240,7 +248,7 @@ export default function Reports() {
                   className={`rpt-filter ${filter===k?'active':''}`}>{l}</button>
               ))}
             </div>
-            <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:460,overflowY:'auto',paddingRight:2}}>
+            <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight: isMobile ? 260 : 460,overflowY:'auto',paddingRight:2}}>
               {filtered.length === 0
                 ? <p style={{textAlign:'center',color:'#5F7183',fontWeight:700,fontSize:'0.7rem',padding:'16px 0'}}>{ui.noSession}</p>
                 : filtered.map((r, idx) => {
@@ -277,20 +285,20 @@ export default function Reports() {
                   {(() => {
                     const cfg = SCORE_CONFIG(selected.score ?? 0);
                     const pct = selected.score ?? 0;
-                    const circ = 2 * Math.PI * 52;
                     return (
                       <div style={{display:'flex',alignItems:'center',gap:20,flexWrap:'wrap'}}>
                         {/* Big score ring */}
-                        <svg width={120} height={120} style={{flexShrink:0}}>
-                          <circle cx={60} cy={60} r={52} fill="none" stroke="#f0e8e0" strokeWidth={10} />
-                          <circle cx={60} cy={60} r={52} fill="none" stroke={cfg.color} strokeWidth={10}
-                            strokeDasharray={`${(pct/100)*circ} ${circ-(pct/100)*circ}`} strokeLinecap="round"
-                            transform="rotate(-90 60 60)" style={{transition:'stroke-dasharray .8s'}} />
+                        {(() => { const sz = isMobile ? 80 : 120; const r2 = isMobile ? 34 : 52; const c2 = 2*Math.PI*r2; const cx = sz/2; return (
+                        <svg width={sz} height={sz} style={{flexShrink:0}}>
+                          <circle cx={cx} cy={cx} r={r2} fill="none" stroke="#f0e8e0" strokeWidth={isMobile ? 7 : 10} />
+                          <circle cx={cx} cy={cx} r={r2} fill="none" stroke={cfg.color} strokeWidth={isMobile ? 7 : 10}
+                            strokeDasharray={`${(pct/100)*c2} ${c2-(pct/100)*c2}`} strokeLinecap="round"
+                            transform={`rotate(-90 ${cx} ${cx})`} style={{transition:'stroke-dasharray .8s'}} />
                           <text x="50%" y="47%" textAnchor="middle" dominantBaseline="middle"
-                            fontSize="22" fontWeight="900" fill={cfg.color}>{pct}</text>
+                            fontSize={isMobile ? 15 : 22} fontWeight="900" fill={cfg.color}>{pct}</text>
                           <text x="50%" y="63%" textAnchor="middle" dominantBaseline="middle"
-                            fontSize="9" fontWeight="900" fill="#5F7183">/ 100</text>
-                        </svg>
+                            fontSize={isMobile ? 7 : 9} fontWeight="900" fill="#5F7183">/ 100</text>
+                        </svg>); })()}
                         <div style={{flex:1}}>
                           <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:8}}>
                             <span style={{background:cfg.bg,color:cfg.color,fontWeight:900,fontSize:'0.65rem',padding:'4px 10px',borderRadius:999,border:`1.5px solid ${cfg.border}30`}}>

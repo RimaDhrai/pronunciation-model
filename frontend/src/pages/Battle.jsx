@@ -112,20 +112,22 @@ export default function Battle() {
   const { user } = useAuth();
   const ui = UI[lang] || UI.fr;
 
-  const [tab,        setTab]        = useState('create'); // 'create' | 'join'
-  const [level,      setLevel]      = useState('B1');
-  const [battleLang, setBattleLang] = useState(lang);
-  const [joinCode,   setJoinCode]   = useState('');
-  const [battle,     setBattle]     = useState(null);
-  const [phase,      setPhase]      = useState('lobby');
-  const [error,      setError]      = useState('');
-  const [loading,    setLoading]    = useState(false);
-  const [copied,     setCopied]     = useState(false);
-  const [myScore,    setMyScore]    = useState(null);
-  const [audioUrl,   setAudioUrl]   = useState(null);
-  const [myBattles,  setMyBattles]  = useState([]);
-  const [startTime,  setStartTime]  = useState(null);
-  const [duration,   setDuration]   = useState(0);
+  const [tab,           setTab]          = useState('create');
+  const [level,         setLevel]        = useState('B1');
+  const [battleLang,    setBattleLang]   = useState(lang);
+  const [joinCode,      setJoinCode]     = useState('');
+  const [battle,        setBattle]       = useState(null);
+  const [phase,         setPhase]        = useState('lobby');
+  const [error,         setError]        = useState('');
+  const [loading,       setLoading]      = useState(false);
+  const [copied,        setCopied]       = useState(false);
+  const [myScore,       setMyScore]      = useState(null);
+  const [myRoundScores, setMyRoundScores]= useState([]);
+  const [roundScore,    setRoundScore]   = useState(null);
+  const [audioUrl,      setAudioUrl]     = useState(null);
+  const [myBattles,     setMyBattles]    = useState([]);
+  const [startTime,     setStartTime]    = useState(null);
+  const [duration,      setDuration]     = useState(0);
   const capturedBlob = useRef(null);
   const pollRef      = useRef(null);
   const timerRef     = useRef(null);
@@ -243,13 +245,15 @@ export default function Battle() {
       if (data.stt_error) { setError('Audio non reconnu. Réessaie.'); setPhase('recorded'); return; }
 
       let score = Math.round((data.word_diff_score ?? 0) * 0.6 + (data.avg_confidence ?? 0) * 100 * 0.4);
-      // G2P penalty
       const weakCount  = data.phonemes?.weak_phonemes?.length ?? 0;
       const totalCount = data.phonemes?.word_phonemes?.length || 1;
       score = Math.max(0, score - Math.round((weakCount / totalCount) * 20));
+
+      const newRoundScores = [...myRoundScores, score];
+      setMyRoundScores(newRoundScores);
+      setRoundScore(score);
       setMyScore(score);
 
-      // Reporter les mots ratés → spaced repetition + MasterAgent
       const missedWords = (data.ops || [])
         .filter(op => op.op === 'SUB' || op.op === 'DEL')
         .map(op => ({ word: op.expected, level: battle.level || level }));
@@ -266,16 +270,15 @@ export default function Battle() {
         }).catch(() => {});
       }
 
-      // Soumettre le score au backend
       const subRes = await submitBattleScore(battle.code, score);
       const updated = subRes.data;
       setBattle(updated);
 
       if (updated.status === 'FINISHED') {
         setPhase('result');
-      } else {
+      } else if (newRoundScores.length >= (updated.totalRounds || 5)) {
+        // I finished all my rounds, waiting for opponent to finish theirs
         setPhase('waitingScore');
-        // Continuer le polling jusqu'à FINISHED
         if (pollRef.current) clearInterval(pollRef.current);
         pollRef.current = setInterval(async () => {
           try {
@@ -287,6 +290,17 @@ export default function Battle() {
             }
           } catch { /* ignore */ }
         }, 3000);
+      } else {
+        // More rounds remaining — show brief round feedback then go to next phrase
+        setPhase('roundFeedback');
+        setTimeout(() => {
+          if (audioUrl) URL.revokeObjectURL(audioUrl);
+          setAudioUrl(null);
+          capturedBlob.current = null;
+          resetRecording();
+          setRoundScore(null);
+          setPhase('recording');
+        }, 2200);
       }
     } catch (e) {
       setError(`Erreur : ${e.message}`);
@@ -305,7 +319,8 @@ export default function Battle() {
   const reset = () => {
     if (pollRef.current) clearInterval(pollRef.current);
     setBattle(null); setPhase('lobby'); setError('');
-    setMyScore(null); setAudioUrl(null); capturedBlob.current = null;
+    setMyScore(null); setMyRoundScores([]); setRoundScore(null);
+    setAudioUrl(null); capturedBlob.current = null;
     resetRecording();
   };
 
@@ -327,9 +342,11 @@ export default function Battle() {
   };
 
   // Calcul résultat
-  const isCreator     = battle?.isCreator;
-  const myScoreFinal  = battle ? (isCreator ? battle.creatorScore : battle.challengerScore) : myScore;
-  const oppScoreFinal = battle ? (isCreator ? battle.challengerScore : battle.creatorScore) : null;
+  const isCreator          = battle?.isCreator;
+  const myScoreFinal       = battle ? (isCreator ? battle.creatorScore : battle.challengerScore) : myScore;
+  const oppScoreFinal      = battle ? (isCreator ? battle.challengerScore : battle.creatorScore) : null;
+  const myRoundsFinal      = battle ? (isCreator ? battle.creatorRoundScores  : battle.challengerRoundScores) : myRoundScores;
+  const oppRoundsFinal     = battle ? (isCreator ? battle.challengerRoundScores : battle.creatorRoundScores) : [];
   const winner        = battle?.winner;
   const iWon   = winner && winner !== 'TIE' && winner === myEmail;
   const isTie  = winner === 'TIE';
@@ -491,6 +508,22 @@ export default function Battle() {
         {(phase === 'recording' || phase === 'recorded') && battle && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
+            {/* Round progress */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              {Array.from({ length: battle.totalRounds || 5 }).map((_, i) => (
+                <div key={i} style={{
+                  width: i === myRoundScores.length ? 28 : 10,
+                  height: 10,
+                  borderRadius: 99,
+                  background: i < myRoundScores.length ? C.teal : i === myRoundScores.length ? C.violet : '#E5E7EB',
+                  transition: 'all 0.3s',
+                }} />
+              ))}
+              <span style={{ fontWeight: 800, fontSize: '0.75rem', color: C.mid, marginLeft: 6 }}>
+                {myRoundScores.length + 1} / {battle.totalRounds || 5}
+              </span>
+            </div>
+
             {/* Phrase card */}
             <div style={{ background: `linear-gradient(135deg,${C.violetSoft},${C.white})`, borderRadius: 20, border: `2px solid ${C.violet}30`, padding: '1.5rem', textAlign: 'center' }}>
               <p style={{ fontWeight: 900, fontSize: '0.65rem', color: C.violet, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 10 }}>{ui.phrase}</p>
@@ -547,21 +580,62 @@ export default function Battle() {
           </div>
         )}
 
+        {/* ── ROUND FEEDBACK ── */}
+        {phase === 'roundFeedback' && battle && (
+          <div style={{ background: C.white, borderRadius: 20, border: `1.5px solid ${C.border}`, borderBottom: `4px solid ${C.teal}`, padding: '2.5rem', textAlign: 'center', animation: 'bounce-in 0.4s ease' }}>
+            <p style={{ fontWeight: 900, fontSize: '0.7rem', color: C.teal, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>
+              {lang === 'fr' ? `Round ${myRoundScores.length} terminé !` : `Round ${myRoundScores.length} done!`}
+            </p>
+            <div style={{ display: 'inline-block', marginBottom: 14 }}>
+              <ScoreRing score={roundScore ?? 0} size={100} />
+            </div>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 14 }}>
+              {Array.from({ length: battle.totalRounds || 5 }).map((_, i) => (
+                <div key={i} style={{
+                  width: 10, height: 10, borderRadius: '50%',
+                  background: i < myRoundScores.length ? C.teal : '#E5E7EB',
+                }} />
+              ))}
+            </div>
+            <p style={{ fontWeight: 700, fontSize: '0.8rem', color: C.mid }}>
+              {lang === 'fr'
+                ? `Total : ${myRoundScores.reduce((a, b) => a + b, 0)} pts — Round suivant…`
+                : `Total: ${myRoundScores.reduce((a, b) => a + b, 0)} pts — Next round…`}
+            </p>
+          </div>
+        )}
+
         {/* ── WAITING OPPONENT SCORE ── */}
         {phase === 'waitingScore' && (
           <div style={{ background: C.white, borderRadius: 20, border: `1.5px solid ${C.border}`, padding: '2.5rem', textAlign: 'center', animation: 'bounce-in 0.5s ease' }}>
+            <p style={{ fontWeight: 900, fontSize: '0.7rem', color: C.teal, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>
+              {lang === 'fr' ? '✓ Tes 5 rounds terminés !' : '✓ All 5 rounds done!'}
+            </p>
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: 'inline-block', position: 'relative' }}>
-                <ScoreRing score={myScore ?? 0} size={100} />
+                <ScoreRing score={myRoundScores.reduce((a, b) => a + b, 0)} size={100} />
                 <div style={{ position: 'absolute', top: -5, right: -5, background: C.teal, color: 'white', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900, boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}>✓</div>
               </div>
-              <p style={{ fontWeight: 800, fontSize: '0.9rem', color: C.dark, marginTop: 10 }}>{ui.you} : {myScore}/100</p>
+              <p style={{ fontWeight: 800, fontSize: '0.9rem', color: C.dark, marginTop: 10 }}>
+                {ui.you} : {myRoundScores.reduce((a, b) => a + b, 0)} pts
+              </p>
+            </div>
+            {/* Per-round scores */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+              {myRoundScores.map((s, i) => (
+                <div key={i} style={{ textAlign: 'center' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: s >= 70 ? C.tealSoft : s >= 45 ? '#FFF3EE' : C.roseSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontWeight: 900, fontSize: '0.75rem', color: s >= 70 ? C.tealDark : s >= 45 ? C.coralDark : C.rose }}>{s}</span>
+                  </div>
+                  <span style={{ fontSize: '0.6rem', color: C.mid, fontWeight: 700 }}>R{i + 1}</span>
+                </div>
+              ))}
             </div>
             <div style={{ background: C.violetSoft, borderRadius: 16, padding: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
               <Loader2 style={{ width: 18, height: 18, color: C.violet, animation: 'spin 2s linear infinite' }} />
               <div>
                 <p style={{ fontWeight: 800, fontSize: '0.88rem', color: C.violet, margin: 0 }}>{ui.opponent} ...</p>
-                <p style={{ fontWeight: 600, fontSize: '0.7rem', color: C.mid, margin: 0 }}>{lang === 'fr' ? "L'analyse est en cours" : "Analysis in progress"}</p>
+                <p style={{ fontWeight: 600, fontSize: '0.7rem', color: C.mid, margin: 0 }}>{lang === 'fr' ? "En attente de l'adversaire" : "Waiting for opponent"}</p>
               </div>
             </div>
           </div>
@@ -604,10 +678,33 @@ export default function Battle() {
                 </div>
               </div>
 
-              {/* Phrase jouée */}
-              <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px dashed ${C.border}`, textAlign: 'center' }}>
-                <p style={{ fontWeight: 700, fontSize: '0.65rem', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{ui.phrase}</p>
-                <p style={{ fontWeight: 800, fontSize: '0.95rem', color: C.dark, fontStyle: 'italic' }}>"{battle.phrase}"</p>
+              {/* Per-round breakdown */}
+              <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px dashed ${C.border}` }}>
+                <p style={{ fontWeight: 700, fontSize: '0.65rem', color: C.mid, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, textAlign: 'center' }}>
+                  {lang === 'fr' ? 'Détail par round' : 'Round breakdown'}
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {Array.from({ length: battle.totalRounds || 5 }).map((_, i) => {
+                    const ms = myRoundsFinal?.[i];
+                    const os = oppRoundsFinal?.[i];
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.7rem', color: C.mid, width: 52 }}>
+                          {lang === 'fr' ? `Round ${i + 1}` : `Round ${i + 1}`}
+                        </span>
+                        <div style={{ flex: 1, height: 6, borderRadius: 99, background: '#F3F4F6', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', borderRadius: 99, width: `${ms ?? 0}%`, background: C.violet, transition: 'width 0.6s' }} />
+                        </div>
+                        <span style={{ fontWeight: 900, fontSize: '0.78rem', color: C.violet, width: 28, textAlign: 'right' }}>{ms ?? '—'}</span>
+                        <span style={{ fontWeight: 700, fontSize: '0.7rem', color: C.mid }}>vs</span>
+                        <span style={{ fontWeight: 900, fontSize: '0.78rem', color: C.coral, width: 28 }}>{os ?? '—'}</span>
+                        <div style={{ flex: 1, height: 6, borderRadius: 99, background: '#F3F4F6', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', borderRadius: 99, width: `${os ?? 0}%`, background: C.coral, transition: 'width 0.6s' }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

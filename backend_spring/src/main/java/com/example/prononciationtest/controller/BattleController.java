@@ -23,22 +23,24 @@ public class BattleController {
 
     private final OllamaService ollamaService;
 
+    static final int TOTAL_ROUNDS = 5;
+
     // ── Modèle de session battle ──────────────────────────────────────────────
     static class BattleSession {
         String code;
-        String phrase;
+        List<String> phrases;
         String lang;
         String level;
         String creatorEmail;
         String challengerEmail;
-        Integer creatorScore;
-        Integer challengerScore;
+        List<Integer> creatorScores     = new ArrayList<>();
+        List<Integer> challengerScores  = new ArrayList<>();
         String status;          // WAITING | ACTIVE | FINISHED
         LocalDateTime createdAt;
 
-        BattleSession(String code, String phrase, String lang, String level, String creator) {
+        BattleSession(String code, List<String> phrases, String lang, String level, String creator) {
             this.code         = code;
-            this.phrase       = phrase;
+            this.phrases      = phrases;
             this.lang         = lang;
             this.level        = level;
             this.creatorEmail = creator;
@@ -47,22 +49,33 @@ public class BattleController {
         }
 
         Map<String, Object> toMap(String callerEmail) {
+            boolean isCreator  = creatorEmail != null && creatorEmail.equals(callerEmail);
+            int callerRound    = isCreator ? creatorScores.size() : challengerScores.size();
+            int creatorTotal   = creatorScores.stream().mapToInt(Integer::intValue).sum();
+            int challengerTotal= challengerScores.stream().mapToInt(Integer::intValue).sum();
+
             Map<String, Object> m = new LinkedHashMap<>();
-            m.put("code",             code);
-            m.put("phrase",           phrase);
-            m.put("lang",             lang);
-            m.put("level",            level);
-            m.put("status",           status);
-            m.put("creatorEmail",     creatorEmail);
-            m.put("challengerEmail",  challengerEmail);
-            m.put("creatorScore",     creatorScore);
-            m.put("challengerScore",  challengerScore);
-            m.put("isCreator",        creatorEmail != null && creatorEmail.equals(callerEmail));
-            // Gagnant uniquement quand les deux ont soumis
-            if ("FINISHED".equals(status) && creatorScore != null && challengerScore != null) {
-                if (creatorScore > challengerScore)     m.put("winner", creatorEmail);
-                else if (challengerScore > creatorScore) m.put("winner", challengerEmail);
-                else                                    m.put("winner", "TIE");
+            m.put("code",                      code);
+            m.put("phrase",                    callerRound < phrases.size() ? phrases.get(callerRound) : phrases.get(phrases.size()-1));
+            m.put("phrases",                   phrases);
+            m.put("round",                     callerRound + 1);
+            m.put("totalRounds",               TOTAL_ROUNDS);
+            m.put("lang",                      lang);
+            m.put("level",                     level);
+            m.put("status",                    status);
+            m.put("creatorEmail",              creatorEmail);
+            m.put("challengerEmail",           challengerEmail);
+            m.put("creatorScore",              creatorTotal);
+            m.put("challengerScore",           challengerTotal);
+            m.put("creatorRoundScores",        creatorScores);
+            m.put("challengerRoundScores",     challengerScores);
+            m.put("creatorRoundsCompleted",    creatorScores.size());
+            m.put("challengerRoundsCompleted", challengerScores.size());
+            m.put("isCreator",                 isCreator);
+            if ("FINISHED".equals(status)) {
+                if (creatorTotal > challengerTotal)      m.put("winner", creatorEmail);
+                else if (challengerTotal > creatorTotal) m.put("winner", challengerEmail);
+                else                                     m.put("winner", "TIE");
             }
             return m;
         }
@@ -91,11 +104,13 @@ public class BattleController {
         String lang  = (String) req.getOrDefault("lang",  "fr");
         String level = (String) req.getOrDefault("level", "B1");
 
-        // Génère une phrase via Ollama (courte, adaptée au niveau)
-        String phrase = ollamaService.generateBattlePhrase(lang, level);
-        String code   = randomCode();
+        // Génère 5 phrases via Ollama
+        List<String> phrases = new ArrayList<>();
+        for (int i = 0; i < TOTAL_ROUNDS; i++)
+            phrases.add(ollamaService.generateBattlePhrase(lang, level));
+        String code = randomCode();
 
-        BattleSession battle = new BattleSession(code, phrase, lang, level, email);
+        BattleSession battle = new BattleSession(code, phrases, lang, level, email);
         battles.put(code, battle);
 
         return ResponseEntity.ok(battle.toMap(email));
@@ -152,12 +167,14 @@ public class BattleController {
         if ("WAITING".equals(b.status))
             return ResponseEntity.status(409).body(Map.of("error", "L'adversaire n'a pas encore rejoint"));
 
-        if (email.equals(b.creatorEmail))    b.creatorScore    = score;
-        else if (email.equals(b.challengerEmail)) b.challengerScore = score;
-        else return ResponseEntity.status(403).body(Map.of("error", "Tu ne participes pas à cette battle"));
+        if (email.equals(b.creatorEmail)) {
+            if (b.creatorScores.size() < TOTAL_ROUNDS) b.creatorScores.add(score);
+        } else if (email.equals(b.challengerEmail)) {
+            if (b.challengerScores.size() < TOTAL_ROUNDS) b.challengerScores.add(score);
+        } else return ResponseEntity.status(403).body(Map.of("error", "Tu ne participes pas à cette battle"));
 
-        // Finir si les deux ont soumis
-        if (b.creatorScore != null && b.challengerScore != null)
+        // Finir quand les deux ont soumis les 5 rounds
+        if (b.creatorScores.size() >= TOTAL_ROUNDS && b.challengerScores.size() >= TOTAL_ROUNDS)
             b.status = "FINISHED";
 
         return ResponseEntity.ok(b.toMap(email));

@@ -20,7 +20,7 @@ pipeline {
         // ── 1. CHECKOUT ──────────────────────────────────────────────────────
         stage('Checkout') {
             steps {
-                git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
+                checkout scm
                 echo "Build #${env.BUILD_NUMBER} — branche: ${GIT_BRANCH}"
                 echo "Workspace: ${env.WORKSPACE}"
             }

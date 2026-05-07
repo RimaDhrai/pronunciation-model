@@ -36,13 +36,20 @@ function renderWithIpa(text) {
 export default function ChatbotAvatar() {
   const { lang }         = useLanguage();
   const { getCefrLevel } = useAuth();
-  // Capture level once on mount — prevents session restart when user context re-renders
   const [level] = useState(() => getCefrLevel() || 'B1');
 
   const [input,       setInput]       = useState('');
   const [activeTab,   setActiveTab]   = useState('chat');
   const [historyData, setHistoryData] = useState([]);
+  const [isMobile,    setIsMobile]    = useState(() => window.innerWidth < 640);
   const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const coach = useSpeakCoach({ lang, level, scenario: '' });
 
@@ -103,17 +110,18 @@ export default function ChatbotAvatar() {
 
   return (
     <div style={{
-      display: 'flex', flexDirection: 'column', height: '100%', minHeight: 620,
+      display: 'flex', flexDirection: 'column', height: '100%',
+      minHeight: isMobile ? 'calc(100dvh - 56px)' : 620,
       background: 'linear-gradient(160deg, #0d0a1a 0%, #0f0c1f 60%, #0a0d18 100%)',
-      borderRadius: 24, overflow: 'hidden',
-      boxShadow: '0 32px 100px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.06)',
+      borderRadius: isMobile ? 0 : 24, overflow: 'hidden',
+      boxShadow: isMobile ? 'none' : '0 32px 100px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.06)',
       fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", color: '#f0eaff',
     }}>
 
       {/* ── Header ── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '13px 20px',
+        padding: isMobile ? '10px 14px' : '13px 20px',
         background: 'linear-gradient(90deg,rgba(149,128,212,.12),rgba(56,189,248,.08))',
         borderBottom: '1px solid rgba(255,255,255,.07)',
         flexShrink: 0, flexWrap: 'wrap', gap: 8,
@@ -158,8 +166,8 @@ export default function ChatbotAvatar() {
       {/* ── Body ── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
-        {/* ── Avatar sidebar ── */}
-        <div style={{
+        {/* ── Avatar sidebar — hidden on mobile ── */}
+        {!isMobile && <div style={{
           width: 234, flexShrink: 0, display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'space-between',
           padding: '20px 14px 18px',
@@ -261,10 +269,48 @@ export default function ChatbotAvatar() {
                 : (lang === 'fr' ? 'Cliquer pour parler' : 'Click to speak')}
             </span>
           </div>
-        </div>
+        </div>}
 
         {/* ── Chat + History panel ── */}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', background: 'rgba(255,255,255,.015)' }}>
+
+          {/* Mobile mic bar */}
+          {isMobile && (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14,
+              padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,.07)',
+              background: 'rgba(0,0,0,.2)', flexShrink: 0,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 24 }}>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div key={i} ref={el => (coach.svg.bars.current[i] = el)} style={{
+                    width: 3, height: 4, borderRadius: 3,
+                    background: coach.isRecording ? 'linear-gradient(180deg,#f87171,#dc2626)' : 'linear-gradient(180deg,#38bdf8,#9580d4)',
+                    animation: (coach.isRecording || coach.isSpeaking) ? 'none' : `barIdle 1.6s ease-in-out ${[0,.1,.2,.05,.15][i]}s infinite`,
+                  }} />
+                ))}
+              </div>
+              <button
+                onClick={coach.toggleRecording}
+                disabled={coach.micDisabled}
+                style={{
+                  width: 52, height: 52, borderRadius: '50%', border: 'none',
+                  background: coach.isRecording ? 'linear-gradient(135deg,#f87171,#dc2626)' : 'linear-gradient(135deg,#9580d4,#6d5fbd)',
+                  color: 'white', cursor: coach.micDisabled ? 'not-allowed' : 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: coach.isRecording ? '0 0 0 0 rgba(248,113,113,.5),0 4px 16px rgba(248,113,113,.5)' : '0 4px 16px rgba(149,128,212,.5)',
+                  opacity: coach.micDisabled ? .38 : 1,
+                  animation: coach.isRecording ? 'micPulse 1s ease-in-out infinite' : 'none',
+                  transition: 'all .25s',
+                }}
+              >
+                {coach.isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+              </button>
+              <span style={{ fontSize: '.7rem', color: statusDot, fontWeight: 700 }}>
+                {coach.isRecording ? (lang === 'fr' ? 'À l\'écoute…' : 'Listening…') : coach.status.text}
+              </span>
+            </div>
+          )}
 
           {/* Tab bar */}
           <div style={{

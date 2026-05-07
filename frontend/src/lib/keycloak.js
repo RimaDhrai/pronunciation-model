@@ -1,7 +1,12 @@
 import Keycloak from 'keycloak-js';
 
+// Local → direct Keycloak port | Tunnel/external → via Nginx /kc/ proxy
+const keycloakUrl = window.location.hostname === 'localhost'
+  ? 'http://localhost:8090'
+  : `${window.location.origin}/kc`;
+
 const keycloak = new Keycloak({
-  url: 'http://localhost:8090',
+  url: keycloakUrl,
   realm: 'talan',
   clientId: 'talan-frontend',
 });

@@ -42,6 +42,8 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: Admin1234!
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_PROXY: edge
       # ✅ Keycloak annonce son issuer avec localhost:8090 (ce que voit le navigateur)
       KC_HOSTNAME: localhost
       KC_HOSTNAME_PORT: "8090"

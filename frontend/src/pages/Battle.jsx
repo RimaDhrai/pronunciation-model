@@ -6,7 +6,7 @@ import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { createBattle, joinBattle, getBattle, submitBattleScore, getMyBattles, analyzeBattleAudio } from '../api/battle';
 import { recordErrors } from '../api/spacedRepetition';
 import api from '../api/axios';
-import { Swords, Copy, Check, Mic, Loader2, Zap, User, Clock, RotateCcw } from 'lucide-react';
+import { Swords, Copy, Check, Mic, Loader2, Zap, User, RotateCcw } from 'lucide-react';
 
 const C = {
   violet: '#9580D4', violetDark: '#7D66C0', violetSoft: '#F3F0FE',
@@ -20,7 +20,7 @@ const C = {
 const UI = {
   fr: {
     title: 'Mode Battle',
-    subtitle: 'Défiez un autre apprenant sur la même phrase !',
+    subtitle: 'Défiez un autre apprenant sur 3 phrases !',
     createTab: 'Créer une battle', joinTab: 'Rejoindre',
     createBtn: 'Créer la battle',
     levelLabel: 'Niveau', langLabel: 'Langue',
@@ -52,7 +52,7 @@ const UI = {
   },
   en: {
     title: 'Battle Mode',
-    subtitle: 'Challenge another learner on the same phrase!',
+    subtitle: 'Challenge another learner on 3 phrases!',
     createTab: 'Create battle', joinTab: 'Join',
     createBtn: 'Create battle',
     levelLabel: 'Level', langLabel: 'Language',
@@ -126,7 +126,6 @@ export default function Battle() {
   const [roundScore,    setRoundScore]   = useState(null);
   const [audioUrl,      setAudioUrl]     = useState(null);
   const [myBattles,     setMyBattles]    = useState([]);
-  const [startTime,     setStartTime]    = useState(null);
   const [duration,      setDuration]     = useState(0);
   const capturedBlob = useRef(null);
   const pollRef      = useRef(null);
@@ -209,7 +208,6 @@ export default function Battle() {
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(null); capturedBlob.current = null;
     setError('');
-    setStartTime(Date.now());
     setDuration(0);
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {

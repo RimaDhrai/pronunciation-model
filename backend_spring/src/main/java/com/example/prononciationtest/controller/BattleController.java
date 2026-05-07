@@ -23,7 +23,7 @@ public class BattleController {
 
     private final OllamaService ollamaService;
 
-    static final int TOTAL_ROUNDS = 5;
+    static final int TOTAL_ROUNDS = 3;
 
     // ── Modèle de session battle ──────────────────────────────────────────────
     static class BattleSession {

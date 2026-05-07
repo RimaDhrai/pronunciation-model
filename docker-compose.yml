@@ -57,7 +57,7 @@ services:
   # ── FastAPI (Whisper STT + TTS) ─────────────────────────────────────────────
   fastapi:
     build:
-      context: ./mon_projettalan_fastapi
+      context: ./fastapi
       dockerfile: Dockerfile
     image: model-train-fastapi
     container_name: speakcoach-fastapi

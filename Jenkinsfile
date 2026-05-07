@@ -30,7 +30,7 @@ pipeline {
         stage('Build — Spring Boot') {
             steps {
                 dir("${env.WORKSPACE}/backend_spring") {
-                    sh './mvnw clean package -DskipTests -q'
+                    sh 'chmod +x mvnw && ./mvnw clean package -DskipTests -q'
                 }
             }
         }
@@ -39,7 +39,7 @@ pipeline {
         stage('Test — Spring Boot') {
             steps {
                 dir("${env.WORKSPACE}/backend_spring") {
-                    sh './mvnw test -q || true'
+                    sh 'chmod +x mvnw && ./mvnw test -q || true'
                 }
             }
             post {

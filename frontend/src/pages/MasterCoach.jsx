@@ -517,7 +517,7 @@ export default function MasterCoach() {
             <ProgressBar label={isFr ? 'Exercices complétés' : 'Exercises completed'}
               value={Math.min(exRound * 5, 100)} color={C.coral} suffix="%" />
             <ProgressBar label={isFr ? 'Mots maîtrisés' : 'Words mastered'}
-              value={Math.max(0, 100 - Math.min(errorLog.length * 3, 100))} color={C.green} suffix="%" />
+              value={exRound === 0 ? 0 : Math.max(0, 100 - Math.min(errorLog.length * 3, 100))} color={C.green} suffix="%" />
           </div>
         )}
 

@@ -156,9 +156,11 @@ const ExerciseSelection = () => {
     return progressData[prevLevel]?.done === true;
   };
 
+  const isMobile = window.innerWidth < 640;
+
   return (
     <Layout title={ui.pageTitle}>
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px 64px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: isMobile ? '20px 14px 48px' : '40px 24px 64px' }}>
 
         {/* ── Header ── */}
         <div style={{ marginBottom: 40 }}>
@@ -210,7 +212,7 @@ const ExerciseSelection = () => {
         </div>
 
         {/* ── Level grid ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill,minmax(260px,1fr))', gap: isMobile ? 12 : 20 }}>
           {LEVELS_ORDER.map((level, idx) => {
             const isUnlocked = isLevelUnlocked(idx);
             const isCurrent  = level === currentLevel;
@@ -302,7 +304,7 @@ const ExerciseSelection = () => {
           })}
         </div>
         {/* ── Pratique ciblée + Révision cards ── */}
-        <div style={{ marginTop: 36, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16 }}>
+        <div style={{ marginTop: 36, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit,minmax(280px,1fr))', gap: 16 }}>
           {/* Révision espacée */}
           <div
             onClick={() => navigate('/exercises/revision')}

@@ -22,15 +22,15 @@
       "redirectUris": [
         "http://localhost:8081/*",
         "http://localhost:5173/*",
-        "*"
+        "https://managing-senior-lie-dream.trycloudflare.com/*"
       ],
       "webOrigins": [
         "http://localhost:8081",
         "http://localhost:5173",
-        "+"
+        "https://managing-senior-lie-dream.trycloudflare.com"
       ],
       "attributes": {
-        "post.logout.redirect.uris": "*"
+        "post.logout.redirect.uris": "http://localhost:8081/* https://managing-senior-lie-dream.trycloudflare.com/*"
       },
       "defaultClientScopes": ["web-origins", "acr", "profile", "roles", "email"],
       "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"],

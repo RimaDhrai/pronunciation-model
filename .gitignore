@@ -1,2 +1,5 @@
 # Claude Code local config — ne pas publier sur GitHub
 .claude/
+
+# Variables d'environnement — contient les mots de passe
+.env

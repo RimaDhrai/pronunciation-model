@@ -19,7 +19,7 @@ services:
     environment:
       POSTGRES_DB: pronunciation_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "123456789"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
     environment:
       KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: Admin1234!
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
@@ -92,7 +92,7 @@ services:
       # Database
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pronunciation_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: "123456789"
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
 
       # FastAPI
       PYTHON_BASE_URL: http://fastapi:8000
@@ -112,7 +112,7 @@ services:
       KEYCLOAK_ADMIN_REALM: talan
       KEYCLOAK_ADMIN_CLIENT_ID: talan-frontend
       KEYCLOAK_ADMIN_USERNAME: admin
-      KEYCLOAK_ADMIN_PASSWORD: Admin1234!
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD_SPRING}
 
       # App
       APP_FRONTEND_URL: http://localhost:8081
@@ -158,9 +158,9 @@ services:
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: rima.dhrai@esprit.tn
-      PGADMIN_DEFAULT_PASSWORD: "Admin1234!"
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "5050:80"
+      - "127.0.0.1:5050:80"
     depends_on:
       postgres:
         condition: service_healthy

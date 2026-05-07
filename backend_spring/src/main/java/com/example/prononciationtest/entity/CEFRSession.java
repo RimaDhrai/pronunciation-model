@@ -28,9 +28,15 @@ public class CEFRSession {
     @Column(name = "final_level", length = 5)
     private String finalLevel;
 
+    @Column(name = "avg_score")
+    private Integer avgScore;
+
     @Column(name = "started_at")
     private LocalDateTime startedAt = LocalDateTime.now();
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    public Integer getAvgScore() { return avgScore; }
+    public void setAvgScore(Integer avgScore) { this.avgScore = avgScore; }
 }

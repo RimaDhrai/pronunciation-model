@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 @Service
@@ -33,16 +34,13 @@ public class OllamaService implements IOllamaService {
     private final RestTemplate    restTemplate;
     private final ObjectMapper    objectMapper;
     private final PhraseTaxonomy  taxonomy;
+    private final ConcurrentHashMap<String, String> feedbackCache = new ConcurrentHashMap<>();
 
     public OllamaService(RestTemplate restTemplate, ObjectMapper objectMapper, PhraseTaxonomy taxonomy) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.taxonomy     = taxonomy;
     }
-
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // WARMUP â€” charge le modÃ¨le en VRAM dÃ¨s le dÃ©marrage de Spring Boot
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Async
     @EventListener(ApplicationReadyEvent.class)
@@ -55,9 +53,6 @@ public class OllamaService implements IOllamaService {
         }
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // GÃ‰NÃ‰RATION DE PHRASE
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public String generatePhrase(String lang, String level) {
         String wc = switch (level) {
@@ -107,9 +102,6 @@ public class OllamaService implements IOllamaService {
         return callOllama(system, prompt, 80, 0.4);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // FEEDBACK DÃ‰TAILLÃ‰ â€” utilisÃ© par PracticeService
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public String generateFeedback(
             String expectedPhrase,
@@ -165,10 +157,7 @@ public class OllamaService implements IOllamaService {
         return callOllama(systemPrompt, userMsg, 160, 0.3);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // CHATBOT â€” rÃ©ponse du coach Alex (qwen2.5:7b)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
+ 
     public String generateChatbotResponse(
             List<Map<String, String>> history,
             String userText,
@@ -401,6 +390,10 @@ public class OllamaService implements IOllamaService {
 
     public String generateLevelTestFeedback(String lang, String soundLabel,
                                             String contextWords, String phrase, int score, String userName) {
+        String cacheKey = lang + "_" + soundLabel + "_" + (score / 10);
+        String cached = feedbackCache.get(cacheKey);
+        if (cached != null) return cached;
+
         String learner = (userName != null && !userName.isBlank()) ? userName : "apprenant";
         String perf = "fr".equals(lang)
             ? (score >= 75 ? "trÃ¨s bonne (score " + score + "/100)"
@@ -424,9 +417,10 @@ public class OllamaService implements IOllamaService {
             ? "Tu es un coach de prononciation. INTERDIT d'utiliser le nom Alex. Appelle l'apprenant uniquement par son prenom: " + learner + ". Reponds en 2-3 phrases courtes. Pas de tirets."
             : "You are a pronunciation coach. FORBIDDEN to use the name Alex. Address the learner only by their name: " + learner + ". Reply in 2-3 short sentences. No dashes.";
         String raw = callOllama(system, prompt, 80, 0.4);
-        // Strip any remaining "Alex" hallucination and replace with real name
         raw = raw.replaceAll("(?i)\\bAlex\\b", learner);
-        return raw.length() > 20 ? raw : buildLevelTestFeedbackFallback(lang, soundLabel, contextWords, score);
+        String result = raw.length() > 20 ? raw : buildLevelTestFeedbackFallback(lang, soundLabel, contextWords, score);
+        if (feedbackCache.size() < 200) feedbackCache.put(cacheKey, result);
+        return result;
     }
 
     public String generateLevelTestSynthesis(String lang,

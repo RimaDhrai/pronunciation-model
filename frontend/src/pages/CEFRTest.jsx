@@ -163,9 +163,16 @@ export default function CEFRTest() {
   const [waitingNext,  setWaitingNext]  = useState(false);
   const [analyzeData,  setAnalyzeData]  = useState(null);  // full /analyze response (ops + phonemes)
   const [llmLoading,   setLlmLoading]   = useState(false); // true while /feedback LLM is pending
+  const [progression,  setProgression]  = useState(null);  // score progression over sessions
 
   const capturedBlob = useRef(null);
   const { startRecording, stopRecording, resetRecording } = useAudioRecorder();
+
+  // Fetch score progression when results appear
+  useEffect(() => {
+    if (phase !== 'result') return;
+    api.get('/api/level-test/progression').then(r => setProgression(r.data)).catch(() => {});
+  }, [phase]);
 
   // Auto-advance as soon as nextData arrives if user already clicked "Continuer"
   useEffect(() => {
@@ -597,6 +604,64 @@ export default function CEFRTest() {
               </div>
             </div>
           )}
+
+          {/* ── Progression chart ───────────────────────────────────────── */}
+          {progression && progression.count >= 2 && (() => {
+            const sessions = progression.sessions;
+            const W = 340, H = 90, PAD = 24;
+            const scores = sessions.map(s => s.score);
+            const minS = Math.max(0,  Math.min(...scores) - 10);
+            const maxS = Math.min(100, Math.max(...scores) + 10);
+            const xStep = (W - PAD*2) / (sessions.length - 1);
+            const yScale = v => H - PAD - ((v - minS) / (maxS - minS)) * (H - PAD*2);
+            const pts = sessions.map((s,i) => `${PAD + i*xStep},${yScale(s.score)}`).join(' ');
+            const improvement = progression.improvement;
+            const impColor = improvement > 0 ? '#22C55E' : improvement < 0 ? '#EF4444' : C.mid;
+            const impSign  = improvement > 0 ? '+' : '';
+            return (
+              <div style={{ background:C.white, border:`1.5px solid ${C.border}`, borderRadius:18, padding:'16px 18px', marginBottom:12 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
+                  <p style={{ fontSize:'0.62rem', fontWeight:800, color:C.muted, textTransform:'uppercase', letterSpacing:'0.1em', margin:0 }}>
+                    📈 {t('Progression','Score progression')}
+                  </p>
+                  <div style={{ display:'flex', gap:14 }}>
+                    <span style={{ fontSize:11, fontWeight:700, color:C.mid }}>{t('Meilleur','Best')} <b style={{color:C.tealDeep}}>{progression.best_score}</b></span>
+                    <span style={{ fontSize:11, fontWeight:700, color:impColor }}>{impSign}{improvement} pts</span>
+                  </div>
+                </div>
+                <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ overflow:'visible' }}>
+                  <defs>
+                    <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={C.teal} stopOpacity="0.25"/>
+                      <stop offset="100%" stopColor={C.teal} stopOpacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  {/* Fill area */}
+                  <polygon
+                    points={`${PAD},${H-PAD} ${pts} ${PAD+(sessions.length-1)*xStep},${H-PAD}`}
+                    fill="url(#lineGrad)"
+                  />
+                  {/* Line */}
+                  <polyline points={pts} fill="none" stroke={C.tealDark} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
+                  {/* Dots + labels */}
+                  {sessions.map((s,i) => {
+                    const cx = PAD + i*xStep, cy = yScale(s.score);
+                    const isLast = i === sessions.length-1;
+                    return (
+                      <g key={i}>
+                        <circle cx={cx} cy={cy} r={isLast?5:3.5} fill={isLast?C.tealDeep:C.teal} stroke="white" strokeWidth="1.5"/>
+                        {isLast && <text x={cx} y={cy-9} textAnchor="middle" fontSize="10" fontWeight="800" fill={C.tealDeep}>{s.score}</text>}
+                        {i===0 && <text x={cx} y={cy-9} textAnchor="middle" fontSize="10" fontWeight="700" fill={C.mid}>{s.score}</text>}
+                      </g>
+                    );
+                  })}
+                </svg>
+                <p style={{ fontSize:10.5, color:C.muted, textAlign:'center', margin:'4px 0 0' }}>
+                  {sessions.length} {t('tests complétés','tests completed')} · {t('Dernier niveau','Latest level')} <b style={{color:C.dark}}>{sessions[sessions.length-1]?.level}</b>
+                </p>
+              </div>
+            );
+          })()}
 
           <button onClick={resetAll} style={{
             width:'100%', padding:'12px', background:'none', border:'none', cursor:'pointer',

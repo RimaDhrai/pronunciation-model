@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { Lock, Mic, Trophy, Flame, ArrowRight, Volume2, Brain, Zap, Star, RotateCcw, Target } from 'lucide-react';
+import { Lock, Mic, Trophy, Flame, ArrowRight, Volume2, Brain, Zap, Star, RotateCcw } from 'lucide-react';
 import { getExerciseProgress } from '../../api/exerciseProgress';
 import { getDueCount } from '../../api/spacedRepetition';
 
@@ -303,20 +303,6 @@ const ExerciseSelection = () => {
           </div>
         </div>
 
-        {/* ── IA CTA ── */}
-        <div style={{ marginTop: 24, background: C.dark, borderRadius: 24, padding: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', right: -20, top: -20, width: 180, height: 180, borderRadius: '50%', background: `${C.teal}15` }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <p style={{ fontWeight: 800, fontSize: '0.7rem', color: C.teal, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 8px' }}>{ui.iaBadge}</p>
-            <h3 style={{ fontWeight: 900, fontSize: '1.3rem', color: 'white', margin: '0 0 6px', letterSpacing: '-0.03em' }}>{ui.iaTitle}</h3>
-            <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.55)', fontWeight: 500, margin: 0 }}>{ui.iaDesc}</p>
-          </div>
-          <button
-            onClick={() => navigate(`/exercises/${currentLevel}`)}
-            style={{ background: C.teal, color: C.dark, border: 'none', borderBottom: `3px solid ${C.tealDark}`, borderRadius: 14, padding: '13px 26px', fontWeight: 900, fontSize: '0.88rem', cursor: 'pointer', boxShadow: `0 6px 20px ${C.teal}44`, whiteSpace: 'nowrap', position: 'relative', zIndex: 1 }}>
-            {ui.iaBtn}
-          </button>
-        </div>
       </div>
     </Layout>
   );

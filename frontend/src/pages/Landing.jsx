@@ -154,8 +154,8 @@ export default function Landing() {
           </div>
 
           {/* Headline */}
-          <h1 style={{ fontWeight: 900, fontSize: 'clamp(2.2rem,6vw,3.8rem)', lineHeight: 1.1, color: C.dark, margin: '0 0 18px', letterSpacing: '-0.04em' }}>
-            {t.headline1}<br />
+          <h1 style={{ fontWeight: 900, fontSize: 'clamp(2.2rem,6vw,3.8rem)', lineHeight: 1.25, color: C.dark, margin: '0 0 22px', letterSpacing: '-0.04em' }}>
+            <span style={{ display: 'block', marginBottom: '0.12em' }}>{t.headline1}</span>
             <span style={{ color: C.pink }}>{t.headline2}</span>{t.headlineEnd}
           </h1>
 

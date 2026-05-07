@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Comparator;
 
 /**
  * Level Test routes — delegates all state-machine logic to LevelTestAgent (LangGraph4J).
@@ -234,6 +235,55 @@ public class LevelTestAgentController {
     }
 
     // ═════════════════════════════════════════════════════════════════════════
+    // GET /progression — score evolution over time for the current user
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @GetMapping("/progression")
+    @Operation(summary = "User score progression over all completed CEFR tests")
+    public ResponseEntity<?> progression(Authentication auth) {
+        try {
+            User user = userRepo.findByEmail(currentEmail(auth))
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+
+            List<CEFRSession> sessions = cefrSessionRepo
+                    .findByUserIdOrderByStartedAtDesc(user.getId())
+                    .stream()
+                    .filter(s -> "COMPLETED".equals(s.getStatus()) && s.getAvgScore() != null)
+                    .sorted(Comparator.comparing(CEFRSession::getStartedAt))
+                    .toList();
+
+            List<Map<String, Object>> data = sessions.stream().map(s -> {
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("date",        s.getStartedAt().toLocalDate().toString());
+                m.put("score",       s.getAvgScore());
+                m.put("level",       s.getFinalLevel());
+                m.put("lang",        s.getLang());
+                return m;
+            }).toList();
+
+            // Stats
+            int count = data.size();
+            int firstScore = count > 0 ? (int) ((Map<?,?>)data.get(0)).get("score") : 0;
+            int lastScore  = count > 0 ? (int) ((Map<?,?>)data.get(count-1)).get("score") : 0;
+            int bestScore  = data.stream().mapToInt(m -> (int) m.get("score")).max().orElse(0);
+            int improvement = count > 1 ? lastScore - firstScore : 0;
+
+            Map<String, Object> resp = new LinkedHashMap<>();
+            resp.put("sessions",    data);
+            resp.put("count",       count);
+            resp.put("first_score", firstScore);
+            resp.put("last_score",  lastScore);
+            resp.put("best_score",  bestScore);
+            resp.put("improvement", improvement);
+            return ResponseEntity.ok(resp);
+        } catch (ResponseStatusException rse) {
+            throw rse;
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
     // GET /history/{sessionId}/steps
     // ═════════════════════════════════════════════════════════════════════════
 
@@ -290,6 +340,7 @@ public class LevelTestAgentController {
                     return s;
                 });
         cefrSession.setFinalLevel(finalLevel);
+        cefrSession.setAvgScore(avgScore);
         cefrSession.setStatus("COMPLETED");
         cefrSession.setCompletedAt(LocalDateTime.now());
         cefrSessionRepo.save(cefrSession);

@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    container_name: talan-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Admin1234!
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+    command: ["start-dev", "--import-realm"]
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./keycloak/realm-talan.json:/opt/keycloak/data/import/realm-talan.json
+      - keycloak_data:/opt/keycloak/data
+
+volumes:
+  keycloak_data:

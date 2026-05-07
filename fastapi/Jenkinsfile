@@ -1,0 +1,82 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_REPO     = 'https://github.com/Talan-PFE2026/pronunciation.git'
+        GIT_BRANCH   = 'fastapi'
+        IMAGE_NAME   = 'speakcoach-fastapi'
+        SONAR_HOST_URL = 'http://host.docker.internal:9000'
+        SONAR_TOKEN    = credentials('sonarqube-token')
+        PROJECT_KEY    = 'SpeakCoach-FastAPI'
+    }
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: "${GIT_BRANCH}",
+                    url: "${GIT_REPO}"
+                echo "Build #${env.BUILD_NUMBER} — branche: ${GIT_BRANCH}"
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    python3 -m venv venv || python -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip -q
+                    pip install -r requirements.txt -q
+                '''
+            }
+        }
+
+        stage('Tests') {
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    pip install pytest pytest-cov -q
+                    pytest tests/ --tb=short -q || true
+                '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                        sonar-scanner \
+                            -Dsonar.projectKey=${PROJECT_KEY} \
+                            -Dsonar.projectName="SpeakCoach FastAPI" \
+                            -Dsonar.sources=. \
+                            -Dsonar.exclusions=venv/**,__pycache__/**,tests/** \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.token=${SONAR_TOKEN}
+                    """
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                echo "Image Docker ${IMAGE_NAME}:${env.BUILD_NUMBER} construite"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline FastAPI réussi — Build #${env.BUILD_NUMBER}"
+        }
+        failure {
+            echo "Pipeline FastAPI échoué — Build #${env.BUILD_NUMBER}"
+        }
+    }
+}

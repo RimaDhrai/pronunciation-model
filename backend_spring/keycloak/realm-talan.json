@@ -1,0 +1,127 @@
+{
+  "realm": "talan",
+  "enabled": true,
+  "displayName": "Talan SpeakCoach",
+  "displayNameHtml": "<strong>Talan</strong> SpeakCoach",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 3600,
+  "clients": [
+    {
+      "clientId": "talan-frontend",
+      "name": "Talan SpeakCoach Frontend",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:8081/*",
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8081",
+        "http://localhost:5173"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8081/*"
+      },
+      "defaultClientScopes": ["web-origins", "acr", "profile", "roles", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"],
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Administrateur de la plateforme SpeakCoach"
+      },
+      {
+        "name": "collaborateur",
+        "description": "Collaborateur Talan — accès plateforme prononciation"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin.talan",
+      "email": "admin@talan.com",
+      "firstName": "Admin",
+      "lastName": "Talan",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin1234!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["admin", "collaborateur"]
+    },
+    {
+      "username": "collaborateur.test",
+      "email": "collab@talan.com",
+      "firstName": "Jean",
+      "lastName": "Dupont",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Collab1234!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["collaborateur"]
+    }
+  ],
+  "components": {
+    "org.keycloak.storage.UserStorageProvider": [
+      {
+        "name": "ldap-talan",
+        "providerId": "ldap",
+        "config": {
+          "enabled": ["false"],
+          "priority": ["1"],
+          "fullSyncPeriod": ["-1"],
+          "changedSyncPeriod": ["-1"],
+          "vendor": ["ad"],
+          "connectionUrl": ["ldap://ldap.talan.com:389"],
+          "bindDn": ["CN=svc-keycloak,OU=ServiceAccounts,DC=talan,DC=com"],
+          "bindCredential": ["__LDAP_PASSWORD__"],
+          "usersDn": ["OU=Users,DC=talan,DC=com"],
+          "usernameLDAPAttribute": ["sAMAccountName"],
+          "rdnLDAPAttribute": ["cn"],
+          "uuidLDAPAttribute": ["objectGUID"],
+          "userObjectClasses": ["person", "organizationalPerson", "user"],
+          "searchScope": ["2"],
+          "useTruststoreSpi": ["ldapAlways"],
+          "importEnabled": ["true"],
+          "syncRegistrations": ["false"],
+          "editMode": ["READ_ONLY"]
+        }
+      }
+    ]
+  }
+}

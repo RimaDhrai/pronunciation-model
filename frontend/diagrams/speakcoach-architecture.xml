@@ -1,0 +1,276 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="SpeakCoach Architecture">
+    <mxGraphModel dx="1800" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1300" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TITRE -->
+        <mxCell id="title" value="SpeakCoach — Architecture Technique Complète" style="text;html=1;fontSize=22;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e3a5f;" vertex="1" parent="1">
+          <mxGeometry x="300" y="15" width="1200" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- BLOC FRONTEND                                                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <mxCell id="box_front" value="Frontend" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="70" width="230" height="370" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vite_lbl" value="Vite + ReactJS — Port 8081" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="box_front">
+          <mxGeometry x="10" y="42" width="210" height="32" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pages_lbl" value="Pages" style="rounded=1;fillColor=#eff6ff;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="box_front">
+          <mxGeometry x="10" y="85" width="210" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="pages_list" value="Dashboard · Cours · Exercices&#xa;Karaoké · Test CEFR · Chatbot&#xa;Shadowing · Rapports · Profil" style="rounded=0;fillColor=#eff6ff;strokeColor=#6c8ebf;fontSize=10;align=left;top=0;" vertex="1" parent="box_front">
+          <mxGeometry x="10" y="107" width="210" height="52" as="geometry" />
+        </mxCell>
+
+        <mxCell id="proxy_lbl" value="Vite Proxy (routage automatique)" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;" vertex="1" parent="box_front">
+          <mxGeometry x="10" y="172" width="210" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="proxy_sb" value="/api/chat → Spring Boot :8080&#xa;/api/cefr-test → Spring Boot :8080&#xa;/api → Spring Boot :8080" style="rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=left;" vertex="1" parent="box_front">
+          <mxGeometry x="10" y="194" width="210" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="proxy_fp" value="/api/exercises → FastAPI :8000&#xa;/api/karaoke → FastAPI :8000&#xa;/api/test → FastAPI :8000&#xa;/analyze → FastAPI :8000" style="rounded=0;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=10;align=left;" vertex="1" parent="box_front">
+          <mxGeometry x="10" y="242" width="210" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="auth_ctx" value="AuthContext — Token JWT (mémoire)" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="box_front">
+          <mxGeometry x="10" y="315" width="210" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="lang_ctx" value="LanguageContext (FR/EN/ES/DE)" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="box_front">
+          <mxGeometry x="10" y="347" width="210" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- BLOC KEYCLOAK                                                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <mxCell id="box_kc" value="Authentification" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="70" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="kc_title" value="Keycloak — Port 8090" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;" vertex="1" parent="box_kc">
+          <mxGeometry x="25" y="42" width="170" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="kc_detail" value="OAuth2 / OIDC&#xa;Émet JWT (access + refresh token)" style="rounded=1;fillColor=#f3e8ff;strokeColor=#9673a6;fontSize=10;align=left;" vertex="1" parent="box_kc">
+          <mxGeometry x="10" y="82" width="200" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- BLOC SPRING BOOT                                                -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <mxCell id="box_sb" value="Backend" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="250" width="470" height="480" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sb_title" value="Spring Boot — Port 8080" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="box_sb">
+          <mxGeometry x="15" y="40" width="220" height="32" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sb_sec" value="Spring Security — Validation JWT Keycloak" style="rounded=1;fillColor=#f0fff0;strokeColor=#82b366;fontSize=10;" vertex="1" parent="box_sb">
+          <mxGeometry x="15" y="82" width="300" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sb_ctrl" value="Controllers" style="rounded=1;fillColor=#f0fff0;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="box_sb">
+          <mxGeometry x="15" y="120" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="sb_routes" value="/api/practice/generate + evaluate&#xa;/api/chat/* (chatbot vocal)&#xa;/api/cefr-test/*&#xa;/api/users · /api/courses&#xa;/api/attempts · /api/reports&#xa;/api/spaced-repetition&#xa;/api/exercises/progress" style="rounded=0;fillColor=#f0fff0;strokeColor=#82b366;fontSize=10;align=left;" vertex="1" parent="box_sb">
+          <mxGeometry x="15" y="142" width="300" height="108" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sb_jpa" value="JPA / Hibernate → PostgreSQL" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="box_sb">
+          <mxGeometry x="15" y="260" width="300" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sb_fp_client" value="FastAPI Client (chatbot STT/TTS)" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="box_sb">
+          <mxGeometry x="15" y="296" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="sb_fp_detail" value="→ POST /api/chat/stt   (Whisper)&#xa;→ POST /api/chat/tts   (edge-tts)" style="rounded=0;fillColor=#fff8ec;strokeColor=#d6b656;fontSize=10;align=left;" vertex="1" parent="box_sb">
+          <mxGeometry x="15" y="322" width="300" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- OLLAMA dans Spring Boot -->
+        <mxCell id="box_ollama" value="Ollama — :11434" style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;rounded=1;" vertex="1" parent="box_sb">
+          <mxGeometry x="330" y="40" width="128" height="418" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ol_gemma" value="gemma2:2b" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="box_ollama">
+          <mxGeometry x="9" y="35" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ol_gemma_d" value="Génération de phrases&#xa;adaptées au niveau&#xa;CEFR (A1→C2)&#xa;&#xa;Feedback de&#xa;prononciation" style="rounded=0;fillColor=#fff8ec;strokeColor=#d6b656;fontSize=10;align=left;" vertex="1" parent="box_ollama">
+          <mxGeometry x="5" y="68" width="118" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ol_sep" value="" style="line;strokeColor=#d6b656;" vertex="1" parent="box_ollama">
+          <mxGeometry x="5" y="175" width="118" height="10" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ol_qwen" value="qwen2.5:3b" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="box_ollama">
+          <mxGeometry x="9" y="190" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ol_qwen_d" value="Chatbot coaching&#xa;vocal — répond&#xa;aux questions de&#xa;prononciation&#xa;(FR/EN/ES/DE)" style="rounded=0;fillColor=#fff8ec;strokeColor=#d6b656;fontSize=10;align=left;" vertex="1" parent="box_ollama">
+          <mxGeometry x="5" y="224" width="118" height="85" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ol_cfg" value="@Value ollama.model&#xa;= gemma2:2b&#xa;&#xa;@Value chatbotModel&#xa;= qwen2.5:3b" style="text;html=1;fontSize=9;fontStyle=2;fillColor=none;strokeColor=none;align=left;" vertex="1" parent="box_ollama">
+          <mxGeometry x="5" y="318" width="118" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Flèche interne Spring → Ollama -->
+        <mxCell id="e_sb_ol" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;fontSize=9;" edge="1" source="sb_title" target="box_ollama" parent="box_sb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- BLOC FASTAPI                                                    -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <mxCell id="box_fp" value="IA / ML — Python Sidecar" style="swimlane;startSize=30;fillColor=#ffe6cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="70" width="450" height="500" as="geometry" />
+        </mxCell>
+
+        <mxCell id="fp_title" value="FastAPI — Port 8000" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" vertex="1" parent="box_fp">
+          <mxGeometry x="120" y="42" width="210" height="32" as="geometry" />
+        </mxCell>
+
+        <mxCell id="fp_routes_lbl" value="Routes appelées directement par React (via proxy)" style="rounded=1;fillColor=#fff0f0;strokeColor=#b85450;fontSize=10;fontStyle=1;" vertex="1" parent="box_fp">
+          <mxGeometry x="20" y="88" width="410" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="fp_routes" value="/analyze                — prononciation libre&#xa;/api/test/*             — test CEFR adaptatif&#xa;/api/karaoke/*          — mode karaoké&#xa;/api/exercises/*        — exercices guidés&#xa;/api/reports/*          — analyse rapports" style="rounded=0;fillColor=#fff0f0;strokeColor=#b85450;fontSize=10;align=left;" vertex="1" parent="box_fp">
+          <mxGeometry x="20" y="110" width="410" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="fp_chatbot_lbl" value="Routes appelées par Spring Boot (chatbot)" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontStyle=1;" vertex="1" parent="box_fp">
+          <mxGeometry x="20" y="205" width="410" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="fp_chatbot_routes" value="/api/chat/stt    — Whisper STT pour chatbot&#xa;/api/chat/tts    — edge-tts (synthèse vocale)" style="rounded=0;fillColor=#fff0f0;strokeColor=#b85450;fontSize=10;align=left;" vertex="1" parent="box_fp">
+          <mxGeometry x="20" y="227" width="410" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- Whisper -->
+        <mxCell id="whisper" value="🎙️ Whisper STT" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="box_fp">
+          <mxGeometry x="240" y="300" width="185" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="whisper_d" value="• Transcription audio → texte&#xa;• Confiance par mot&#xa;• Détection silence / fillers&#xa;• Multi-langue (fr/en/es/de)" style="rounded=0;fillColor=#f0fff0;strokeColor=#82b366;fontSize=10;align=left;" vertex="1" parent="box_fp">
+          <mxGeometry x="225" y="340" width="210" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Score Engine -->
+        <mxCell id="score" value="Score Engine" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="box_fp">
+          <mxGeometry x="20" y="300" width="185" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="score_d" value="• WER · F1 · Precision · Recall&#xa;• Pénalité phonétique&#xa;• Score CEFR normalisé (0-100)&#xa;• word_diff (Levenshtein)" style="rounded=0;fillColor=#fffde0;strokeColor=#d6b656;fontSize=10;align=left;" vertex="1" parent="box_fp">
+          <mxGeometry x="5" y="340" width="215" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- edge-tts -->
+        <mxCell id="tts" value="edge-tts (TTS)" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="box_fp">
+          <mxGeometry x="130" y="420" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="tts_d" value="Synthèse vocale — réponse audio du chatbot (mp3/base64)" style="rounded=0;fillColor=#fff0f0;strokeColor=#b85450;fontSize=10;align=center;" vertex="1" parent="box_fp">
+          <mxGeometry x="30" y="453" width="390" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Flèches internes FastAPI -->
+        <mxCell id="e_fp_wh" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;" edge="1" source="fp_title" target="whisper" parent="box_fp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fp_sc" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;" edge="1" source="fp_title" target="score" parent="box_fp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- BLOC POSTGRESQL                                                 -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <mxCell id="box_db" value="Persistance" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="790" width="470" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pg_title" value="PostgreSQL — Port 5432" style="shape=cylinder3;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="box_db">
+          <mxGeometry x="140" y="38" width="190" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pg_tables" value="users · user_sessions · courses · lessons · lesson_progress&#xa;attempts · phrase_attempts · exercise_progress&#xa;cefr_sessions · spaced_repetition_items · badges" style="text;html=1;fontSize=10;fillColor=none;strokeColor=none;align=center;" vertex="1" parent="box_db">
+          <mxGeometry x="10" y="105" width="450" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- LÉGENDE                                                         -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <mxCell id="leg_box" value="Légende" style="swimlane;startSize=25;fillColor=#f5f5f5;strokeColor=#aaaaaa;fontStyle=1;fontSize=12;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="510" width="230" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="l1" value="OAuth2 / OIDC (Keycloak)" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="leg_box">
+          <mxGeometry x="10" y="32" width="210" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="l2" value="REST + JWT Bearer (Spring Boot)" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="leg_box">
+          <mxGeometry x="10" y="64" width="210" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="l3" value="Audio multipart (FastAPI direct)" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="leg_box">
+          <mxGeometry x="10" y="96" width="210" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="l4" value="Appel interne (Spring → FastAPI)" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="leg_box">
+          <mxGeometry x="10" y="128" width="210" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="l5" value="JPA / Base de données" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="leg_box">
+          <mxGeometry x="10" y="160" width="210" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- FLÈCHES EXTERNES                                                -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- 1. Frontend → Keycloak (login) -->
+        <mxCell id="e1" value="Login OAuth2" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;fontColor=#9673a6;fontSize=10;dashed=1;exitX=1;exitY=0.2;entryX=0;entryY=0.5;" edge="1" source="box_front" target="box_kc" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 2. Keycloak → Frontend (JWT) -->
+        <mxCell id="e2" value="JWT Token" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;fontColor=#9673a6;fontSize=10;dashed=1;exitX=0;exitY=0.7;entryX=1;entryY=0.2;" edge="1" source="box_kc" target="box_front" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 3. Frontend → Spring Boot (via proxy) -->
+        <mxCell id="e3" value="REST + JWT&#xa;(/api/chat, /api/cefr-test, /api...)" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;fontColor=#82b366;fontSize=10;exitX=1;exitY=0.55;entryX=0;entryY=0.2;" edge="1" source="box_front" target="box_sb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 4. Frontend → FastAPI (direct via proxy) -->
+        <mxCell id="e4" value="Audio + params&#xa;(/analyze, /api/exercises,&#xa;/api/karaoke, /api/test)" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;fontColor=#d79b00;fontSize=10;exitX=1;exitY=0.38;entryX=0;entryY=0.15;" edge="1" source="box_front" target="box_fp" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="820" y="210" />
+              <mxPoint x="820" y="145" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. Spring Boot → FastAPI (chatbot STT + TTS) -->
+        <mxCell id="e5" value="Chatbot: POST /api/chat/stt&#xa;Chatbot: POST /api/chat/tts" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;fontColor=#b85450;fontSize=10;dashed=1;exitX=1;exitY=0.6;entryX=0;entryY=0.5;" edge="1" source="box_sb" target="box_fp" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 6. Keycloak valide JWT via Spring Security -->
+        <mxCell id="e6" value="Valide JWT" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;fontColor=#9673a6;fontSize=9;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="box_kc" target="box_sb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 7. Spring Boot → PostgreSQL -->
+        <mxCell id="e7" value="JPA / Hibernate" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;fontColor=#6c8ebf;fontSize=10;exitX=0.3;exitY=1;entryX=0.3;entryY=0;" edge="1" source="box_sb" target="box_db" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 8. FastAPI → Spring Boot (génération phrases via exercises_engine) -->
+        <mxCell id="e8" value="POST /api/practice/generate&#xa;(génération phrases CEFR)" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;fontColor=#b85450;fontSize=9;dashed=1;exitX=0;exitY=0.7;entryX=1;entryY=0.4;" edge="1" source="box_fp" target="box_sb" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="840" y="420" />
+              <mxPoint x="840" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

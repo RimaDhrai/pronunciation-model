@@ -119,11 +119,14 @@ public class PracticeController {
         boolean whisperOk = pythonSttClient.isHealthy();
         boolean ollamaOk  = ollamaService.isHealthy();
 
+        boolean allOk = whisperOk && ollamaOk;
         Map<String, Object> status = Map.of(
                 "whisper_python", whisperOk ? "UP"   : "DOWN",
                 "ollama",         ollamaOk  ? "UP"   : "DOWN",
-                "overall",        (whisperOk && ollamaOk) ? "OK" : "DEGRADED"
+                "overall",        allOk ? "OK" : "DEGRADED"
         );
-        return ResponseEntity.ok(status);
+        return allOk
+                ? ResponseEntity.ok(status)
+                : ResponseEntity.status(503).body(status);
     }
 }

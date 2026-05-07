@@ -62,11 +62,15 @@ public class LevelTestAgentController {
             Authentication auth) {
         try {
             String sessionId = UUID.randomUUID().toString();
+            String userName = "apprenant";
 
             // Persist session to DB (non-blocking)
             try {
                 User user = userRepo.findByEmail(currentEmail(auth)).orElse(null);
                 if (user != null) {
+                    if (user.getFullName() != null && !user.getFullName().isBlank()) {
+                        userName = user.getFullName();
+                    }
                     CEFRSession s = new CEFRSession();
                     s.setSessionId(sessionId);
                     s.setUserId(user.getId());
@@ -79,7 +83,7 @@ public class LevelTestAgentController {
                 log.warn("[LevelTest] DB session creation failed: {}", dbEx.getMessage());
             }
 
-            Map<String, Object> result = levelTestAgent.start(sessionId, lang);
+            Map<String, Object> result = levelTestAgent.start(sessionId, lang, userName);
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {

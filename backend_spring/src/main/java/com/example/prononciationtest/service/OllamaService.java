@@ -1,4 +1,4 @@
-package com.example.prononciationtest.service;
+﻿package com.example.prononciationtest.service;
 
 
 import com.example.prononciationtest.service.iservice.IOllamaService;
@@ -400,7 +400,8 @@ public class OllamaService implements IOllamaService {
     }
 
     public String generateLevelTestFeedback(String lang, String soundLabel,
-                                            String contextWords, String phrase, int score) {
+                                            String contextWords, String phrase, int score, String userName) {
+        String learner = (userName != null && !userName.isBlank()) ? userName : "apprenant";
         String perf = "fr".equals(lang)
             ? (score >= 75 ? "trÃ¨s bonne (score " + score + "/100)"
                            : score >= 55 ? "correcte (score " + score + "/100)"
@@ -410,11 +411,11 @@ public class OllamaService implements IOllamaService {
                            : "needs work (score " + score + "/100)");
 
         String prompt = "fr".equals(lang)
-            ? "Tu es Alex, un coach de prononciation bienveillant. L'apprenant vient de prononcer : Â« " + phrase + "Â».\n"
+            ? "Tu es un coach de prononciation bienveillant. L'apprenant s'appelle " + learner + " et vient de prononcer : Â« " + phrase + "Â».\n"
               + "Son ciblÃ© : " + soundLabel + " (exemples : " + contextWords + ").\nPerformance : " + perf + ".\n"
               + "Donne un retour personnalisÃ© en 2-3 phrases courtes : mentionne le son Â« " + soundLabel
               + "Â», donne un conseil pratique, encourage. Pas de tirets ni numÃ©ros."
-            : "You are Alex, a supportive pronunciation coach. The learner just pronounced: \"" + phrase + "\".\n"
+            : "You are a supportive pronunciation coach. The learner's name is " + learner + " and they just pronounced: \"" + phrase + "\".\n"
               + "Target sound: " + soundLabel + " (examples: " + contextWords + ").\nPerformance: " + perf + ".\n"
               + "Give personalized feedback in 2-3 short sentences: mention the sound \"" + soundLabel
               + "\", give a practical tip, encourage. No dashes or numbers.";

@@ -178,7 +178,7 @@ export function useSpeakCoach({ lang, level, scenario = '' }) {
       _startConversation(data.greeting); // opens a new conversation entry in history
 
       if (data.audio_base64) {
-        setStatus({ text: s('Alex parle…', 'Alex is speaking…'), type: 'speaking' });
+        setStatus({ text: s('Le coach parle…', 'The coach is speaking…'), type: 'speaking' });
         await playAudio(data.audio_base64);
       }
       setReady();
@@ -317,7 +317,7 @@ export function useSpeakCoach({ lang, level, scenario = '' }) {
           // Re-enable mic immediately — user can speak while Alex is streaming
           setMicDisabled(false);
           setSendDisabled(false);
-          setStatus({ text: s('Alex réfléchit…', 'Alex is thinking…'), type: 'loading' });
+          setStatus({ text: s('Le coach réfléchit…', 'The coach is thinking…'), type: 'loading' });
 
         } else if (event === 'token') {
           if (!thinkingShown) {
@@ -339,7 +339,7 @@ export function useSpeakCoach({ lang, level, scenario = '' }) {
           if (data.audio_base64) {
             // Block mic only during audio playback (avoid feedback)
             setMicDisabled(true);
-            setStatus({ text: s('Alex répond…', 'Alex is speaking…'), type: 'speaking' });
+            setStatus({ text: s('Le coach répond…', 'The coach is speaking…'), type: 'speaking' });
             await playAudio(data.audio_base64);
           }
           setReady();
@@ -626,7 +626,7 @@ export function useSpeakCoach({ lang, level, scenario = '' }) {
 
     setSendDisabled(true);   // block double-send only
     // mic stays enabled — user can speak while Alex types
-    setStatus({ text: s('Alex répond…', 'Alex is replying…'), type: 'loading' });
+    setStatus({ text: s('Le coach répond…', 'The coach is replying…'), type: 'loading' });
 
     const fd = new FormData();
     fd.append('session_id', sessionIdRef.current);

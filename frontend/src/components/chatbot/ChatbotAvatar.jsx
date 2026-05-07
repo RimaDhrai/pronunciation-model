@@ -134,7 +134,7 @@ export default function ChatbotAvatar() {
           <span style={{
             fontSize: '.6rem', background: 'linear-gradient(90deg,#38bdf8,#9580d4)',
             color: 'white', padding: '3px 10px', borderRadius: 20, fontWeight: 800, letterSpacing: '.5px',
-          }}>ALEX</span>
+          }}>AI COACH</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{
@@ -213,7 +213,7 @@ export default function ChatbotAvatar() {
             letterSpacing: '.3px',
           }}>
             {coach.isSpeaking
-              ? (lang === 'fr' ? '🔊 Alex parle…' : '🔊 Alex speaking…')
+              ? (lang === 'fr' ? '🔊 Le coach parle…' : '🔊 Coach speaking…')
               : coach.isRecording
                 ? (lang === 'fr' ? '🎙 À l\'écoute…' : '🎙 Listening…')
                 : (lang === 'fr' ? '💬 En attente' : '💬 Ready')}
@@ -483,7 +483,7 @@ function HistoryMessage({ msg, lang }) {
         marginBottom: 3, letterSpacing: '.3px',
         alignSelf: isUser ? 'flex-end' : 'flex-start',
       }}>
-        {isUser ? (lang === 'fr' ? 'Vous' : 'You') : 'Alex'}
+        {isUser ? (lang === 'fr' ? 'Vous' : 'You') : 'Coach IA'}
         {msg.time && <span style={{ color: 'rgba(255,255,255,.22)', fontWeight: 400, marginLeft: 6 }}>{msg.time}</span>}
       </div>
       <div style={{
@@ -604,7 +604,7 @@ function ChatMessage({ message, lang }) {
           <span style={{ fontSize: '.82rem', fontWeight: 600, opacity: .75, color: isUser ? 'white' : '#c4b5fd' }}>
             {isUser
               ? (lang === 'fr' ? 'Transcription…' : 'Transcribing…')
-              : (lang === 'fr' ? 'Alex réfléchit…' : 'Alex thinking…')}
+              : (lang === 'fr' ? 'Le coach réfléchit…' : 'Coach thinking…')}
           </span>
           <span style={{ display: 'flex', gap: 3 }}>
             {[0, .18, .36].map(d => (

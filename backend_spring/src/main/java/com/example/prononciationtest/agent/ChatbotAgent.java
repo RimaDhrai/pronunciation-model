@@ -451,8 +451,8 @@ public class ChatbotAgent {
 
         String tag   = isEn ? "[REPEAT: \"%s\"]" : "[RÉPÈTE: \"%s\"]";
         String intro = isEn
-            ? "Hi! I'm Alex 🎙 Level " + level + ". Let's warm up — repeat this: "
-            : "Salut ! Je suis Alex 🎙 Niveau " + level + ". On s'échauffe — répète : ";
+            ? "Hi! I'm your AI Coach 🎙 Level " + level + ". Let's warm up — repeat this: "
+            : "Salut ! Je suis ton Coach IA 🎙 Niveau " + level + ". On s'échauffe — répète : ";
         return intro + tag.formatted(phrase);
     }
 

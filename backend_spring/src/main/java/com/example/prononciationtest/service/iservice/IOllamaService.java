@@ -61,7 +61,8 @@ public interface IOllamaService {
      * @param score         0-100 pronunciation score
      */
     String generateLevelTestFeedback(String lang, String soundLabel,
-                                     String contextWords, String phrase, int score);
+                                     String contextWords, String phrase, int score, String userName);
+
 
     /**
      * Generates the end-of-test synthesis (3-4 sentences, mentions strong/weak sounds).

@@ -52,11 +52,11 @@ public class LevelTestAgent {
         SOUND_CONTEXT_FR.put("an_nasal", "grand, enfant, temps, vent, chanter, devant");
         SOUND_CONTEXT_FR.put("eu", "deux, feu, heureux, beurre, sœur, bleu");
         SOUND_CONTEXT_FR.put("gn", "montagne, vigne, gagner, signe, campagne");
-        SOUND_CONTEXT_FR.put("liaison", "les_enfants, vous_avez, ils_ont, un_ami, en_avant");
+        SOUND_CONTEXT_FR.put("liaison", "les enfants, vous avez, ils ont, un ami, en avant");
         SOUND_CONTEXT_FR.put("ch", "chat, chose, chercher, chocolat, perche");
         SOUND_CONTEXT_FR.put("j", "je, jour, jeu, jardin, plage, image");
-        SOUND_CONTEXT_FR.put("ou", "roue, cou, tout, sous, nous, jour, bouche");
-        SOUND_CONTEXT_FR.put("oi", "moi, toi, roi, choix, voiture, poisson");
+        SOUND_CONTEXT_FR.put("ou", "roue, bouche, tout, sous, nous, jour, cou");
+        SOUND_CONTEXT_FR.put("oi", "voiture, poisson, roi, choix, moi, toi");
 
         // FR Labels
         SOUND_LABELS_FR.put("r", "Le R grasseyé [ʁ]");
@@ -108,6 +108,8 @@ public class LevelTestAgent {
         frPhrases.put("liaison", "Les amis ont un ami en avance.");
         frPhrases.put("ch", "Le chat cherche le chocolat chaud.");
         frPhrases.put("j", "Je joue dans le jardin chaque jour.");
+        frPhrases.put("ou", "La roue de la voiture tourne sous la pluie.");
+        frPhrases.put("oi", "La voiture du roi fait un choix difficile.");
         FALLBACK_PHRASES.put("fr", frPhrases);
 
         // Fallback Phrases EN
@@ -247,13 +249,14 @@ public class LevelTestAgent {
     // Public API
     // ═════════════════════════════════════════════════════════════════════════
 
-    public Map<String, Object> start(String sessionId, String lang) {
+    public Map<String, Object> start(String sessionId, String lang, String userName) {
         validateSessionId(sessionId);
 
         try {
             RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
             AgentState result = graph.invoke(
-                    Map.of("lang", lang, "action", "start"),
+                    Map.of("lang", lang, "action", "start",
+                           "user_name", userName != null ? userName : "apprenant"),
                     config
             ).orElseThrow(() -> new RuntimeException("Agent state empty after start"));
 
@@ -522,11 +525,12 @@ public class LevelTestAgent {
         String phrase = state.<String>value("input_phrase").orElse("");
         int score = state.<Integer>value("input_score").orElse(0);
         String context = getSoundContext(lang, soundKey);
+        String userName = state.<String>value("user_name").orElse("apprenant");
 
         String feedback;
         try {
             feedback = CompletableFuture.supplyAsync(
-                            () -> ollamaService.generateLevelTestFeedback(lang, soundLabel, context, phrase, score),
+                            () -> ollamaService.generateLevelTestFeedback(lang, soundLabel, context, phrase, score, userName),
                             taskExecutor
                     ).orTimeout(config.getTimeouts().getFeedbackGeneration(), TimeUnit.SECONDS)
                     .get(config.getTimeouts().getFeedbackGeneration(), TimeUnit.SECONDS);

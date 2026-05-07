@@ -136,7 +136,7 @@ public class MasterAgent {
 
         if (testSid == null) {
             // First step: start the level test (use master sessionId as test sessionId)
-            Map<String, Object> startResult = levelTestAgent.start(sessionId, lang);
+            Map<String, Object> startResult = levelTestAgent.start(sessionId, lang, "apprenant");
             sessionMemory.setTestSessionId(sessionId, sessionId);
             return new HashMap<>(startResult);
         }

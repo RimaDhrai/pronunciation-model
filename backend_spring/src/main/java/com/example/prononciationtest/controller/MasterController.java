@@ -73,9 +73,6 @@ public class MasterController {
                 req.input, req.weakWords, req.pronScore,
                 req.scenario, req.scoreInput, req.phrase, req.phonemeErrors
             );
-            if ("SESSION_NOT_FOUND".equals(result.get("error"))) {
-                return ResponseEntity.status(404).body(result);
-            }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("[Master] turn error: {}", e.getMessage());
@@ -138,9 +135,6 @@ public class MasterController {
     @GetMapping("/session/{sessionId}/stats")
     public ResponseEntity<?> stats(@PathVariable String sessionId) {
         Map<String, Object> stats = masterAgent.getStats(sessionId);
-        if ("SESSION_NOT_FOUND".equals(stats.get("error"))) {
-            return ResponseEntity.status(404).body(stats);
-        }
         return ResponseEntity.ok(stats);
     }
 }

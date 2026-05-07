@@ -33,8 +33,14 @@ public class User {
     @Column(name = "cefr_level", length = 5)
     private String cefrLevel;
 
+    @Column(name = "cefr_level_en", length = 5)
+    private String cefrLevelEn;
+
     @Column(name = "cefr_completed", columnDefinition = "boolean DEFAULT false")
     private Boolean cefrCompleted = false;
+
+    @Column(name = "cefr_completed_en", columnDefinition = "boolean DEFAULT false")
+    private Boolean cefrCompletedEn = false;
 
     @Column(name = "job_title", length = 100)
     private String jobTitle;

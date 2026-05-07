@@ -402,9 +402,14 @@ public class LevelTestAgentController {
             srRepo.save(item);
         }
 
-        // 4. Update user CEFR profile
-        user.setCefrLevel(finalLevel);
-        user.setCefrCompleted(true);
+        // 4. Update user CEFR profile — level stored per language
+        if ("en".equalsIgnoreCase(lang)) {
+            user.setCefrLevelEn(finalLevel);
+            user.setCefrCompletedEn(true);
+        } else {
+            user.setCefrLevel(finalLevel);
+            user.setCefrCompleted(true);
+        }
         userRepo.save(user);
 
         // 5. Add UserSession entry

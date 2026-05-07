@@ -105,9 +105,15 @@ export function AuthProvider({ children }) {
     try { await updateProgress(data); } catch (err) { console.error('[updateUser]', err); }
   }, []);
 
-  const getCefrLevel = useCallback(() =>
-    user?.cefrLevel || user?.level || user?.cefr_level || 'N/A'
-  , [user]);
+  const getCefrLevel = useCallback((lang = 'fr') => {
+    if (lang === 'en') return user?.cefrLevelEn || user?.cefr_level_en || null;
+    return user?.cefrLevel || user?.level || user?.cefr_level || null;
+  }, [user]);
+
+  const isCefrCompleted = useCallback((lang = 'fr') => {
+    if (lang === 'en') return !!(user?.cefrCompletedEn || user?.cefr_completed_en);
+    return !!(user?.cefrCompleted || user?.cefr_completed);
+  }, [user]);
 
   /* ── Loading screen ────────────────────────────────────────────── */
   if (!ready) return (
@@ -128,7 +134,7 @@ export function AuthProvider({ children }) {
   );
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, setUser, updateUser, getCefrLevel }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, setUser, updateUser, getCefrLevel, isCefrCompleted }}>
       {children}
     </AuthContext.Provider>
   );

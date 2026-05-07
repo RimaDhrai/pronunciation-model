@@ -110,11 +110,11 @@ const UI = {
 };
 
 const ExerciseSelection = () => {
-  const { user, getCefrLevel } = useAuth();
+  const { user, getCefrLevel, isCefrCompleted } = useAuth();
   const { lang } = useLanguage();
   const navigate = useNavigate();
-  const currentLevel = getCefrLevel() || 'A1';
-  const isCefrDone = user?.cefrCompleted || user?.cefr_completed;
+  const currentLevel = getCefrLevel(lang) || 'A1';
+  const isCefrDone = isCefrCompleted(lang);
 
   if (user && !isCefrDone) { navigate('/cefr-test', { replace: true }); return null; }
 
@@ -123,10 +123,25 @@ const ExerciseSelection = () => {
 
   const [progressData, setProgressData] = useState({});
   const [reviewCount,  setReviewCount]  = useState(0);
+  const [totalSessions, setTotalSessions] = useState(0);
+  const [avgScore,      setAvgScore]      = useState(null);
 
   useEffect(() => {
     getExerciseProgress()
-      .then(res => setProgressData(res.data))
+      .then(res => {
+        setProgressData(res.data);
+        // Compter total sessions et score moyen depuis les données de progression
+        const data = res.data || {};
+        let totalCompleted = 0;
+        let totalScore = 0;
+        let scoreCount = 0;
+        Object.values(data).forEach(lvl => {
+          if (lvl?.completed) totalCompleted += lvl.completed;
+          if (lvl?.avgScore) { totalScore += lvl.avgScore; scoreCount++; }
+        });
+        setTotalSessions(totalCompleted);
+        if (scoreCount > 0) setAvgScore(Math.round(totalScore / scoreCount));
+      })
       .catch(() => setProgressData({}));
     getDueCount()
       .then(res => setReviewCount(res.data?.count ?? 0))
@@ -158,26 +173,40 @@ const ExerciseSelection = () => {
           </p>
         </div>
 
-        {/* ── Mini stats ── */}
+        {/* ── Mini stats (dynamiques) ── */}
         <div style={{ display: 'flex', gap: 14, marginBottom: 44, flexWrap: 'wrap' }}>
-          {ui.stats.map(({ icon: Icon, label, val }, i) => {
-            const colors = [
-              { color: C.coral,  soft: C.coralSoft  },
-              { color: C.violet, soft: C.violetSoft  },
-              { color: C.teal,   soft: C.tealSoft    },
-            ][i];
-            return (
-              <div key={label} style={{ background: C.white, border: `1.5px solid ${C.border}`, borderRadius: 16, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flex: '1 1 160px' }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: colors.soft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon style={{ width: 18, height: 18, color: colors.color }} />
-                </div>
-                <div>
-                  <p style={{ fontWeight: 700, fontSize: '0.62rem', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>{label}</p>
-                  <p style={{ fontWeight: 800, fontSize: '0.95rem', color: C.dark, margin: 0 }}>{val}</p>
-                </div>
+          {[
+            {
+              Icon: Flame,
+              label: lang === 'en' ? 'Streak' : 'Série',
+              val: user?.currentStreak > 0
+                ? `${user.currentStreak} ${lang === 'en' ? 'day' + (user.currentStreak > 1 ? 's' : '') : 'jour' + (user.currentStreak > 1 ? 's' : '')}`
+                : '—',
+              color: C.coral, soft: C.coralSoft,
+            },
+            {
+              Icon: Trophy,
+              label: lang === 'en' ? 'Avg score' : 'Score moy.',
+              val: avgScore != null ? `${avgScore} / 100` : '—',
+              color: C.violet, soft: C.violetSoft,
+            },
+            {
+              Icon: Mic,
+              label: lang === 'en' ? 'Sessions' : 'Sessions',
+              val: totalSessions > 0 ? String(totalSessions) : '—',
+              color: C.teal, soft: C.tealSoft,
+            },
+          ].map(({ Icon, label, val, color, soft }) => (
+            <div key={label} style={{ background: C.white, border: `1.5px solid ${C.border}`, borderRadius: 16, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flex: '1 1 160px' }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: soft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon style={{ width: 18, height: 18, color }} />
               </div>
-            );
-          })}
+              <div>
+                <p style={{ fontWeight: 700, fontSize: '0.62rem', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>{label}</p>
+                <p style={{ fontWeight: 800, fontSize: '0.95rem', color: C.dark, margin: 0 }}>{val}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* ── Level grid ── */}

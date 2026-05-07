@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -106,7 +107,7 @@ public class CourseController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Integer durationMinutes,
             @RequestParam(defaultValue = "0") Integer displayOrder,
-            @RequestParam(required = false) MultipartFile thumbnail) throws Exception {
+            @RequestParam(required = false) MultipartFile thumbnail) throws IOException {
 
         Course course = new Course();
         course.setTitle(title);
@@ -406,7 +407,7 @@ public class CourseController {
             @RequestParam(required = false) String description,
             @RequestParam String cefrLevel,
             @RequestParam(defaultValue = "fr") String lang,
-            @RequestParam(required = false) MultipartFile thumbnail) throws Exception {
+            @RequestParam(required = false) MultipartFile thumbnail) throws IOException {
 
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Cours introuvable"));

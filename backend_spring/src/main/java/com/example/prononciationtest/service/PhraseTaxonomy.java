@@ -435,6 +435,19 @@ public class PhraseTaxonomy {
             if (lower.contains(pat)) return true;
         }
 
+        // Technical / jargon words that should not appear in spoken practice phrases
+        for (String tech : List.of(
+                "algorithme", "intelligence artificielle", "digitalisation", "numérisation",
+                "pandémie", "épistémologie", "rhétorique", "hégémonie", "décarbonation",
+                "intersubjectivité", "herméneutique", "dialectique", "déconstruction",
+                "métacognition", "subsidiarité", "transversalité", "phénoménolog",
+                "homo œconomicus", "epistème", "cognitive bias", "metacognition",
+                "epistemology", "hegemony", "decarbonisation", "intersubjectivity",
+                "hermeneutics", "subsidiarity", "behaviourial", "behavioral economics",
+                "phenomenolog", "dialectic", "deconstruct")) {
+            if (lower.contains(tech)) return true;
+        }
+
         // Wrong language starters
         if ("fr".equals(expectedLang)) {
             if (lower.startsWith("the ") || lower.startsWith("i ") || lower.startsWith("we ")

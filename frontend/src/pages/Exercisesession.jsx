@@ -1120,8 +1120,7 @@ export default function ExerciseSession() {
                 ))}
               </div>
               <div>
-                <div style={{fontWeight:900,fontSize:'14px',color:'#374151',marginBottom:'4px'}}>{t.processing}</div>
-                <div style={{fontSize:'11px',color:'#9CA3AF'}}>{t.processSub}</div>
+                <div style={{fontWeight:900,fontSize:'14px',color:'#374151'}}>{t.processing}</div>
               </div>
             </div>
           </div>

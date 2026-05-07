@@ -124,6 +124,6 @@ public class PracticeController {
                 "ollama",         ollamaOk  ? "UP"   : "DOWN",
                 "overall",        (whisperOk && ollamaOk) ? "OK" : "DEGRADED"
         );
-        return ResponseEntity.status((whisperOk && ollamaOk) ? 200 : 503).body(status);
+        return ResponseEntity.ok(status);
     }
 }

@@ -1,4 +1,4 @@
-﻿package com.example.prononciationtest.service;
+ackage com.example.prononciationtest.service;
 
 
 import com.example.prononciationtest.service.iservice.IOllamaService;

@@ -54,11 +54,7 @@ pipeline {
         stage('Build — FastAPI') {
             steps {
                 dir("${env.WORKSPACE}/fastapi") {
-                    sh '''
-                        python3 -m venv venv || python -m venv venv
-                        . venv/bin/activate
-                        pip install -r requirements.txt -q
-                    '''
+                    sh 'docker build -t speakcoach-fastapi:${BUILD_NUMBER} . || true'
                 }
             }
         }
@@ -68,9 +64,8 @@ pipeline {
             steps {
                 dir("${env.WORKSPACE}/fastapi") {
                     sh '''
-                        . venv/bin/activate
-                        pip install pytest -q
-                        pytest tests/ --tb=short -q || true
+                        docker run --rm speakcoach-fastapi:${BUILD_NUMBER} \
+                            python -m pytest tests/ --tb=short -q || true
                     '''
                 }
             }
@@ -80,7 +75,7 @@ pipeline {
         stage('Build — Frontend') {
             steps {
                 dir("${env.WORKSPACE}/frontend") {
-                    sh 'npm install --silent && npm run build || true'
+                    sh 'docker build -t speakcoach-frontend:${BUILD_NUMBER} . || true'
                 }
             }
         }

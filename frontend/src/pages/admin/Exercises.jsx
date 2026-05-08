@@ -113,24 +113,25 @@ const ExerciseSelection = () => {
   const { user, getCefrLevel, isCefrCompleted } = useAuth();
   const { lang } = useLanguage();
   const navigate = useNavigate();
-  const currentLevel = getCefrLevel(lang) || 'A1';
-  const isCefrDone = isCefrCompleted(lang);
 
-  if (user && !isCefrDone) { navigate('/cefr-test', { replace: true }); return null; }
-
-  const ui  = UI[lang]            || UI.fr;
-  const cfg = LEVEL_CONFIG[lang]  || LEVEL_CONFIG.fr;
-
+  // ── Tous les hooks AVANT tout return conditionnel ──
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
   const [progressData, setProgressData] = useState({});
   const [reviewCount,  setReviewCount]  = useState(0);
   const [totalSessions, setTotalSessions] = useState(0);
   const [avgScore,      setAvgScore]      = useState(null);
 
   useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const handler = e => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
     getExerciseProgress()
       .then(res => {
         setProgressData(res.data);
-        // Compter total sessions et score moyen depuis les données de progression
         const data = res.data || {};
         let totalCompleted = 0;
         let totalScore = 0;
@@ -148,6 +149,15 @@ const ExerciseSelection = () => {
       .catch(() => {});
   }, []);
 
+  const currentLevel = getCefrLevel(lang) || 'A1';
+  const isCefrDone = isCefrCompleted(lang);
+
+  // ── Redirect APRÈS tous les hooks ──
+  if (user && !isCefrDone) { navigate('/cefr-test', { replace: true }); return null; }
+
+  const ui  = UI[lang]            || UI.fr;
+  const cfg = LEVEL_CONFIG[lang]  || LEVEL_CONFIG.fr;
+
   const isLevelUnlocked = (idx) => {
     if (idx === 0) return true;
     const levelData = progressData[LEVELS_ORDER[idx]];
@@ -155,8 +165,6 @@ const ExerciseSelection = () => {
     const prevLevel = LEVELS_ORDER[idx - 1];
     return progressData[prevLevel]?.done === true;
   };
-
-  const isMobile = window.innerWidth < 640;
 
   return (
     <Layout title={ui.pageTitle}>

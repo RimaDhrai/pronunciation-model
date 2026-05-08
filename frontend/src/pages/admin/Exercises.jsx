@@ -152,8 +152,10 @@ const ExerciseSelection = () => {
   const currentLevel = getCefrLevel(lang) || 'A1';
   const isCefrDone = isCefrCompleted(lang);
 
-  // ── Redirect APRÈS tous les hooks ──
-  if (user && !isCefrDone) { navigate('/cefr-test', { replace: true }); return null; }
+  // Redirect seulement si le test FR n'est pas fait (langue principale obligatoire)
+  // Pour l'anglais : on affiche les exercices avec A1 par défaut sans forcer le redirect
+  const frDone = isCefrCompleted('fr');
+  if (user && !frDone) { navigate('/cefr-test', { replace: true }); return null; }
 
   const ui  = UI[lang]            || UI.fr;
   const cfg = LEVEL_CONFIG[lang]  || LEVEL_CONFIG.fr;
@@ -169,6 +171,24 @@ const ExerciseSelection = () => {
   return (
     <Layout title={ui.pageTitle}>
       <div style={{ maxWidth: 900, margin: '0 auto', padding: isMobile ? '20px 14px 48px' : '40px 24px 64px' }}>
+
+        {/* ── Bannière CEFR anglais non fait ── */}
+        {lang === 'en' && !isCefrDone && (
+          <div
+            onClick={() => navigate('/cefr-test')}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.violetSoft, border: `1.5px solid ${C.violet}30`, borderRadius: 14, padding: '12px 16px', marginBottom: 20, cursor: 'pointer' }}>
+            <Trophy style={{ width: 18, height: 18, color: C.violet, flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 800, fontSize: '0.82rem', color: C.violet, margin: 0 }}>
+                {lang === 'en' ? 'Take the English CEFR test to unlock your level' : 'Passez le test CEFR anglais pour débloquer votre niveau'}
+              </p>
+              <p style={{ fontWeight: 500, fontSize: '0.72rem', color: C.mid, margin: '2px 0 0' }}>
+                {lang === 'en' ? 'Currently showing exercises from A1 (beginner)' : 'Exercices affichés depuis A1 par défaut'}
+              </p>
+            </div>
+            <ArrowRight style={{ width: 16, height: 16, color: C.violet, flexShrink: 0 }} />
+          </div>
+        )}
 
         {/* ── Header ── */}
         <div style={{ marginBottom: 40 }}>

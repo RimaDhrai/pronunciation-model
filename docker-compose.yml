@@ -56,11 +56,11 @@ services:
     networks:
       - speakcoach-net
     healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://localhost:8080/realms/talan || exit 1" ]
-      interval: 15s
-      timeout: 10s
-      retries: 12
-      start_period: 60s
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
 
   # ── FastAPI (Whisper STT + TTS) ─────────────────────────────────────────────
   fastapi:

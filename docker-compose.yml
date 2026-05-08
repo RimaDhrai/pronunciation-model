@@ -55,6 +55,12 @@ services:
       - keycloak_data:/opt/keycloak/data
     networks:
       - speakcoach-net
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:8080/realms/talan || exit 1" ]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 60s
 
   # ── FastAPI (Whisper STT + TTS) ─────────────────────────────────────────────
   fastapi:
@@ -132,7 +138,7 @@ services:
       fastapi:
         condition: service_started
       keycloak:
-        condition: service_started
+        condition: service_healthy
     networks:
       - speakcoach-net
 

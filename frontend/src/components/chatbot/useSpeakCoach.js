@@ -11,6 +11,25 @@ import { getStoredToken } from '../../api/keycloakAuth';
 
 const BASE = '/api/chat';
 
+function pcmToWav(pcm, sr) {
+  const samples = new Int16Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) {
+    samples[i] = Math.max(-32768, Math.min(32767, Math.round(pcm[i] * 32767)));
+  }
+  const dataLen = samples.length * 2;
+  const buf = new ArrayBuffer(44 + dataLen);
+  const v   = new DataView(buf);
+  const w   = (off, s) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + dataLen, true);
+  w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true);
+  v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  w(36, 'data'); v.setUint32(40, dataLen, true);
+  new Int16Array(buf, 44).set(samples);
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
 export function useSpeakCoach({ lang, level, scenario = '' }) {
   // ── State (pour le rendu) ─────────────────────────────────────────────────
   const [sessionId,   setSessionId]   = useState(null);
@@ -41,6 +60,8 @@ export function useSpeakCoach({ lang, level, scenario = '' }) {
   const chunksRef     = useRef([]);
   const streamRef     = useRef(null);
   const processingRef = useRef(false); // guard: MediaRecorder.onstop fires twice on some browsers
+  const pcmChunksRef  = useRef([]);    // raw PCM captured via ScriptProcessor (primary WAV source)
+  const scriptNodeRef = useRef(null);
 
   // ── Animation ─────────────────────────────────────────────────────────────
   const rafRef    = useRef(null);
@@ -223,20 +244,31 @@ export function useSpeakCoach({ lang, level, scenario = '' }) {
     micAnalyser.current.fftSize = 256;
     micSrc.connect(micAnalyser.current);
 
-    // ── Boost du micro via GainNode (x3) pour compenser les micros faibles ──
+    // Boost x3 via GainNode → ScriptProcessor (PCM capture) → muted output
+    // Avoids createMediaStreamDestination which produces silent audio in Chrome
     const gainNode = audioCtx.current.createGain();
-    gainNode.gain.value = 3.0;  // Amplifie le signal micro x3
+    gainNode.gain.value = 3.0;
     micSrc.connect(gainNode);
 
-    // Créer un flux amplifié pour MediaRecorder
-    const dest = audioCtx.current.createMediaStreamDestination();
-    gainNode.connect(dest);
-    const boostedStream = dest.stream;
+    pcmChunksRef.current = [];
+    const scriptNode = audioCtx.current.createScriptProcessor(2048, 1, 1);
+    scriptNodeRef.current = scriptNode;
+    // eslint-disable-next-line deprecation/deprecation
+    scriptNode.onaudioprocess = (e) => {
+      const input = e.inputBuffer.getChannelData(0);
+      pcmChunksRef.current.push(new Float32Array(input));
+    };
+    gainNode.connect(scriptNode);
+    const muteGain = audioCtx.current.createGain();
+    muteGain.gain.value = 0; // silent — no speaker echo
+    scriptNode.connect(muteGain);
+    muteGain.connect(audioCtx.current.destination);
 
+    // MediaRecorder on raw stream — only used for onstop timing signal
     chunksRef.current = [];
-    const recorder = new MediaRecorder(boostedStream, { mimeType: 'audio/webm;codecs=opus' });
+    const recorder = new MediaRecorder(streamRef.current, { mimeType: 'audio/webm;codecs=opus' });
     recorder.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-    recorder.onstop = onRecordingStop;   // onRecordingStop lit sessionIdRef.current
+    recorder.onstop = onRecordingStop;
     recorder.start();
     recorderRef.current = recorder;
 
@@ -248,6 +280,12 @@ export function useSpeakCoach({ lang, level, scenario = '' }) {
 
   const stopRecording = useCallback(() => {
     if (!recordingRef.current) return;
+    // Freeze PCM capture FIRST so all chunks are available when onstop fires
+    if (scriptNodeRef.current) {
+      scriptNodeRef.current.onaudioprocess = null;
+      try { scriptNodeRef.current.disconnect(); } catch { /* ignore */ }
+      scriptNodeRef.current = null;
+    }
     recorderRef.current?.stop();
     streamRef.current?.getTracks().forEach(t => t.stop());
     micAnalyser.current = null;
@@ -278,10 +316,22 @@ export function useSpeakCoach({ lang, level, scenario = '' }) {
     const thinkingId  = crypto.randomUUID();
     pushMessage('user', '…', [], { id: pendingId, pending: true });
 
-    const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-    const fd   = new FormData();
+    // Build WAV from captured PCM (primary) or fallback to raw MediaRecorder webm
+    let blob;
+    const pcmChunks = pcmChunksRef.current;
+    if (pcmChunks.length > 0 && audioCtx.current) {
+      const sr     = audioCtx.current.sampleRate;
+      const total  = pcmChunks.reduce((s, c) => s + c.length, 0);
+      const allPcm = new Float32Array(total);
+      let off = 0;
+      for (const chunk of pcmChunks) { allPcm.set(chunk, off); off += chunk.length; }
+      blob = pcmToWav(allPcm, sr);
+    } else {
+      blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+    }
+    const fd = new FormData();
     fd.append('session_id',  currentSessionId);
-    fd.append('audio',       blob, 'recording.webm');
+    fd.append('audio',       blob, blob.type === 'audio/wav' ? 'recording.wav' : 'recording.webm');
     fd.append('native_lang', langRef.current);
     const masterSidVoice = localStorage.getItem('masterSessionId');
     if (masterSidVoice) fd.append('master_session_id', masterSidVoice);

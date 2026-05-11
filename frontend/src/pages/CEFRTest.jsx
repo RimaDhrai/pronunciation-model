@@ -222,7 +222,7 @@ export default function CEFRTest() {
     setInstruction(data.instruction || '');
     setEstLevel(data.estimated_level || 'B1');
     setRecState('idle'); setAudioUrl(null); setShowTip(false);
-    setAnalyzeData(null); setLlmLoading(false);
+    setAnalyzeData(null); setLlmLoading(false); setError(null);
     capturedBlob.current = null; resetRecording();
   };
 

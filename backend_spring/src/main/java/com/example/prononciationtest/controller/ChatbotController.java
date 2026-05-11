@@ -368,7 +368,12 @@ public class ChatbotController {
             @RequestParam(name = "native_lang", defaultValue = "fr") String nativeLang,
             @RequestParam(name = "master_session_id", required = false) String masterSessionId
     ) {
-        SseEmitter emitter = new SseEmitter(60000L);
+        SseEmitter emitter = new SseEmitter(120000L);
+        emitter.onTimeout(() -> {
+            try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", "Timeout — réessaie")))); } catch (IOException ignored) {}
+            emitter.complete();
+        });
+        emitter.onError(ex -> emitter.complete());
 
         CompletableFuture.runAsync(() -> {
             try {

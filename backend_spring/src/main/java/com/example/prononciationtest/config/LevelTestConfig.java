@@ -20,9 +20,9 @@ public class LevelTestConfig {
     }
 
     public static class TimeoutConfig {
-        private int phraseGeneration = 30;
-        private int feedbackGeneration = 20;
-        private int synthesisGeneration = 25;
+        private int phraseGeneration = 90;
+        private int feedbackGeneration = 60;
+        private int synthesisGeneration = 60;
 
         public int getPhraseGeneration() {
             return phraseGeneration;

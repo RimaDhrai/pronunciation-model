@@ -145,6 +145,18 @@ async def analyze(
 
     try:
         audio, sr = preprocess_audio(audio_bytes)
+    except ValueError as e:
+        logger.warning(f"[{rid}] Audio trop court: {e}")
+        return {
+            "transcript": "", "raw_transcript": "", "clean_transcript": "",
+            "wer": 1.0, "f1": 0.0, "precision": 0.0, "recall": 0.0,
+            "word_diff_score": 0, "avg_confidence": 0.0,
+            "fillers_found": [], "ops": [],
+            "n_match": 0, "n_sub": 0, "n_del": 0, "n_ins": 0,
+            "words": [],
+            "language_prob": 0.0, "duration": 0.0, "rms_energy": 0.0,
+            "stt_error": True, "stt_error_code": "AUDIO_TOO_SHORT", "stt_error_message": str(e),
+        }
     except Exception as e:
         raise HTTPException(400, str(e))
 

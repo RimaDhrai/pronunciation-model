@@ -488,6 +488,8 @@ export default function ExerciseSession() {
 
   const handleStopRec = async () => {
     if (recStartTimeRef.current && Date.now() - recStartTimeRef.current < 800) {
+      await stopRecording();
+      setRecState('idle'); setPhase('ready');
       setError(t.shortRec); return;
     }
     const blob = await stopRecording();

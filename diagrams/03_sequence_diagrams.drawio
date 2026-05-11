@@ -39,40 +39,39 @@
     <mxCell id="s1_m7r" value="{phrase}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="245" as="sourcePoint"/><mxPoint x="395" y="245" as="targetPoint"/></mxGeometry></mxCell>
     <mxCell id="s1_m8r" value="200 {phrase}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="260" as="sourcePoint"/><mxPoint x="105" y="260" as="targetPoint"/></mxGeometry></mxCell>
 
-    <!-- Step 2: User records audio -->
-    <mxCell id="s1_sep1" value="Apprenant prononce la phrase et clique 'Envoyer'" style="text;strokeColor=#aaaaaa;fillColor=#f5f5f5;fontSize=9;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="60" y="275" width="400" height="18" as="geometry"/></mxCell>
+    <!-- ── PHASE A : STT direct React → nginx → FastAPI (Whisper uniquement) ── -->
+    <mxCell id="s1_sep1" value="Apprenant prononce la phrase et clique 'Analyser'" style="text;strokeColor=#aaaaaa;fillColor=#f5f5f5;fontSize=9;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="60" y="275" width="400" height="18" as="geometry"/></mxCell>
 
-    <mxCell id="s1_m9" value="POST /api/practice/evaluate (audio.wav + expected + lang + level)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="305" as="sourcePoint"/><mxPoint x="245" y="305" as="targetPoint"/></mxGeometry></mxCell>
-    <mxCell id="s1_m10" value="forward" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="245" y="320" as="sourcePoint"/><mxPoint x="395" y="320" as="targetPoint"/></mxGeometry></mxCell>
-    <mxCell id="s1_m11" value="evaluate(audio, expected, lang, level, email)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="335" as="sourcePoint"/><mxPoint x="555" y="335" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_noteA" value="PHASE A — Analyse audio (React → nginx → FastAPI directement)" style="text;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=9;fontStyle=3;rounded=1;" vertex="1" parent="1"><mxGeometry x="60" y="295" width="380" height="16" as="geometry"/></mxCell>
 
-    <!-- FastAPI call -->
-    <mxCell id="s1_m12" value="POST /analyze {audio.wav}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="355" as="sourcePoint"/><mxPoint x="860" y="355" as="targetPoint"/></mxGeometry></mxCell>
-    <mxCell id="s1_m12a" value="Whisper STT transcription" style="text;fillColor=#fff3e0;strokeColor=#e65100;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="810" y="365" width="160" height="18" as="geometry"/></mxCell>
-    <mxCell id="s1_m13" value="Calcul WER + F1 + diff ops" style="text;fillColor=#fff3e0;strokeColor=#e65100;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="810" y="385" width="160" height="18" as="geometry"/></mxCell>
-    <mxCell id="s1_m14r" value="{transcript, wer, f1, diffOps, confidence}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="860" y="415" as="sourcePoint"/><mxPoint x="555" y="415" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m9" value="POST /analyze {audio.wav, expectedPhrase, lang, level}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="320" as="sourcePoint"/><mxPoint x="245" y="320" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m10" value="proxy_pass → fastapi:8000/analyze" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="245" y="335" as="sourcePoint"/><mxPoint x="860" y="335" as="targetPoint"/></mxGeometry></mxCell>
 
-    <!-- Score computation -->
-    <mxCell id="s1_score" value="computeScore() + computeCefrScore() + xpForScore()" style="text;fillColor=#e8eaf6;strokeColor=#3f51b5;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="500" y="430" width="300" height="18" as="geometry"/></mxCell>
+    <mxCell id="s1_m12a" value="Whisper STT transcription" style="text;fillColor=#fff3e0;strokeColor=#e65100;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="810" y="348" width="165" height="18" as="geometry"/></mxCell>
+    <mxCell id="s1_m13"  value="WER + F1 + diffOps + IPA phonèmes" style="text;fillColor=#fff3e0;strokeColor=#e65100;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="810" y="368" width="165" height="18" as="geometry"/></mxCell>
+    <mxCell id="s1_m14r" value="{transcript, wer, f1, word_diff_score, avg_confidence, ops, phonemes}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="860" y="395" as="sourcePoint"/><mxPoint x="105" y="395" as="targetPoint"/></mxGeometry></mxCell>
 
-    <!-- LLM Feedback -->
-    <mxCell id="s1_m15" value="generateFeedback(phrase, transcript, errors)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="460" as="sourcePoint"/><mxPoint x="705" y="460" as="targetPoint"/></mxGeometry></mxCell>
-    <mxCell id="s1_m15r" value="feedback texte LLM" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="705" y="475" as="sourcePoint"/><mxPoint x="555" y="475" as="targetPoint"/></mxGeometry></mxCell>
+    <!-- Score computation client-side -->
+    <mxCell id="s1_score" value="score = word_diff*0.6 + confidence*100*0.4  (calcul côté React)" style="text;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="60" y="410" width="370" height="18" as="geometry"/></mxCell>
+    <mxCell id="s1_ui_imm" value="Affiche score immédiatement (sans attendre Spring Boot)" style="text;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="60" y="430" width="320" height="16" as="geometry"/></mxCell>
 
-    <!-- Gamification -->
-    <mxCell id="s1_m16" value="recordActivity(user, xp, score)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="495" as="sourcePoint"/><mxPoint x="1015" y="495" as="targetPoint"/></mxGeometry></mxCell>
-    <mxCell id="s1_m17" value="checkBadges(user, score)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1015" y="510" as="sourcePoint"/><mxPoint x="1015" y="510" as="targetPoint"/></mxGeometry></mxCell>
-    <mxCell id="s1_m18" value="INSERT badge IF new" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1015" y="525" as="sourcePoint"/><mxPoint x="1165" y="525" as="targetPoint"/></mxGeometry></mxCell>
+    <!-- PHASE B: Spring Boot feedback + save (fire-and-forget) -->
+    <mxCell id="s1_noteB" value="PHASE B — Feedback LLM + Save (React → nginx → Spring Boot, fire-and-forget)" style="text;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=9;fontStyle=3;rounded=1;" vertex="1" parent="1"><mxGeometry x="60" y="452" width="430" height="16" as="geometry"/></mxCell>
 
-    <!-- Save attempt -->
-    <mxCell id="s1_m19" value="INSERT INTO attempts" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="555" as="sourcePoint"/><mxPoint x="1165" y="555" as="targetPoint"/></mxGeometry></mxCell>
-    <mxCell id="s1_m19r" value="OK" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1165" y="570" as="sourcePoint"/><mxPoint x="555" y="570" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m15" value="POST /api/practice/feedback/generate {score, transcript, phrase, ops}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="475" as="sourcePoint"/><mxPoint x="245" y="475" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m15b" value="forward" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="245" y="490" as="sourcePoint"/><mxPoint x="395" y="490" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m15c" value="generateFeedback(phrase, transcript, score)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="505" as="sourcePoint"/><mxPoint x="555" y="505" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m15d" value="POST Ollama /api/chat (LLM feedback)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="520" as="sourcePoint"/><mxPoint x="705" y="520" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m15e" value="feedback texte" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="705" y="535" as="sourcePoint"/><mxPoint x="105" y="535" as="targetPoint"/></mxGeometry></mxCell>
 
-    <!-- Return EvaluationResponse -->
-    <mxCell id="s1_m20r" value="EvaluationResponse {score, cefrScore, xp, feedback, wer, f1, diff}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="595" as="sourcePoint"/><mxPoint x="395" y="595" as="targetPoint"/></mxGeometry></mxCell>
-    <mxCell id="s1_m21r" value="200 OK {EvaluationResponse}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="615" as="sourcePoint"/><mxPoint x="105" y="615" as="targetPoint"/></mxGeometry></mxCell>
+    <!-- Save + gamification -->
+    <mxCell id="s1_m16" value="POST /auth/save-session {score, phrase, feedback}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="555" as="sourcePoint"/><mxPoint x="395" y="555" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m17" value="recordActivity(user, xp, score)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="570" as="sourcePoint"/><mxPoint x="1015" y="570" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m18" value="INSERT badge IF new" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1015" y="585" as="sourcePoint"/><mxPoint x="1165" y="585" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m19" value="INSERT INTO attempts" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="600" as="sourcePoint"/><mxPoint x="1165" y="600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m19r" value="OK" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1165" y="615" as="sourcePoint"/><mxPoint x="395" y="615" as="targetPoint"/></mxGeometry></mxCell>
 
-    <mxCell id="s1_ui" value="Affiche: score, feedback, diff colorée, badges gagnés" style="text;strokeColor=#6c8ebf;fillColor=#dae8fc;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="60" y="630" width="280" height="18" as="geometry"/></mxCell>
+    <mxCell id="s1_ui" value="Affiche: score (immédiat) + feedback IA (asynchrone) + diff colorée" style="text;strokeColor=#6c8ebf;fillColor=#dae8fc;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="60" y="630" width="330" height="18" as="geometry"/></mxCell>
 
     <!-- ╔══════════════════════════════════════════════════════╗
          ║  SEQUENCE 2 : Test CEFR Adaptatif                   ║

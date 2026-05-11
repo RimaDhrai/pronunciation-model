@@ -236,6 +236,8 @@ export default function CEFRTest() {
 
   const handleStopRec = async () => {
     if (recStartTimeRef.current && Date.now() - recStartTimeRef.current < 800) {
+      await stopRecording();
+      setRecState('idle');
       setError(t('Enregistrement trop court.', 'Recording too short.')); return;
     }
     const blob = await stopRecording();

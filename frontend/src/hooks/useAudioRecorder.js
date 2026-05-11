@@ -10,6 +10,36 @@ function getBestMimeType() {
   return candidates.find((m) => MediaRecorder.isTypeSupported(m)) || '';
 }
 
+async function convertToWav(blob) {
+  const arrayBuffer = await blob.arrayBuffer();
+  // Fresh AudioContext at 16kHz — independent from the analyser context
+  const ctx = new AudioContext({ sampleRate: 16000 });
+  let decoded;
+  try {
+    decoded = await ctx.decodeAudioData(arrayBuffer);
+  } finally {
+    ctx.close().catch(() => {});
+  }
+  const pcm     = decoded.getChannelData(0);
+  const sr      = decoded.sampleRate;
+  const samples = new Int16Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) {
+    samples[i] = Math.max(-32768, Math.min(32767, Math.round(pcm[i] * 32767)));
+  }
+  const dataLen = samples.length * 2;
+  const buf = new ArrayBuffer(44 + dataLen);
+  const v   = new DataView(buf);
+  const str = (off, s) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + dataLen, true);
+  str(8, 'WAVE'); str(12, 'fmt '); v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true);
+  v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, 'data'); v.setUint32(40, dataLen, true);
+  new Int16Array(buf, 44).set(samples);
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
 export function useAudioRecorder() {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
@@ -56,9 +86,9 @@ export function useAudioRecorder() {
         if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
       };
 
-      recorder.onstop = () => {
+      recorder.onstop = async () => {
         const finalMime = mimeType || 'audio/webm';
-        const blob = new Blob(chunksRef.current, { type: finalMime });
+        const rawBlob = new Blob(chunksRef.current, { type: finalMime });
 
         stream.getTracks().forEach((t) => t.stop());
         cancelAnimationFrame(animFrameRef.current);
@@ -68,9 +98,17 @@ export function useAudioRecorder() {
           audioCtxRef.current.close().catch(() => {});
         }
 
-        setAudioBlob(blob);
+        // Convert to WAV (PySoundFile reads natively → Whisper 10x faster)
+        let finalBlob = rawBlob;
+        try {
+          finalBlob = await convertToWav(rawBlob);
+        } catch {
+          // Fallback: send raw format, FastAPI uses ffmpeg
+        }
+
+        setAudioBlob(finalBlob);
         if (stopResolveRef.current) {
-          stopResolveRef.current(blob);
+          stopResolveRef.current(finalBlob);
           stopResolveRef.current = null;
         }
       };

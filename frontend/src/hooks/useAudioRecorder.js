@@ -132,7 +132,7 @@ export function useAudioRecorder() {
       };
 
       // Start with timeslice to avoid data loss
-      recorder.start(250);
+      recorder.start(100);
       setIsRecording(true);
 
       const updateLevel = () => {

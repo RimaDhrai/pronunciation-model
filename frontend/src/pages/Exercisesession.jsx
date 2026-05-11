@@ -406,7 +406,8 @@ export default function ExerciseSession() {
   const [showIpa, setShowIpa]   = useState(false);
   const [phraseIpa, setPhraseIpa] = useState(null);
 
-  const capturedBlobRef = useRef(null);
+  const capturedBlobRef  = useRef(null);
+  const recStartTimeRef  = useRef(null);
 
   const { isRecording, audioLevel, error: micError, startRecording, stopRecording, resetRecording } = useAudioRecorder();
 
@@ -481,10 +482,14 @@ export default function ExerciseSession() {
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(null); capturedBlobRef.current = null;
     setError(null); setRecState('recording'); setPhase('recording');
+    recStartTimeRef.current = Date.now();
     await startRecording();
   };
 
   const handleStopRec = async () => {
+    if (recStartTimeRef.current && Date.now() - recStartTimeRef.current < 800) {
+      setError(t.shortRec); return;
+    }
     const blob = await stopRecording();
     if (!blob || blob.size < 100) { setError(t.shortRec); setRecState('idle'); setPhase('ready'); return; }
     capturedBlobRef.current = blob;

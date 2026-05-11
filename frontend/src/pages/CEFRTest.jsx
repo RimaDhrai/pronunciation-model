@@ -165,7 +165,8 @@ export default function CEFRTest() {
   const [llmLoading,   setLlmLoading]   = useState(false); // true while /feedback LLM is pending
   const [progression,  setProgression]  = useState(null);  // score progression over sessions
 
-  const capturedBlob = useRef(null);
+  const capturedBlob   = useRef(null);
+  const recStartTimeRef = useRef(null);
   const { startRecording, stopRecording, resetRecording } = useAudioRecorder();
 
   // Fetch score progression when results appear
@@ -229,10 +230,14 @@ export default function CEFRTest() {
   const handleStartRec = async () => {
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(null); capturedBlob.current = null; setError(null);
+    recStartTimeRef.current = Date.now();
     setRecState('recording'); await startRecording();
   };
 
   const handleStopRec = async () => {
+    if (recStartTimeRef.current && Date.now() - recStartTimeRef.current < 800) {
+      setError(t('Enregistrement trop court.', 'Recording too short.')); return;
+    }
     const blob = await stopRecording();
     if (!blob || blob.size < 100) { setError(t('Enregistrement trop court.', 'Recording too short.')); setRecState('idle'); return; }
     capturedBlob.current = blob;

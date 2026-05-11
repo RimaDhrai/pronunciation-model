@@ -6,8 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import React, { Suspense } from "react";
-import { Loader2 } from "lucide-react";
+import React, { Suspense, Component } from "react";
+import { Loader2, RefreshCw } from "lucide-react";
 
 // ── Fallback spinner ──────────────────────────────────────────────────────────
 const PageLoader = () => (
@@ -15,6 +15,44 @@ const PageLoader = () => (
     <Loader2 className="w-10 h-10 animate-spin text-primary" />
   </div>
 );
+
+// ── Error Boundary — catches failed dynamic imports (ERR_CONNECTION_REFUSED) ──
+class ChunkErrorBoundary extends Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (!this.state.hasError) return this.props.children;
+    return (
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', minHeight: '60vh', gap: 16,
+        fontFamily: 'sans-serif', color: '#5F7183',
+      }}>
+        <p style={{ fontSize: 16, fontWeight: 600 }}>
+          La page n'a pas pu se charger. Vérifiez votre connexion.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '10px 20px', borderRadius: 10, border: 'none',
+            background: '#80DCDC', color: '#1C2B3A', fontWeight: 700,
+            cursor: 'pointer', fontSize: 14,
+          }}
+        >
+          <RefreshCw size={16} /> Recharger la page
+        </button>
+      </div>
+    );
+  }
+}
 
 // ── Pages publiques (static imports – petit bundle) ───────────────────────────
 import Landing       from "./pages/Landing";
@@ -70,6 +108,7 @@ const App = () => (
       <LanguageProvider>
       <AuthProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <ChunkErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* ── Public ───────────────────────────────────────────────── */}
@@ -113,6 +152,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          </ChunkErrorBoundary>
         </BrowserRouter>
       </AuthProvider>
       </LanguageProvider>

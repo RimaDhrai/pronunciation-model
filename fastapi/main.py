@@ -145,14 +145,27 @@ async def analyze(
 
     try:
         audio, sr = preprocess_audio(audio_bytes)
-    except ValueError as e:
+    except Exception as e:
         raise HTTPException(400, str(e))
 
     loop = asyncio.get_running_loop()
-    stt  = await loop.run_in_executor(
-        executor,
-        lambda: transcribe_audio(audio, sr, lang, whisper_model)
-    )
+    try:
+        stt = await loop.run_in_executor(
+            executor,
+            lambda: transcribe_audio(audio, sr, lang, whisper_model)
+        )
+    except Exception as e:
+        logger.error(f"[{rid}] Whisper error: {e}")
+        return {
+            "transcript": "", "raw_transcript": "", "clean_transcript": "",
+            "wer": 1.0, "f1": 0.0, "precision": 0.0, "recall": 0.0,
+            "word_diff_score": 0, "avg_confidence": 0.0,
+            "fillers_found": [], "ops": [],
+            "n_match": 0, "n_sub": 0, "n_del": 0, "n_ins": 0,
+            "words": [],
+            "language_prob": 0.0, "duration": 0.0, "rms_energy": 0.0,
+            "stt_error": True, "stt_error_code": "WHISPER_ERROR", "stt_error_message": str(e),
+        }
 
     if stt.get("is_silent") or stt.get("error"):
         err = stt.get("error", "SILENT_AUDIO")
@@ -172,10 +185,15 @@ async def analyze(
 
     # Analyse phonétique : compare phonèmes attendus vs confiance Whisper mot par mot
     words = stt.get("words", [])
-    phoneme_data   = get_phonemes(expectedPhrase, lang)
-    phoneme_issues = compare_phonemes(
-        phoneme_data["ipa"], words, phoneme_data["words"], lang
-    )
+    try:
+        phoneme_data   = get_phonemes(expectedPhrase, lang)
+        phoneme_issues = compare_phonemes(
+            phoneme_data["ipa"], words, phoneme_data["words"], lang
+        )
+    except Exception as e:
+        logger.warning(f"[{rid}] Phoneme analysis error: {e}")
+        phoneme_data   = {"ipa": "", "source": "error", "words": []}
+        phoneme_issues = []
 
     # ── Détection prononciation incomplète ────────────────────────────────────
     # Si l'audio est trop court pour le nombre de mots attendus, l'utilisateur

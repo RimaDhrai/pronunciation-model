@@ -185,13 +185,13 @@ def _transcribe_chatbot(audio: np.ndarray, sr: int, lang: str, whisper_model):
 
     try:
         segs, _ = _whisper_transcribe_once(tmp_path, lang, whisper_model,
-                                           beam_size=5, temperature=0.0,
+                                           beam_size=1, temperature=0.0,
                                            initial_prompt=initial_prompt)
         result = _extract_transcription(segs, pass_num=1, audio_duration=duration)
 
         if result.get("error") and rms > 0.01 and duration >= 0.5:
             segs2, _ = _whisper_transcribe_once(tmp_path, lang, whisper_model,
-                                                beam_size=5, temperature=(0.0,0.2,0.4,0.6,0.8),
+                                                beam_size=2, temperature=(0.0,0.2,0.4,0.6,0.8),
                                                 initial_prompt=initial_prompt)
             result2 = _extract_transcription(segs2, pass_num=2, audio_duration=duration)
             if not result2.get("error"):

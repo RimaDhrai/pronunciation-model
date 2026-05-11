@@ -237,10 +237,9 @@ def transcribe_audio(
         segs, info = whisper_model.transcribe(
             tmp_path,
             language=lang,
-            beam_size=2,
-            best_of=2,
+            beam_size=1,   # greedy — 2× faster on CPU, sufficient for pronunciation scoring
+            best_of=1,
             temperature=0.0,
-            # VAD filtering can be costly; disable for speed (may increase false positives)
             vad_filter=False,
             word_timestamps=True,
             condition_on_previous_text=False,

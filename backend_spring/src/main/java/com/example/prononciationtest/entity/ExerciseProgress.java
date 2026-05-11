@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
     name = "exercise_progress",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "level"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "level", "lang"})
 )
 @Getter
 @Setter
@@ -23,6 +23,9 @@ public class ExerciseProgress {
 
     @Column(nullable = false, length = 5)
     private String level;           // A1, A2, B1, B2, C1, C2
+
+    @Column(nullable = false, length = 2)
+    private String lang = "fr";     // fr ou en
 
     @Column(nullable = false)
     private boolean done = false;   // session complète (toutes les phrases faites)

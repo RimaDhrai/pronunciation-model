@@ -54,15 +54,16 @@ class ExerciseProgressControllerTest {
         ExerciseProgress p = new ExerciseProgress();
         p.setUserId(1L);
         p.setLevel("A1");
+        p.setLang("fr");
         p.setDone(true);
         p.setMastered(true);
         p.setCompleted(10);
         p.setLastAvgScore(80);
 
-        when(progressRepo.findByUserId(1L)).thenReturn(List.of(p));
-        when(progressRepo.existsByUserIdAndLevelAndDoneTrue(1L, "A1")).thenReturn(true);
+        when(progressRepo.findByUserIdAndLang(1L, "fr")).thenReturn(List.of(p));
+        when(progressRepo.existsByUserIdAndLevelAndLangAndDoneTrue(1L, "A1", "fr")).thenReturn(true);
 
-        mockMvc.perform(get("/api/exercises/progress"))
+        mockMvc.perform(get("/api/exercises/progress").param("lang", "fr"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.A1.done").value(true))
                 .andExpect(jsonPath("$.A1.mastered").value(true))
@@ -80,13 +81,14 @@ class ExerciseProgressControllerTest {
     @Test
     @WithMockUser(username = "alice@test.com")
     void completeLevel_validLevel_returns200() throws Exception {
-        when(progressRepo.findByUserIdAndLevel(1L, "A1")).thenReturn(Optional.empty());
+        when(progressRepo.findByUserIdAndLevelAndLang(1L, "A1", "fr")).thenReturn(Optional.empty());
         when(progressRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         doNothing().when(gamificationService).recordActivity(any(), anyInt(), anyInt());
 
         mockMvc.perform(post("/api/exercises/progress/A1/complete")
                         .param("avgScore", "75")
-                        .param("totalPhrases", "10"))
+                        .param("totalPhrases", "10")
+                        .param("lang", "fr"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.level").value("A1"))
                 .andExpect(jsonPath("$.done").value(true))
@@ -107,12 +109,13 @@ class ExerciseProgressControllerTest {
     @Test
     @WithMockUser(username = "alice@test.com")
     void completeLevel_mastered_whenScoreAbove60() throws Exception {
-        when(progressRepo.findByUserIdAndLevel(1L, "B1")).thenReturn(Optional.empty());
+        when(progressRepo.findByUserIdAndLevelAndLang(1L, "B1", "fr")).thenReturn(Optional.empty());
         when(progressRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         doNothing().when(gamificationService).recordActivity(any(), anyInt(), anyInt());
 
         mockMvc.perform(post("/api/exercises/progress/B1/complete")
-                        .param("avgScore", "70"))
+                        .param("avgScore", "70")
+                        .param("lang", "fr"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mastered").value(true));
     }
@@ -120,12 +123,13 @@ class ExerciseProgressControllerTest {
     @Test
     @WithMockUser(username = "alice@test.com")
     void completeLevel_notMastered_whenScoreBelow60() throws Exception {
-        when(progressRepo.findByUserIdAndLevel(1L, "B1")).thenReturn(Optional.empty());
+        when(progressRepo.findByUserIdAndLevelAndLang(1L, "B1", "fr")).thenReturn(Optional.empty());
         when(progressRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         doNothing().when(gamificationService).recordActivity(any(), anyInt(), anyInt());
 
         mockMvc.perform(post("/api/exercises/progress/B1/complete")
-                        .param("avgScore", "45"))
+                        .param("avgScore", "45")
+                        .param("lang", "fr"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mastered").value(false));
     }
@@ -138,15 +142,16 @@ class ExerciseProgressControllerTest {
         ExerciseProgress p = new ExerciseProgress();
         p.setUserId(1L);
         p.setLevel("B1");
+        p.setLang("fr");
         p.setDone(true);
         p.setMastered(true);
         p.setCompleted(10);
         p.setLastAvgScore(82);
 
-        when(progressRepo.findByUserIdAndLevel(1L, "B1")).thenReturn(Optional.of(p));
-        when(progressRepo.existsByUserIdAndLevelAndDoneTrue(1L, "A2")).thenReturn(true);
+        when(progressRepo.findByUserIdAndLevelAndLang(1L, "B1", "fr")).thenReturn(Optional.of(p));
+        when(progressRepo.existsByUserIdAndLevelAndLangAndDoneTrue(1L, "A2", "fr")).thenReturn(true);
 
-        mockMvc.perform(get("/api/exercises/progress/B1"))
+        mockMvc.perform(get("/api/exercises/progress/B1").param("lang", "fr"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.level").value("B1"))
                 .andExpect(jsonPath("$.done").value(true))
@@ -156,12 +161,12 @@ class ExerciseProgressControllerTest {
     @Test
     @WithMockUser(username = "alice@test.com")
     void getLevelProgress_notFound_returnsDefaultUnlocked() throws Exception {
-        when(progressRepo.findByUserIdAndLevel(1L, "A1")).thenReturn(Optional.empty());
+        when(progressRepo.findByUserIdAndLevelAndLang(1L, "A1", "fr")).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/exercises/progress/A1"))
+        mockMvc.perform(get("/api/exercises/progress/A1").param("lang", "fr"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.level").value("A1"))
                 .andExpect(jsonPath("$.done").value(false))
-                .andExpect(jsonPath("$.unlocked").value(true)); // A1 always unlocked
+                .andExpect(jsonPath("$.unlocked").value(true));
     }
 }

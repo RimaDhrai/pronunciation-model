@@ -18,6 +18,7 @@ pipeline {
 
     stages {
 
+        // ── 1. CHECKOUT ──────────────────────────────────────────────────────
         stage('Checkout') {
             steps {
                 git branch: "${GIT_BRANCH}",
@@ -26,6 +27,7 @@ pipeline {
             }
         }
 
+        // ── 2. INSTALL DEPENDENCIES ──────────────────────────────────────────
         stage('Install Dependencies') {
             steps {
                 sh '''
@@ -33,20 +35,41 @@ pipeline {
                     . venv/bin/activate
                     pip install --upgrade pip -q
                     pip install -r requirements.txt -q
+                    pip install pytest pytest-cov -q
                 '''
             }
         }
 
+        // ── 3. TESTS + COUVERTURE ────────────────────────────────────────────
         stage('Tests') {
             steps {
                 sh '''
                     . venv/bin/activate
-                    pip install pytest pytest-cov -q
-                    pytest tests/ --tb=short -q || true
+                    pytest tests/ \
+                        --tb=short \
+                        -q \
+                        --cov=. \
+                        --cov-report=xml:coverage.xml \
+                        --cov-report=term-missing \
+                        --cov-config=.coveragerc
                 '''
+            }
+            post {
+                always {
+                    // Publie le rapport de couverture Python dans Jenkins
+                    publishHTML(target: [
+                        allowMissing:           true,
+                        alwaysLinkToLastBuild:  true,
+                        keepAll:                true,
+                        reportDir:              'htmlcov',
+                        reportFiles:            'index.html',
+                        reportName:             'FastAPI Coverage Report'
+                    ])
+                }
             }
         }
 
+        // ── 4. ANALYSE SONARQUBE ─────────────────────────────────────────────
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -55,7 +78,9 @@ pipeline {
                             -Dsonar.projectKey=${PROJECT_KEY} \
                             -Dsonar.projectName="SpeakCoach FastAPI" \
                             -Dsonar.sources=. \
-                            -Dsonar.exclusions=venv/**,__pycache__/**,tests/** \
+                            -Dsonar.exclusions=venv/**,__pycache__/**,tests/**,htmlcov/** \
+                            -Dsonar.python.coverage.reportPaths=coverage.xml \
+                            -Dsonar.python.version=3.11 \
                             -Dsonar.host.url=${SONAR_HOST_URL} \
                             -Dsonar.token=${SONAR_TOKEN}
                     """
@@ -63,6 +88,16 @@ pipeline {
             }
         }
 
+        // ── 5. QUALITY GATE ───────────────────────────────────────────────────
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 3, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        // ── 6. DOCKER BUILD ───────────────────────────────────────────────────
         stage('Docker Build') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
@@ -77,6 +112,9 @@ pipeline {
         }
         failure {
             echo "Pipeline FastAPI échoué — Build #${env.BUILD_NUMBER}"
+        }
+        always {
+            cleanWs(cleanWhenFailure: false)
         }
     }
 }

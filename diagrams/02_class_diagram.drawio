@@ -1,0 +1,467 @@
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2339" pageHeight="1654" math="0" shadow="0">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+
+    <mxCell id="T" value="SpeakCoach — Diagramme de Classes" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=18;fontStyle=1;fontColor=#1a237e;" vertex="1" parent="1">
+      <mxGeometry x="500" y="10" width="1000" height="35" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== LAYER LABELS ===================== -->
+    <mxCell id="LBL_E" value="COUCHE ENTITÉS (JPA)" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=center;fontSize=11;fontStyle=1;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="60" y="58" width="230" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="LBL_S" value="COUCHE SERVICES" style="text;html=1;strokeColor=#3f51b5;fillColor=#e8eaf6;align=center;fontSize=11;fontStyle=1;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="60" y="1005" width="200" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="LBL_C" value="COUCHE CONTROLLERS (REST)" style="text;html=1;strokeColor=#7b1fa2;fillColor=#f3e5f5;align=center;fontSize=11;fontStyle=1;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="60" y="1250" width="270" height="24" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: User ===================== -->
+    <mxCell id="User" value="User" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="60" y="90" width="230" height="305" as="geometry"/>
+    </mxCell>
+    <mxCell id="User_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="User">
+      <mxGeometry y="26" width="230" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="User_l1" value="" style="line;strokeColor=#6c8ebf;fillColor=none;" vertex="1" parent="User">
+      <mxGeometry y="40" width="230" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="User_a" value="- id: Long {PK}&#xa;- email: String {unique}&#xa;- fullName: String&#xa;- cefrLevel: String&#xa;- cefrLevelEn: String&#xa;- totalXp: Integer&#xa;- currentStreak: Integer&#xa;- longestStreak: Integer&#xa;- weakWords: String&#xa;- enabled: boolean&#xa;- createdAt: Instant" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="User">
+      <mxGeometry y="48" width="230" height="185" as="geometry"/>
+    </mxCell>
+    <mxCell id="User_l2" value="" style="line;strokeColor=#6c8ebf;fillColor=none;" vertex="1" parent="User">
+      <mxGeometry y="233" width="230" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="User_m" value="+ getAttempts(): List&lt;Attempt&gt;&#xa;+ getBadges(): List&lt;Badge&gt;&#xa;+ getSessions(): List&lt;UserSession&gt;" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="User">
+      <mxGeometry y="241" width="230" height="60" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: Attempt ===================== -->
+    <mxCell id="Attempt" value="Attempt" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="340" y="90" width="220" height="250" as="geometry"/>
+    </mxCell>
+    <mxCell id="Attempt_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="Attempt">
+      <mxGeometry y="26" width="220" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="Attempt_l1" value="" style="line;strokeColor=#6c8ebf;fillColor=none;" vertex="1" parent="Attempt">
+      <mxGeometry y="40" width="220" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="Attempt_a" value="- id: Long {PK}&#xa;- user: User {ManyToOne}&#xa;- expectedPhrase: String&#xa;- transcription: String&#xa;- score: int&#xa;- wer: double&#xa;- language: String&#xa;- level: String&#xa;- feedback: String&#xa;- audioPath: String&#xa;- createdAt: LocalDateTime" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="Attempt">
+      <mxGeometry y="48" width="220" height="180" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: Course ===================== -->
+    <mxCell id="Course" value="Course" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="610" y="90" width="220" height="255" as="geometry"/>
+    </mxCell>
+    <mxCell id="Course_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="Course">
+      <mxGeometry y="26" width="220" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="Course_l1" value="" style="line;strokeColor=#82b366;fillColor=none;" vertex="1" parent="Course">
+      <mxGeometry y="40" width="220" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="Course_a" value="- id: Long {PK}&#xa;- title: String&#xa;- description: String&#xa;- cefrLevel: String&#xa;- lang: String&#xa;- category: String&#xa;- durationMinutes: Integer&#xa;- thumbnailUrl: String&#xa;- active: Boolean&#xa;- displayOrder: Integer" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="Course">
+      <mxGeometry y="48" width="220" height="155" as="geometry"/>
+    </mxCell>
+    <mxCell id="Course_l2" value="" style="line;strokeColor=#82b366;fillColor=none;" vertex="1" parent="Course">
+      <mxGeometry y="203" width="220" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="Course_m" value="+ getLessons(): List&lt;Lesson&gt;&#xa;+ getEnrollments(): List" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="Course">
+      <mxGeometry y="211" width="220" height="40" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: Lesson ===================== -->
+    <mxCell id="Lesson" value="Lesson" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="880" y="90" width="220" height="225" as="geometry"/>
+    </mxCell>
+    <mxCell id="Lesson_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="Lesson">
+      <mxGeometry y="26" width="220" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="Lesson_l1" value="" style="line;strokeColor=#82b366;fillColor=none;" vertex="1" parent="Lesson">
+      <mxGeometry y="40" width="220" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="Lesson_a" value="- id: Long {PK}&#xa;- course: Course {ManyToOne}&#xa;- title: String&#xa;- content: String&#xa;- type: String&#xa;- lessonOrder: Integer&#xa;- durationMinutes: Integer&#xa;- active: Boolean" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="Lesson">
+      <mxGeometry y="48" width="220" height="140" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: CEFRSession ===================== -->
+    <mxCell id="CEFRSess" value="CEFRSession" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="1150" y="90" width="225" height="215" as="geometry"/>
+    </mxCell>
+    <mxCell id="CEFRSess_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="CEFRSess">
+      <mxGeometry y="26" width="225" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="CEFRSess_l1" value="" style="line;strokeColor=#d6b656;fillColor=none;" vertex="1" parent="CEFRSess">
+      <mxGeometry y="40" width="225" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="CEFRSess_a" value="- id: Long {PK}&#xa;- sessionId: String {unique}&#xa;- userId: Long&#xa;- lang: String&#xa;- status: String&#xa;- finalLevel: String&#xa;- avgScore: Integer&#xa;- startedAt: LocalDateTime&#xa;- completedAt: LocalDateTime" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="CEFRSess">
+      <mxGeometry y="48" width="225" height="148" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: PhraseAttempt ===================== -->
+    <mxCell id="PhraseAtt" value="PhraseAttempt" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="1150" y="360" width="225" height="210" as="geometry"/>
+    </mxCell>
+    <mxCell id="PhraseAtt_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="PhraseAtt">
+      <mxGeometry y="26" width="225" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="PhraseAtt_l1" value="" style="line;strokeColor=#d6b656;fillColor=none;" vertex="1" parent="PhraseAtt">
+      <mxGeometry y="40" width="225" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="PhraseAtt_a" value="- id: Long {PK}&#xa;- sessionId: String&#xa;- phrase: String&#xa;- levelTested: String&#xa;- score: Integer&#xa;- wer: Double&#xa;- f1: Double&#xa;- sttClean: String&#xa;- phase: String&#xa;- attemptAt: LocalDateTime" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="PhraseAtt">
+      <mxGeometry y="48" width="225" height="150" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: MasterSession ===================== -->
+    <mxCell id="MasterSess" value="MasterSession" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#ede7f6;strokeColor=#7e57c2;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="60" y="450" width="230" height="245" as="geometry"/>
+    </mxCell>
+    <mxCell id="MasterSess_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="MasterSess">
+      <mxGeometry y="26" width="230" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="MasterSess_l1" value="" style="line;strokeColor=#7e57c2;fillColor=none;" vertex="1" parent="MasterSess">
+      <mxGeometry y="40" width="230" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="MasterSess_a" value="- id: Long {PK}&#xa;- sessionId: String {unique}&#xa;- userEmail: String&#xa;- lang: String&#xa;- cefrLevel: String&#xa;- totalXp: int&#xa;- exerciseRound: int&#xa;- chatRound: int&#xa;- testSessionId: String&#xa;- createdAt: LocalDateTime&#xa;- updatedAt: LocalDateTime" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="MasterSess">
+      <mxGeometry y="48" width="230" height="180" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: ExerciseProgress ===================== -->
+    <mxCell id="ExProg" value="ExerciseProgress" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="340" y="400" width="225" height="210" as="geometry"/>
+    </mxCell>
+    <mxCell id="ExProg_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="ExProg">
+      <mxGeometry y="26" width="225" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="ExProg_l1" value="" style="line;strokeColor=#e91e63;fillColor=none;" vertex="1" parent="ExProg">
+      <mxGeometry y="40" width="225" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="ExProg_a" value="- id: Long {PK}&#xa;- userId: Long&#xa;- level: String&#xa;- lang: String&#xa;- done: boolean&#xa;- mastered: boolean&#xa;- lastAvgScore: Integer&#xa;- completed: int&#xa;- sessionsCount: int&#xa;- updatedAt: LocalDateTime" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="ExProg">
+      <mxGeometry y="48" width="225" height="152" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: Badge ===================== -->
+    <mxCell id="Badge" value="Badge" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="610" y="400" width="220" height="160" as="geometry"/>
+    </mxCell>
+    <mxCell id="Badge_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="Badge">
+      <mxGeometry y="26" width="220" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="Badge_l1" value="" style="line;strokeColor=#e91e63;fillColor=none;" vertex="1" parent="Badge">
+      <mxGeometry y="40" width="220" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="Badge_a" value="- id: Long {PK}&#xa;- userId: Long&#xa;- badgeKey: String&#xa;- earnedAt: LocalDateTime" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="Badge">
+      <mxGeometry y="48" width="220" height="80" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: SpacedRepetitionItem ===================== -->
+    <mxCell id="SRI" value="SpacedRepetitionItem" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="880" y="370" width="235" height="230" as="geometry"/>
+    </mxCell>
+    <mxCell id="SRI_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="SRI">
+      <mxGeometry y="26" width="235" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="SRI_l1" value="" style="line;strokeColor=#e91e63;fillColor=none;" vertex="1" parent="SRI">
+      <mxGeometry y="40" width="235" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="SRI_a" value="- id: Long {PK}&#xa;- userId: Long&#xa;- word: String&#xa;- level: String&#xa;- errorCount: int&#xa;- intervalDays: int&#xa;- nextReview: LocalDate&#xa;- lastSeen: LocalDate&#xa;- itemType: String&#xa;- lang: String" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="SRI">
+      <mxGeometry y="48" width="235" height="165" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: UserCourseProgress ===================== -->
+    <mxCell id="UCP" value="UserCourseProgress" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="610" y="620" width="235" height="200" as="geometry"/>
+    </mxCell>
+    <mxCell id="UCP_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="UCP">
+      <mxGeometry y="26" width="235" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="UCP_l1" value="" style="line;strokeColor=#82b366;fillColor=none;" vertex="1" parent="UCP">
+      <mxGeometry y="40" width="235" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="UCP_a" value="- id: Long {PK}&#xa;- userId: Long&#xa;- courseId: Long&#xa;- status: String&#xa;- progressPercent: Integer&#xa;- enrolledAt: LocalDateTime&#xa;- completedAt: LocalDateTime&#xa;- lastAccessedAt: LocalDateTime" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="UCP">
+      <mxGeometry y="48" width="235" height="130" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== ENTITY: PlannerStepResult ===================== -->
+    <mxCell id="PSR" value="PlannerStepResult" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#ede7f6;strokeColor=#7e57c2;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="340" y="670" width="230" height="225" as="geometry"/>
+    </mxCell>
+    <mxCell id="PSR_st" value="«Entity»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="PSR">
+      <mxGeometry y="26" width="230" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="PSR_l1" value="" style="line;strokeColor=#7e57c2;fillColor=none;" vertex="1" parent="PSR">
+      <mxGeometry y="40" width="230" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="PSR_a" value="- id: Long {PK}&#xa;- sessionId: String&#xa;- userId: Long&#xa;- stepNumber: Integer&#xa;- targetSound: String&#xa;- phrase: String&#xa;- score: Integer&#xa;- progressed: Boolean&#xa;- lang: String&#xa;- attemptedAt: LocalDateTime" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="PSR">
+      <mxGeometry y="48" width="230" height="162" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== FastAPI Microservice ===================== -->
+    <mxCell id="FastAPI" value="FastAPI (Python)" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fff3e0;strokeColor=#e65100;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="1440" y="90" width="240" height="200" as="geometry"/>
+    </mxCell>
+    <mxCell id="FastAPI_st" value="«Microservice»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="FastAPI">
+      <mxGeometry y="26" width="240" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="FastAPI_l1" value="" style="line;strokeColor=#e65100;fillColor=none;" vertex="1" parent="FastAPI">
+      <mxGeometry y="40" width="240" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="FastAPI_a" value="POST /analyze&#xa;POST /api/exercises/analyze&#xa;POST /api/chat/stt (Whisper STT)&#xa;POST /api/chat/tts (edge-tts)&#xa;GET /health&#xa;GET /metrics" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="FastAPI">
+      <mxGeometry y="48" width="240" height="130" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== EvaluationResponse DTO ===================== -->
+    <mxCell id="EvalResp" value="EvaluationResponse" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#e0f2f1;strokeColor=#00695c;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="1440" y="340" width="240" height="265" as="geometry"/>
+    </mxCell>
+    <mxCell id="EvalResp_st" value="«DTO»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="EvalResp">
+      <mxGeometry y="26" width="240" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="EvalResp_l1" value="" style="line;strokeColor=#00695c;fillColor=none;" vertex="1" parent="EvalResp">
+      <mxGeometry y="40" width="240" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="EvalResp_a" value="+ expectedPhrase: String&#xa;+ rawTranscription: String&#xa;+ score: int&#xa;+ cefrScore: int&#xa;+ xpEarned: int&#xa;+ scoreLabel: String&#xa;+ wer: double&#xa;+ f1: double&#xa;+ diffOps: List&lt;Map&gt;&#xa;+ feedback: String&#xa;+ fillersFound: List&lt;String&gt;&#xa;+ sttError: boolean" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=6;verticalAlign=top;" vertex="1" parent="EvalResp">
+      <mxGeometry y="48" width="240" height="200" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== SERVICE: PracticeService ===================== -->
+    <mxCell id="PractSvc" value="PracticeService" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#e8eaf6;strokeColor=#3f51b5;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="60" y="1040" width="275" height="185" as="geometry"/>
+    </mxCell>
+    <mxCell id="PractSvc_st" value="«Service»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="PractSvc">
+      <mxGeometry y="26" width="275" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="PractSvc_l1" value="" style="line;strokeColor=#3f51b5;fillColor=none;" vertex="1" parent="PractSvc">
+      <mxGeometry y="40" width="275" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="PractSvc_m" value="+ evaluate(audio, phrase, lang, lvl, email): EvaluationResponse&#xa;+ computeScore(wdScore, wer, conf): int&#xa;+ computeCefrScore(score, wer, conf, lvl): int&#xa;+ xpForScore(score): int&#xa;+ fallbackFeedback(score, lang): String&#xa;+ saveAttempt(...): void" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="PractSvc">
+      <mxGeometry y="48" width="275" height="130" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== SERVICE: GamificationService ===================== -->
+    <mxCell id="GamSvc" value="GamificationService" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#e8eaf6;strokeColor=#3f51b5;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="380" y="1040" width="260" height="160" as="geometry"/>
+    </mxCell>
+    <mxCell id="GamSvc_st" value="«Service»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="GamSvc">
+      <mxGeometry y="26" width="260" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="GamSvc_l1" value="" style="line;strokeColor=#3f51b5;fillColor=none;" vertex="1" parent="GamSvc">
+      <mxGeometry y="40" width="260" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="GamSvc_m" value="+ recordActivity(user, xp, score): void&#xa;+ checkBadges(user, score): void&#xa;+ awardIfNew(userId, badgeKey): void&#xa;+ getBadges(userId): List&lt;Badge&gt;" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="GamSvc">
+      <mxGeometry y="48" width="260" height="100" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== SERVICE: OllamaService ===================== -->
+    <mxCell id="OllamaSvc" value="OllamaService" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#e8eaf6;strokeColor=#3f51b5;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="690" y="1040" width="265" height="160" as="geometry"/>
+    </mxCell>
+    <mxCell id="OllamaSvc_st" value="«Service»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="OllamaSvc">
+      <mxGeometry y="26" width="265" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="OllamaSvc_l1" value="" style="line;strokeColor=#3f51b5;fillColor=none;" vertex="1" parent="OllamaSvc">
+      <mxGeometry y="40" width="265" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="OllamaSvc_m" value="+ generatePhrase(lang, level): String&#xa;+ generateFeedback(phrase, trans, lang,&#xa;   errors, diff, level, mode): String&#xa;+ isHealthy(): boolean" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="OllamaSvc">
+      <mxGeometry y="48" width="265" height="100" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== SERVICE: SessionMemoryService ===================== -->
+    <mxCell id="SessSvc" value="SessionMemoryService" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#e8eaf6;strokeColor=#3f51b5;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="1005" y="1040" width="265" height="160" as="geometry"/>
+    </mxCell>
+    <mxCell id="SessSvc_st" value="«Service»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="SessSvc">
+      <mxGeometry y="26" width="265" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="SessSvc_l1" value="" style="line;strokeColor=#3f51b5;fillColor=none;" vertex="1" parent="SessSvc">
+      <mxGeometry y="40" width="265" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="SessSvc_m" value="+ addWeakWords(sessId, words): void&#xa;+ removeWeakWord(sessId, word): void&#xa;+ incrementChatRound(sessId): void&#xa;+ exists(sessId): boolean" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="SessSvc">
+      <mxGeometry y="48" width="265" height="100" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== SERVICE: EmailService ===================== -->
+    <mxCell id="MailSvc" value="EmailService" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#e8eaf6;strokeColor=#3f51b5;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="1320" y="1040" width="260" height="160" as="geometry"/>
+    </mxCell>
+    <mxCell id="MailSvc_st" value="«Service»" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="MailSvc">
+      <mxGeometry y="26" width="260" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="MailSvc_l1" value="" style="line;strokeColor=#3f51b5;fillColor=none;" vertex="1" parent="MailSvc">
+      <mxGeometry y="40" width="260" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="MailSvc_m" value="+ sendPasswordResetEmail(to, link): void&#xa;+ testConnection(host, port, user, pass): void&#xa;+ isConfigured(): boolean" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="MailSvc">
+      <mxGeometry y="48" width="260" height="100" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== CONTROLLER: PracticeController ===================== -->
+    <mxCell id="PractCtrl" value="PracticeController" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="60" y="1285" width="265" height="175" as="geometry"/>
+    </mxCell>
+    <mxCell id="PractCtrl_st" value="«RestController» /api/practice" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="PractCtrl">
+      <mxGeometry y="26" width="265" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="PractCtrl_l1" value="" style="line;strokeColor=#7b1fa2;fillColor=none;" vertex="1" parent="PractCtrl">
+      <mxGeometry y="40" width="265" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="PractCtrl_m" value="POST /generate → generatePhrase()&#xa;POST /evaluate → evaluate()&#xa;POST /feedback/generate → generateFeedback()&#xa;GET  /health → health()" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="PractCtrl">
+      <mxGeometry y="48" width="265" height="120" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== CONTROLLER: MasterController ===================== -->
+    <mxCell id="MasterCtrl" value="MasterController" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="370" y="1285" width="265" height="175" as="geometry"/>
+    </mxCell>
+    <mxCell id="MasterCtrl_st" value="«RestController» /api/master" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="MasterCtrl">
+      <mxGeometry y="26" width="265" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="MasterCtrl_l1" value="" style="line;strokeColor=#7b1fa2;fillColor=none;" vertex="1" parent="MasterCtrl">
+      <mxGeometry y="40" width="265" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="MasterCtrl_m" value="POST /session → createSession()&#xa;POST /turn → turn()&#xa;POST /turn/stream → turnStream() :SSE&#xa;GET  /session/{id}/stats → stats()" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="MasterCtrl">
+      <mxGeometry y="48" width="265" height="120" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== CONTROLLER: ChatbotController ===================== -->
+    <mxCell id="ChatCtrl" value="ChatbotController" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="680" y="1285" width="265" height="190" as="geometry"/>
+    </mxCell>
+    <mxCell id="ChatCtrl_st" value="«RestController» /api/chat" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="ChatCtrl">
+      <mxGeometry y="26" width="265" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="ChatCtrl_l1" value="" style="line;strokeColor=#7b1fa2;fillColor=none;" vertex="1" parent="ChatCtrl">
+      <mxGeometry y="40" width="265" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="ChatCtrl_m" value="POST /session/start → startSession()&#xa;POST /voice-sse → sendVoiceSse() :SSE&#xa;POST /text-sse → sendTextSse() :SSE&#xa;GET  /history → getHistory()&#xa;DELETE /session/{id} → endSession()" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="ChatCtrl">
+      <mxGeometry y="48" width="265" height="130" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== CONTROLLER: LevelTestController ===================== -->
+    <mxCell id="LTCtrl" value="LevelTestAgentController" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="990" y="1285" width="265" height="190" as="geometry"/>
+    </mxCell>
+    <mxCell id="LTCtrl_st" value="«RestController» /api/level-test" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="LTCtrl">
+      <mxGeometry y="26" width="265" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="LTCtrl_l1" value="" style="line;strokeColor=#7b1fa2;fillColor=none;" vertex="1" parent="LTCtrl">
+      <mxGeometry y="40" width="265" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="LTCtrl_m" value="POST /start → start()&#xa;POST /next → next()&#xa;POST /finish → finish()&#xa;GET  /history → history()&#xa;GET  /progression → progression()" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="LTCtrl">
+      <mxGeometry y="48" width="265" height="130" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== CONTROLLER: AdminController ===================== -->
+    <mxCell id="AdminCtrl" value="AdminController" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=12;rounded=1;" vertex="1" parent="1">
+      <mxGeometry x="1300" y="1285" width="265" height="175" as="geometry"/>
+    </mxCell>
+    <mxCell id="AdminCtrl_st" value="«RestController» /api/admin" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="AdminCtrl">
+      <mxGeometry y="26" width="265" height="14" as="geometry"/>
+    </mxCell>
+    <mxCell id="AdminCtrl_l1" value="" style="line;strokeColor=#7b1fa2;fillColor=none;" vertex="1" parent="AdminCtrl">
+      <mxGeometry y="40" width="265" height="8" as="geometry"/>
+    </mxCell>
+    <mxCell id="AdminCtrl_m" value="GET  /users → getAllUsers()&#xa;POST /users → createUser()&#xa;DELETE /users/{id} → deleteUser()&#xa;GET  /stats → getStats()&#xa;GET  /jvm → getJvmMetrics()" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=10;spacingLeft=4;verticalAlign=top;" vertex="1" parent="AdminCtrl">
+      <mxGeometry y="48" width="265" height="120" as="geometry"/>
+    </mxCell>
+
+    <!-- ===================== RELATIONSHIPS ===================== -->
+
+    <!-- User 1 ---o< Attempt (composition) -->
+    <mxCell id="r1" value="" style="endArrow=ERmany;endFill=0;startArrow=ERmandOne;startFill=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=1.5;" edge="1" source="User" target="Attempt" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="r1_lbl" value="1  *" style="edgeLabel;html=1;fontSize=10;fontStyle=1;align=center;" vertex="1" connectable="0" parent="r1">
+      <mxGeometry relative="0.5" as="geometry"/>
+    </mxCell>
+
+    <!-- Course 1 ---o< Lesson (composition) -->
+    <mxCell id="r2" value="" style="endArrow=ERmany;endFill=0;startArrow=ERmandOne;startFill=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=1.5;" edge="1" source="Course" target="Lesson" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="r2_lbl" value="1  *" style="edgeLabel;html=1;fontSize=10;fontStyle=1;" vertex="1" connectable="0" parent="r2">
+      <mxGeometry relative="0.5" as="geometry"/>
+    </mxCell>
+
+    <!-- CEFRSession 1 ---o< PhraseAttempt -->
+    <mxCell id="r3" value="" style="endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;" edge="1" source="CEFRSess" target="PhraseAtt" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="r3_lbl" value="1  *" style="edgeLabel;html=1;fontSize=10;fontStyle=1;" vertex="1" connectable="0" parent="r3">
+      <mxGeometry relative="0.5" as="geometry"/>
+    </mxCell>
+
+    <!-- MasterSession 1 ---o< PlannerStepResult -->
+    <mxCell id="r4" value="" style="endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#7e57c2;strokeWidth=1.5;" edge="1" source="MasterSess" target="PSR" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="r4_lbl" value="1  *" style="edgeLabel;html=1;fontSize=10;fontStyle=1;" vertex="1" connectable="0" parent="r4">
+      <mxGeometry relative="0.5" as="geometry"/>
+    </mxCell>
+
+    <!-- User 1..* ExerciseProgress (dashed, via userId) -->
+    <mxCell id="r5" value="1  *" style="endArrow=open;endFill=0;startArrow=none;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#e91e63;" edge="1" source="User" target="ExProg" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <!-- User 1..* Badge (dashed) -->
+    <mxCell id="r6" value="1  *" style="endArrow=open;endFill=0;startArrow=none;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#e91e63;" edge="1" source="User" target="Badge" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points"><mxPoint x="175" y="75"/><mxPoint x="720" y="75"/></Array>
+      </mxGeometry>
+    </mxCell>
+
+    <!-- User 1..* SRI (dashed) -->
+    <mxCell id="r7" value="1  *" style="endArrow=open;endFill=0;startArrow=none;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#e91e63;" edge="1" source="User" target="SRI" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points"><mxPoint x="175" y="65"/><mxPoint x="997" y="65"/></Array>
+      </mxGeometry>
+    </mxCell>
+
+    <!-- User --UCP-- Course (many-to-many via UCP) -->
+    <mxCell id="r8" value="1  *" style="endArrow=open;endFill=0;startArrow=none;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;" edge="1" source="User" target="UCP" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points"><mxPoint x="60" y="720"/><mxPoint x="60" y="720"/></Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="r9" value="1  *" style="endArrow=open;endFill=0;startArrow=none;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;" edge="1" source="Course" target="UCP" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <!-- Controllers use Services (dependency) -->
+    <mxCell id="d1" value="«uses»" style="endArrow=open;endFill=0;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#7b1fa2;fontSize=9;" edge="1" source="PractCtrl" target="PractSvc" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="d2" value="«uses»" style="endArrow=open;endFill=0;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#7b1fa2;fontSize=9;" edge="1" source="MasterCtrl" target="SessSvc" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="d3" value="«uses»" style="endArrow=open;endFill=0;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#7b1fa2;fontSize=9;" edge="1" source="ChatCtrl" target="OllamaSvc" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="d4" value="«uses»" style="endArrow=open;endFill=0;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#7b1fa2;fontSize=9;" edge="1" source="AdminCtrl" target="MailSvc" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="d5" value="«uses»" style="endArrow=open;endFill=0;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#3f51b5;fontSize=9;" edge="1" source="PractSvc" target="GamSvc" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="d6" value="«uses»" style="endArrow=open;endFill=0;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#3f51b5;fontSize=9;" edge="1" source="PractSvc" target="OllamaSvc" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <!-- PracticeService HTTP call to FastAPI -->
+    <mxCell id="d7" value="HTTP POST" style="endArrow=open;endFill=0;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#e65100;fontSize=9;" edge="1" source="PractSvc" target="FastAPI" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points"><mxPoint x="335" y="1095"/><mxPoint x="1600" y="1095"/><mxPoint x="1600" y="290"/></Array>
+      </mxGeometry>
+    </mxCell>
+
+    <!-- PracticeService returns EvaluationResponse -->
+    <mxCell id="d8" value="retourne" style="endArrow=open;endFill=0;dashed=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#00695c;fontSize=9;" edge="1" source="PractSvc" target="EvalResp" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points"><mxPoint x="335" y="1140"/><mxPoint x="1620" y="1140"/><mxPoint x="1620" y="605"/></Array>
+      </mxGeometry>
+    </mxCell>
+
+  </root>
+</mxGraphModel>

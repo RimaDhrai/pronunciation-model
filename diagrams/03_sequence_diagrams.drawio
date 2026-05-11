@@ -1,0 +1,233 @@
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2339" pageHeight="1654" math="0" shadow="1">
+  <root>
+    <mxCell id="0"/><mxCell id="1" parent="0"/>
+
+    <!-- ╔══════════════════════════════════════════════════════╗
+         ║  SEQUENCE 1 : Exercice de Prononciation             ║
+         ╚══════════════════════════════════════════════════════╝ -->
+
+    <mxCell id="seq1_title" value="Séquence 1 — Exercice de Prononciation (Système)" style="text;html=1;strokeColor=#1a237e;fillColor=#e8eaf6;align=center;fontSize=14;fontStyle=1;rounded=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="520" height="32" as="geometry"/></mxCell>
+
+    <!-- Participants S1 -->
+    <mxCell id="s1_user"    value="Apprenant&#xa;:React" style="shape=umlLifeline;perimeter=mxPerimeter.rectanglePerimeter;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="60"  y="70" width="90" height="40" as="geometry"/></mxCell>
+    <mxCell id="s1_nginx"   value="nginx&#xa;:Proxy" style="shape=umlLifeline;perimeter=mxPerimeter.rectanglePerimeter;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="200" y="70" width="90" height="40" as="geometry"/></mxCell>
+    <mxCell id="s1_pc"      value="PracticeController&#xa;:Spring" style="shape=umlLifeline;perimeter=mxPerimeter.rectanglePerimeter;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="340" y="70" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s1_ps"      value="PracticeService&#xa;:Spring" style="shape=umlLifeline;perimeter=mxPerimeter.rectanglePerimeter;fillColor=#e8eaf6;strokeColor=#3f51b5;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="500" y="70" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s1_ollama"  value="OllamaService&#xa;:Spring" style="shape=umlLifeline;perimeter=mxPerimeter.rectanglePerimeter;fillColor=#e8eaf6;strokeColor=#3f51b5;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="650" y="70" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s1_fastapi" value="FastAPI&#xa;:Python" style="shape=umlLifeline;perimeter=mxPerimeter.rectanglePerimeter;fillColor=#fff3e0;strokeColor=#e65100;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="810" y="70" width="100" height="40" as="geometry"/></mxCell>
+    <mxCell id="s1_gamif"   value="GamificationService&#xa;:Spring" style="shape=umlLifeline;perimeter=mxPerimeter.rectanglePerimeter;fillColor=#e8eaf6;strokeColor=#3f51b5;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="960" y="70" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s1_db"      value="PostgreSQL&#xa;:DB" style="shape=umlLifeline;perimeter=mxPerimeter.rectanglePerimeter;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1120" y="70" width="90" height="40" as="geometry"/></mxCell>
+
+    <!-- Lifelines S1 -->
+    <mxCell id="s1_ul1" value="" style="endArrow=none;dashed=1;strokeColor=#6c8ebf;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="110" as="sourcePoint"/><mxPoint x="105" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_ul2" value="" style="endArrow=none;dashed=1;strokeColor=#9673a6;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="245" y="110" as="sourcePoint"/><mxPoint x="245" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_ul3" value="" style="endArrow=none;dashed=1;strokeColor=#7b1fa2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="110" as="sourcePoint"/><mxPoint x="395" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_ul4" value="" style="endArrow=none;dashed=1;strokeColor=#3f51b5;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="110" as="sourcePoint"/><mxPoint x="555" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_ul5" value="" style="endArrow=none;dashed=1;strokeColor=#3f51b5;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="705" y="110" as="sourcePoint"/><mxPoint x="705" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_ul6" value="" style="endArrow=none;dashed=1;strokeColor=#e65100;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="860" y="110" as="sourcePoint"/><mxPoint x="860" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_ul7" value="" style="endArrow=none;dashed=1;strokeColor=#3f51b5;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1015" y="110" as="sourcePoint"/><mxPoint x="1015" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_ul8" value="" style="endArrow=none;dashed=1;strokeColor=#82b366;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1165" y="110" as="sourcePoint"/><mxPoint x="1165" y="820" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Step 1: User clicks "Générer phrase" -->
+    <mxCell id="s1_m1" value="POST /api/practice/generate {lang, level}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="140" as="sourcePoint"/><mxPoint x="245" y="140" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m2" value="forward /api/practice/generate" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="245" y="155" as="sourcePoint"/><mxPoint x="395" y="155" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m3" value="generatePhrase(lang, level)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="170" as="sourcePoint"/><mxPoint x="555" y="170" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m4" value="generatePhrase(lang, level)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="185" as="sourcePoint"/><mxPoint x="705" y="185" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m5" value="HTTP POST /api/generate (Ollama)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="705" y="200" as="sourcePoint"/><mxPoint x="1260" y="200" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m5r" value="&quot;Répétez: The cat sat on the mat&quot;" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1260" y="215" as="sourcePoint"/><mxPoint x="705" y="215" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m6r" value="phrase: String" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="705" y="230" as="sourcePoint"/><mxPoint x="555" y="230" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m7r" value="{phrase}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="245" as="sourcePoint"/><mxPoint x="395" y="245" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m8r" value="200 {phrase}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="260" as="sourcePoint"/><mxPoint x="105" y="260" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Step 2: User records audio -->
+    <mxCell id="s1_sep1" value="Apprenant prononce la phrase et clique 'Envoyer'" style="text;strokeColor=#aaaaaa;fillColor=#f5f5f5;fontSize=9;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="60" y="275" width="400" height="18" as="geometry"/></mxCell>
+
+    <mxCell id="s1_m9" value="POST /api/practice/evaluate (audio.wav + expected + lang + level)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="305" as="sourcePoint"/><mxPoint x="245" y="305" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m10" value="forward" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="245" y="320" as="sourcePoint"/><mxPoint x="395" y="320" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m11" value="evaluate(audio, expected, lang, level, email)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="335" as="sourcePoint"/><mxPoint x="555" y="335" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- FastAPI call -->
+    <mxCell id="s1_m12" value="POST /analyze {audio.wav}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="355" as="sourcePoint"/><mxPoint x="860" y="355" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m12a" value="Whisper STT transcription" style="text;fillColor=#fff3e0;strokeColor=#e65100;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="810" y="365" width="160" height="18" as="geometry"/></mxCell>
+    <mxCell id="s1_m13" value="Calcul WER + F1 + diff ops" style="text;fillColor=#fff3e0;strokeColor=#e65100;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="810" y="385" width="160" height="18" as="geometry"/></mxCell>
+    <mxCell id="s1_m14r" value="{transcript, wer, f1, diffOps, confidence}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="860" y="415" as="sourcePoint"/><mxPoint x="555" y="415" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Score computation -->
+    <mxCell id="s1_score" value="computeScore() + computeCefrScore() + xpForScore()" style="text;fillColor=#e8eaf6;strokeColor=#3f51b5;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="500" y="430" width="300" height="18" as="geometry"/></mxCell>
+
+    <!-- LLM Feedback -->
+    <mxCell id="s1_m15" value="generateFeedback(phrase, transcript, errors)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="460" as="sourcePoint"/><mxPoint x="705" y="460" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m15r" value="feedback texte LLM" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="705" y="475" as="sourcePoint"/><mxPoint x="555" y="475" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Gamification -->
+    <mxCell id="s1_m16" value="recordActivity(user, xp, score)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="495" as="sourcePoint"/><mxPoint x="1015" y="495" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m17" value="checkBadges(user, score)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1015" y="510" as="sourcePoint"/><mxPoint x="1015" y="510" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m18" value="INSERT badge IF new" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1015" y="525" as="sourcePoint"/><mxPoint x="1165" y="525" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Save attempt -->
+    <mxCell id="s1_m19" value="INSERT INTO attempts" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="555" as="sourcePoint"/><mxPoint x="1165" y="555" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m19r" value="OK" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1165" y="570" as="sourcePoint"/><mxPoint x="555" y="570" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Return EvaluationResponse -->
+    <mxCell id="s1_m20r" value="EvaluationResponse {score, cefrScore, xp, feedback, wer, f1, diff}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="595" as="sourcePoint"/><mxPoint x="395" y="595" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s1_m21r" value="200 OK {EvaluationResponse}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="395" y="615" as="sourcePoint"/><mxPoint x="105" y="615" as="targetPoint"/></mxGeometry></mxCell>
+
+    <mxCell id="s1_ui" value="Affiche: score, feedback, diff colorée, badges gagnés" style="text;strokeColor=#6c8ebf;fillColor=#dae8fc;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="60" y="630" width="280" height="18" as="geometry"/></mxCell>
+
+    <!-- ╔══════════════════════════════════════════════════════╗
+         ║  SEQUENCE 2 : Test CEFR Adaptatif                   ║
+         ╚══════════════════════════════════════════════════════╝ -->
+
+    <mxCell id="seq2_title" value="Séquence 2 — Test CEFR Adaptatif (Système)" style="text;html=1;strokeColor=#2e7d32;fillColor=#e8f5e9;align=center;fontSize=14;fontStyle=1;rounded=1;" vertex="1" parent="1"><mxGeometry x="1280" y="20" width="480" height="32" as="geometry"/></mxCell>
+
+    <!-- Participants S2 -->
+    <mxCell id="s2_user"  value="Apprenant&#xa;:React" style="shape=umlLifeline;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1300" y="70" width="90" height="40" as="geometry"/></mxCell>
+    <mxCell id="s2_ltc"   value="LevelTestAgent&#xa;Controller" style="shape=umlLifeline;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1450" y="70" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s2_agent" value="LevelTestAgent&#xa;:LangGraph4J" style="shape=umlLifeline;fillColor=#ede7f6;strokeColor=#4527a0;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1620" y="70" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s2_fa"    value="FastAPI&#xa;:Whisper" style="shape=umlLifeline;fillColor=#fff3e0;strokeColor=#e65100;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1790" y="70" width="90" height="40" as="geometry"/></mxCell>
+    <mxCell id="s2_db"    value="PostgreSQL&#xa;:DB" style="shape=umlLifeline;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1940" y="70" width="90" height="40" as="geometry"/></mxCell>
+
+    <!-- Lifelines S2 -->
+    <mxCell id="s2_l1" value="" style="endArrow=none;dashed=1;strokeColor=#6c8ebf;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="110" as="sourcePoint"/><mxPoint x="1345" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_l2" value="" style="endArrow=none;dashed=1;strokeColor=#7b1fa2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="110" as="sourcePoint"/><mxPoint x="1505" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_l3" value="" style="endArrow=none;dashed=1;strokeColor=#4527a0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="110" as="sourcePoint"/><mxPoint x="1675" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_l4" value="" style="endArrow=none;dashed=1;strokeColor=#e65100;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1835" y="110" as="sourcePoint"/><mxPoint x="1835" y="820" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_l5" value="" style="endArrow=none;dashed=1;strokeColor=#82b366;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1985" y="110" as="sourcePoint"/><mxPoint x="1985" y="820" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- S2 messages -->
+    <mxCell id="s2_1" value="POST /api/level-test/start {lang}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="140" as="sourcePoint"/><mxPoint x="1505" y="140" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_2" value="agent.start(lang, userId)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="155" as="sourcePoint"/><mxPoint x="1675" y="155" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_3" value="INSERT cefr_session (status=IN_PROGRESS)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="170" as="sourcePoint"/><mxPoint x="1985" y="170" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_4" value="Génère phrase niveau courant (algorithme adaptatif)" style="text;fillColor=#ede7f6;strokeColor=#4527a0;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="1620" y="185" width="280" height="18" as="geometry"/></mxCell>
+    <mxCell id="s2_5r" value="{sessionId, phrase, level, lives:3, xp:0}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="210" as="sourcePoint"/><mxPoint x="1345" y="210" as="targetPoint"/></mxGeometry></mxCell>
+
+    <mxCell id="s2_sep1" value="Boucle 20 étapes (ou jusqu'à 0 vies)" style="text;strokeColor=#2e7d32;fillColor=#e8f5e9;fontSize=9;fontStyle=3;" vertex="1" parent="1"><mxGeometry x="1280" y="225" width="300" height="18" as="geometry"/></mxCell>
+
+    <mxCell id="s2_6" value="[Apprenant enregistre audio]" style="text;strokeColor=none;fillColor=none;fontSize=9;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="1300" y="248" width="200" height="16" as="geometry"/></mxCell>
+    <mxCell id="s2_7" value="POST /api/level-test/next {sessionId, audio, phrase, score}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="270" as="sourcePoint"/><mxPoint x="1505" y="270" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_8" value="POST /analyze {audio}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="285" as="sourcePoint"/><mxPoint x="1835" y="285" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_9r" value="{wer, f1, transcript, confidence}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1835" y="300" as="sourcePoint"/><mxPoint x="1675" y="300" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_10" value="Algo adaptatif: score ≥70 → niveau++, sinon vie--" style="text;fillColor=#ede7f6;strokeColor=#4527a0;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="1620" y="315" width="295" height="18" as="geometry"/></mxCell>
+    <mxCell id="s2_11" value="INSERT phrase_attempt" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="338" as="sourcePoint"/><mxPoint x="1985" y="338" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_12r" value="{nextPhrase, level, lives, xp, step}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="360" as="sourcePoint"/><mxPoint x="1345" y="360" as="targetPoint"/></mxGeometry></mxCell>
+
+    <mxCell id="s2_sep2" value="Fin du test (20 étapes ou 0 vies)" style="text;strokeColor=#2e7d32;fillColor=#e8f5e9;fontSize=9;fontStyle=3;" vertex="1" parent="1"><mxGeometry x="1280" y="380" width="260" height="18" as="geometry"/></mxCell>
+
+    <mxCell id="s2_13" value="POST /api/level-test/finish {sessionId}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="405" as="sourcePoint"/><mxPoint x="1505" y="405" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_14" value="Calcule niveau final (mode des niveaux atteints)" style="text;fillColor=#ede7f6;strokeColor=#4527a0;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="1620" y="415" width="295" height="18" as="geometry"/></mxCell>
+    <mxCell id="s2_15" value="UPDATE cefr_session (status=COMPLETED, finalLevel=B1)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="438" as="sourcePoint"/><mxPoint x="1985" y="438" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_16" value="UPDATE users (cefrLevel=B1)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="455" as="sourcePoint"/><mxPoint x="1985" y="455" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_17r" value="{finalLevel:B1, avgScore, history}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="475" as="sourcePoint"/><mxPoint x="1345" y="475" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s2_ui" value="Affiche résultat: Niveau B1 🎯 avec graphe de progression" style="text;strokeColor=#2e7d32;fillColor=#e8f5e9;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="1300" y="490" width="280" height="18" as="geometry"/></mxCell>
+
+    <!-- ╔══════════════════════════════════════════════════════╗
+         ║  SEQUENCE 3 : Chatbot IA Vocal (SSE)                ║
+         ╚══════════════════════════════════════════════════════╝ -->
+
+    <mxCell id="seq3_title" value="Séquence 3 — Chatbot IA Vocal avec SSE (Objet)" style="text;html=1;strokeColor=#c62828;fillColor=#fce4ec;align=center;fontSize=14;fontStyle=1;rounded=1;" vertex="1" parent="1"><mxGeometry x="40" y="870" width="520" height="32" as="geometry"/></mxCell>
+
+    <!-- Participants S3 -->
+    <mxCell id="s3_user"   value="Apprenant&#xa;:React" style="shape=umlLifeline;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="60"  y="920" width="90" height="40" as="geometry"/></mxCell>
+    <mxCell id="s3_cc"     value="ChatbotController&#xa;:Spring" style="shape=umlLifeline;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="210" y="920" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s3_cs"     value="ChatbotService&#xa;:Spring" style="shape=umlLifeline;fillColor=#e8eaf6;strokeColor=#3f51b5;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="380" y="920" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s3_fa"     value="FastAPI&#xa;:STT/TTS" style="shape=umlLifeline;fillColor=#fff3e0;strokeColor=#e65100;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="550" y="920" width="90" height="40" as="geometry"/></mxCell>
+    <mxCell id="s3_ollama" value="Ollama&#xa;:qwen2.5:3b" style="shape=umlLifeline;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="700" y="920" width="100" height="40" as="geometry"/></mxCell>
+    <mxCell id="s3_mem"    value="SessionMemory&#xa;:Spring" style="shape=umlLifeline;fillColor=#e8eaf6;strokeColor=#3f51b5;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="860" y="920" width="100" height="40" as="geometry"/></mxCell>
+
+    <!-- Lifelines S3 -->
+    <mxCell id="s3_l1" value="" style="endArrow=none;dashed=1;strokeColor=#6c8ebf;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="960" as="sourcePoint"/><mxPoint x="105" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_l2" value="" style="endArrow=none;dashed=1;strokeColor=#7b1fa2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="265" y="960" as="sourcePoint"/><mxPoint x="265" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_l3" value="" style="endArrow=none;dashed=1;strokeColor=#3f51b5;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="435" y="960" as="sourcePoint"/><mxPoint x="435" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_l4" value="" style="endArrow=none;dashed=1;strokeColor=#e65100;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="595" y="960" as="sourcePoint"/><mxPoint x="595" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_l5" value="" style="endArrow=none;dashed=1;strokeColor=#b85450;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="750" y="960" as="sourcePoint"/><mxPoint x="750" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_l6" value="" style="endArrow=none;dashed=1;strokeColor=#3f51b5;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="910" y="960" as="sourcePoint"/><mxPoint x="910" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Phase 1: Start session -->
+    <mxCell id="s3_1" value="POST /api/chat/session/start {lang:fr, level:B1}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="985" as="sourcePoint"/><mxPoint x="265" y="985" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_2" value="createSession(lang, level)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="265" y="1000" as="sourcePoint"/><mxPoint x="435" y="1000" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_3" value="initSession(sessionId, history=[])" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="435" y="1015" as="sourcePoint"/><mxPoint x="910" y="1015" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_4r" value="{sessionId}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="265" y="1030" as="sourcePoint"/><mxPoint x="105" y="1030" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Phase 2: Voice message -->
+    <mxCell id="s3_sep1" value="Apprenant parle (vocal)" style="text;strokeColor=#c62828;fillColor=#fce4ec;fontSize=9;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="60" y="1045" width="180" height="18" as="geometry"/></mxCell>
+
+    <mxCell id="s3_5" value="POST /api/chat/voice-sse {sessionId, audio.wav}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="105" y="1075" as="sourcePoint"/><mxPoint x="265" y="1075" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_note_sse" value="Ouvre connexion SSE (Server-Sent Events)" style="text;strokeColor=#7b1fa2;fillColor=#f3e5f5;fontSize=9;fontStyle=3;rounded=1;" vertex="1" parent="1"><mxGeometry x="210" y="1085" width="240" height="16" as="geometry"/></mxCell>
+
+    <!-- STT -->
+    <mxCell id="s3_6" value="POST /api/chat/stt {audio}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="435" y="1110" as="sourcePoint"/><mxPoint x="595" y="1110" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_7" value="Whisper: transcription + pronScore + weakWords" style="text;fillColor=#fff3e0;strokeColor=#e65100;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="550" y="1120" width="230" height="18" as="geometry"/></mxCell>
+    <mxCell id="s3_8r" value="{cleanText, pronScore, weakWords, confidence}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="595" y="1145" as="sourcePoint"/><mxPoint x="435" y="1145" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Memory update -->
+    <mxCell id="s3_9" value="addWeakWords(sessionId, weakWords)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="435" y="1165" as="sourcePoint"/><mxPoint x="910" y="1165" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- LLM Streaming -->
+    <mxCell id="s3_10" value="POST Ollama /api/chat (stream=true)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="435" y="1185" as="sourcePoint"/><mxPoint x="750" y="1185" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_note_llm" value="Contexte: historique + weakWords + niveau CEFR" style="text;strokeColor=#b85450;fillColor=#f8cecc;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="700" y="1195" width="240" height="16" as="geometry"/></mxCell>
+
+    <!-- SSE streaming back -->
+    <mxCell id="s3_11" value="→ data: token1\n→ data: token2\n→ data: token3..." style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;strokeColor=#c62828;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="750" y="1220" as="sourcePoint"/><mxPoint x="435" y="1220" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_12" value="→ SSE: token stream" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;strokeColor=#c62828;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="435" y="1240" as="sourcePoint"/><mxPoint x="265" y="1240" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_13" value="→ SSE: tokens → affichage progressif" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;strokeColor=#c62828;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="265" y="1260" as="sourcePoint"/><mxPoint x="105" y="1260" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- TTS -->
+    <mxCell id="s3_14" value="POST /api/chat/tts {text, lang}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="435" y="1290" as="sourcePoint"/><mxPoint x="595" y="1290" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_15r" value="audio.mp3 (edge-tts)" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="595" y="1305" as="sourcePoint"/><mxPoint x="435" y="1305" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- SSE done -->
+    <mxCell id="s3_16" value="→ SSE: event:done {pronScore, weakWords, audio_url}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;strokeColor=#c62828;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="265" y="1330" as="sourcePoint"/><mxPoint x="105" y="1330" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s3_ui2" value="Lit la réponse audio + affiche score prononciation" style="text;strokeColor=#6c8ebf;fillColor=#dae8fc;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="60" y="1345" width="260" height="18" as="geometry"/></mxCell>
+
+    <!-- ╔══════════════════════════════════════════════════════╗
+         ║  SEQUENCE 4 : Master Agent Orchestration             ║
+         ╚══════════════════════════════════════════════════════╝ -->
+
+    <mxCell id="seq4_title" value="Séquence 4 — Master Agent Orchestration (Système)" style="text;html=1;strokeColor=#4527a0;fillColor=#ede7f6;align=center;fontSize=14;fontStyle=1;rounded=1;" vertex="1" parent="1"><mxGeometry x="1280" y="870" width="540" height="32" as="geometry"/></mxCell>
+
+    <!-- Participants S4 -->
+    <mxCell id="s4_user"   value="Apprenant&#xa;:React" style="shape=umlLifeline;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1300" y="920" width="90" height="40" as="geometry"/></mxCell>
+    <mxCell id="s4_mc"     value="MasterController&#xa;:Spring" style="shape=umlLifeline;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1450" y="920" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s4_agent"  value="MasterAgent&#xa;:LangGraph4J" style="shape=umlLifeline;fillColor=#ede7f6;strokeColor=#4527a0;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1620" y="920" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s4_chat"   value="ChatbotService&#xa;:Spring" style="shape=umlLifeline;fillColor=#e8eaf6;strokeColor=#3f51b5;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1790" y="920" width="100" height="40" as="geometry"/></mxCell>
+    <mxCell id="s4_lt"     value="LevelTestAgent&#xa;:LangGraph4J" style="shape=umlLifeline;fillColor=#ede7f6;strokeColor=#4527a0;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1950" y="920" width="110" height="40" as="geometry"/></mxCell>
+    <mxCell id="s4_ex"     value="ExerciseAgent&#xa;:LangGraph4J" style="shape=umlLifeline;fillColor=#ede7f6;strokeColor=#4527a0;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="2120" y="920" width="110" height="40" as="geometry"/></mxCell>
+
+    <!-- Lifelines S4 -->
+    <mxCell id="s4_l1" value="" style="endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="960" as="sourcePoint"/><mxPoint x="1345" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_l2" value="" style="endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="960" as="sourcePoint"/><mxPoint x="1505" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_l3" value="" style="endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="960" as="sourcePoint"/><mxPoint x="1675" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_l4" value="" style="endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1840" y="960" as="sourcePoint"/><mxPoint x="1840" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_l5" value="" style="endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="2005" y="960" as="sourcePoint"/><mxPoint x="2005" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_l6" value="" style="endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="2175" y="960" as="sourcePoint"/><mxPoint x="2175" y="1600" as="targetPoint"/></mxGeometry></mxCell>
+
+    <mxCell id="s4_1" value="POST /api/master/session {userEmail, lang, level}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="985" as="sourcePoint"/><mxPoint x="1505" y="985" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_2" value="INSERT master_session" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="1000" as="sourcePoint"/><mxPoint x="2250" y="1000" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_3r" value="{sessionId}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="1015" as="sourcePoint"/><mxPoint x="1345" y="1015" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Turn CHAT -->
+    <mxCell id="s4_sep1" value="Tour 1 — mode CHAT" style="text;strokeColor=#4527a0;fillColor=#ede7f6;fontSize=9;fontStyle=3;" vertex="1" parent="1"><mxGeometry x="1280" y="1030" width="180" height="18" as="geometry"/></mxCell>
+    <mxCell id="s4_4" value="POST /api/master/turn/stream {sessionId, mode:CHAT, input:&quot;Bonjour&quot;}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="1055" as="sourcePoint"/><mxPoint x="1505" y="1055" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_5" value="route(CHAT)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="1070" as="sourcePoint"/><mxPoint x="1840" y="1070" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_note1" value="Délègue au ChatbotService" style="text;strokeColor=#3f51b5;fillColor=#e8eaf6;fontSize=9;rounded=1;" vertex="1" parent="1"><mxGeometry x="1790" y="1080" width="180" height="16" as="geometry"/></mxCell>
+    <mxCell id="s4_6r" value="→ SSE tokens (réponse chatbot)" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;strokeColor=#c62828;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="1105" as="sourcePoint"/><mxPoint x="1345" y="1105" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Turn TEST -->
+    <mxCell id="s4_sep2" value="Tour 2 — mode TEST (après 3 rounds chat)" style="text;strokeColor=#4527a0;fillColor=#ede7f6;fontSize=9;fontStyle=3;" vertex="1" parent="1"><mxGeometry x="1280" y="1120" width="280" height="18" as="geometry"/></mxCell>
+    <mxCell id="s4_7" value="POST /api/master/turn {sessionId, mode:TEST, pronScore:75}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="1145" as="sourcePoint"/><mxPoint x="1505" y="1145" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_8" value="route(TEST) → triggerLevelTest(sessionId)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="1160" as="sourcePoint"/><mxPoint x="2005" y="1160" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_9r" value="{testSessionId, phrase, level}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="1180" as="sourcePoint"/><mxPoint x="1345" y="1180" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Turn EXERCISE -->
+    <mxCell id="s4_sep3" value="Tour 3 — mode EXERCISE (après test)" style="text;strokeColor=#4527a0;fillColor=#ede7f6;fontSize=9;fontStyle=3;" vertex="1" parent="1"><mxGeometry x="1280" y="1200" width="260" height="18" as="geometry"/></mxCell>
+    <mxCell id="s4_10" value="POST /api/master/turn {sessionId, mode:EXERCISE, weakWords:[&quot;th&quot;]}" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="1225" as="sourcePoint"/><mxPoint x="1505" y="1225" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_11" value="route(EXERCISE) → generateTargetedExercise(weakWords)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1675" y="1240" as="sourcePoint"/><mxPoint x="2175" y="1240" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_12" value="recordErrors(weakWords) → SM-2" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="2175" y="1255" as="sourcePoint"/><mxPoint x="2175" y="1255" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_13r" value="{phrase, sound:&quot;th&quot;, xpEarned, totalXp}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="1275" as="sourcePoint"/><mxPoint x="1345" y="1275" as="targetPoint"/></mxGeometry></mxCell>
+
+    <!-- Stats -->
+    <mxCell id="s4_14" value="GET /api/master/session/{id}/stats" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;fontSize=9;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1345" y="1305" as="sourcePoint"/><mxPoint x="1505" y="1305" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="s4_15r" value="{totalXp, exerciseRound, chatRound, level}" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;fontSize=9;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1505" y="1320" as="sourcePoint"/><mxPoint x="1345" y="1320" as="targetPoint"/></mxGeometry></mxCell>
+
+  </root>
+</mxGraphModel>

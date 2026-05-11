@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import type { UserConfig } from "vitest/config";
 
 export default defineConfig(({ mode }) => ({
   server: {
@@ -126,4 +127,21 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-}));
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov", "html"],
+      reportsDirectory: "./coverage",
+      exclude: [
+        "node_modules/**",
+        "src/test/**",
+        "**/*.d.ts",
+        "src/main.tsx",
+        "vite.config.ts",
+      ],
+    },
+  },
+} as UserConfig));

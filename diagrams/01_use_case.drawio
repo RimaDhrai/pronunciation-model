@@ -1,0 +1,175 @@
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+
+    <!-- ═══ TITRE ═══ -->
+    <mxCell id="t0" value="SpeakCoach — Diagramme de Cas d'Utilisation" style="text;html=1;align=center;fontStyle=1;fontSize=16;fontColor=#1a237e;strokeColor=none;fillColor=none;" vertex="1" parent="1"><mxGeometry x="400" y="12" width="760" height="30" as="geometry"/></mxCell>
+
+    <!-- ═══ SYSTEM BOUNDARY ═══ -->
+    <mxCell id="sb" value="uc SpeakCoach — Système" style="swimlane;startSize=28;fontStyle=1;fontSize=13;align=left;spacingLeft=10;fillColor=#f5f5f5;strokeColor=#333333;strokeWidth=2;fontColor=#333333;" vertex="1" parent="1"><mxGeometry x="260" y="50" width="1130" height="1080" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         SECTION LABELS (inside boundary)
+    ═══════════════════════════════════════════ -->
+    <mxCell id="lbl_auth"  value="Authentification &amp; Profil" style="text;fontStyle=3;fontSize=10;fontColor=#3949ab;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1"><mxGeometry x="270" y="85"  width="200" height="18" as="geometry"/></mxCell>
+    <mxCell id="lbl_cefr"  value="Test de Niveau CECRL"          style="text;fontStyle=3;fontSize=10;fontColor=#2e7d32;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1"><mxGeometry x="270" y="220" width="200" height="18" as="geometry"/></mxCell>
+    <mxCell id="lbl_ex"    value="Exercices de Prononciation"     style="text;fontStyle=3;fontSize=10;fontColor=#e65100;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1"><mxGeometry x="270" y="360" width="220" height="18" as="geometry"/></mxCell>
+    <mxCell id="lbl_chat"  value="Chatbot IA Vocal"               style="text;fontStyle=3;fontSize=10;fontColor=#c62828;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1"><mxGeometry x="270" y="490" width="160" height="18" as="geometry"/></mxCell>
+    <mxCell id="lbl_mas"   value="Master Agent"                   style="text;fontStyle=3;fontSize=10;fontColor=#4527a0;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1"><mxGeometry x="270" y="620" width="140" height="18" as="geometry"/></mxCell>
+    <mxCell id="lbl_bat"   value="Battle &amp; Cours"             style="text;fontStyle=3;fontSize=10;fontColor=#006064;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1"><mxGeometry x="270" y="745" width="140" height="18" as="geometry"/></mxCell>
+    <mxCell id="lbl_gam"   value="Gamification &amp; Administration" style="text;fontStyle=3;fontSize=10;fontColor=#6a1b9a;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1"><mxGeometry x="270" y="880" width="250" height="18" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         USE CASES  (ellipses)
+    ═══════════════════════════════════════════ -->
+
+    <!-- AUTH row -->
+    <mxCell id="uc1"  value="S'authentifier (SSO)" style="ellipse;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=10;" vertex="1" parent="1"><mxGeometry x="280" y="105" width="155" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc2"  value="S'inscrire"           style="ellipse;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=10;" vertex="1" parent="1"><mxGeometry x="460" y="105" width="130" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc3"  value="Réinitialiser mot de passe" style="ellipse;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=10;" vertex="1" parent="1"><mxGeometry x="620" y="105" width="165" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc4"  value="Modifier profil"      style="ellipse;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=10;" vertex="1" parent="1"><mxGeometry x="815" y="105" width="135" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc5"  value="Consulter tableau de bord" style="ellipse;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=10;" vertex="1" parent="1"><mxGeometry x="980" y="105" width="165" height="45" as="geometry"/></mxCell>
+
+    <!-- CEFR row -->
+    <mxCell id="uc6"  value="Démarrer test CEFR"   style="ellipse;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" vertex="1" parent="1"><mxGeometry x="280" y="240" width="155" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc7"  value="Soumettre réponse vocale" style="ellipse;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" vertex="1" parent="1"><mxGeometry x="460" y="240" width="160" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc8"  value="Obtenir niveau A1→C2" style="ellipse;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" vertex="1" parent="1"><mxGeometry x="650" y="240" width="150" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc9"  value="Voir historique tests" style="ellipse;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" vertex="1" parent="1"><mxGeometry x="830" y="240" width="145" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc10" value="Voir progression CEFR" style="ellipse;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1005" y="240" width="150" height="45" as="geometry"/></mxCell>
+
+    <!-- EXERCICES row -->
+    <mxCell id="uc11" value="Générer exercice de prononciation" style="ellipse;fillColor=#fff3e0;strokeColor=#e65100;fontSize=10;" vertex="1" parent="1"><mxGeometry x="280" y="378" width="195" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc12" value="Enregistrer audio"    style="ellipse;fillColor=#fff3e0;strokeColor=#e65100;fontSize=10;" vertex="1" parent="1"><mxGeometry x="495" y="378" width="135" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc13" value="Obtenir score WER / F1" style="ellipse;fillColor=#fff3e0;strokeColor=#e65100;fontSize=10;" vertex="1" parent="1"><mxGeometry x="655" y="378" width="155" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc14" value="Recevoir feedback personnalisé" style="ellipse;fillColor=#fff3e0;strokeColor=#e65100;fontSize=10;" vertex="1" parent="1"><mxGeometry x="835" y="378" width="185" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc15" value="Révision mots faibles (SM-2)" style="ellipse;fillColor=#fff3e0;strokeColor=#e65100;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1045" y="378" width="175" height="45" as="geometry"/></mxCell>
+
+    <!-- CHATBOT row -->
+    <mxCell id="uc16" value="Démarrer session chat" style="ellipse;fillColor=#fce4ec;strokeColor=#c62828;fontSize=10;" vertex="1" parent="1"><mxGeometry x="280" y="510" width="160" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc17" value="Envoyer message vocal" style="ellipse;fillColor=#fce4ec;strokeColor=#c62828;fontSize=10;" vertex="1" parent="1"><mxGeometry x="465" y="510" width="160" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc18" value="Envoyer message texte" style="ellipse;fillColor=#fce4ec;strokeColor=#c62828;fontSize=10;" vertex="1" parent="1"><mxGeometry x="650" y="510" width="155" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc19" value="Recevoir réponse IA (SSE)" style="ellipse;fillColor=#fce4ec;strokeColor=#c62828;fontSize=10;" vertex="1" parent="1"><mxGeometry x="830" y="510" width="165" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc20" value="Voir historique conversation" style="ellipse;fillColor=#fce4ec;strokeColor=#c62828;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1020" y="510" width="175" height="45" as="geometry"/></mxCell>
+
+    <!-- MASTER AGENT row -->
+    <mxCell id="uc21" value="Créer session Master Agent" style="ellipse;fillColor=#ede7f6;strokeColor=#4527a0;fontSize=10;" vertex="1" parent="1"><mxGeometry x="280" y="640" width="185" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc22" value="Interagir (CHAT / TEST / EXERCISE)" style="ellipse;fillColor=#ede7f6;strokeColor=#4527a0;fontSize=10;" vertex="1" parent="1"><mxGeometry x="490" y="640" width="215" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc23" value="Diffuser réponse SSE"  style="ellipse;fillColor=#ede7f6;strokeColor=#4527a0;fontSize=10;" vertex="1" parent="1"><mxGeometry x="730" y="640" width="155" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc24" value="Gérer XP et progression" style="ellipse;fillColor=#ede7f6;strokeColor=#4527a0;fontSize=10;" vertex="1" parent="1"><mxGeometry x="910" y="640" width="165" height="45" as="geometry"/></mxCell>
+
+    <!-- BATTLE + COURS row -->
+    <mxCell id="uc25" value="Créer une Battle"      style="ellipse;fillColor=#e0f7fa;strokeColor=#006064;fontSize=10;" vertex="1" parent="1"><mxGeometry x="280" y="762" width="135" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc26" value="Rejoindre par code"    style="ellipse;fillColor=#e0f7fa;strokeColor=#006064;fontSize=10;" vertex="1" parent="1"><mxGeometry x="435" y="762" width="140" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc27" value="Soumettre score (3 rounds)" style="ellipse;fillColor=#e0f7fa;strokeColor=#006064;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="762" width="170" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc28" value="Parcourir catalogue cours" style="ellipse;fillColor=#e0f7fa;strokeColor=#006064;fontSize=10;" vertex="1" parent="1"><mxGeometry x="790" y="762" width="170" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc29" value="S'inscrire à un cours" style="ellipse;fillColor=#e0f7fa;strokeColor=#006064;fontSize=10;" vertex="1" parent="1"><mxGeometry x="985" y="762" width="150" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc30" value="Suivre une leçon"      style="ellipse;fillColor=#e0f7fa;strokeColor=#006064;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1160" y="762" width="135" height="45" as="geometry"/></mxCell>
+
+    <!-- GAMIFICATION + ADMIN row 1 -->
+    <mxCell id="uc31" value="Gagner XP et badges"  style="ellipse;fillColor=#f3e5f5;strokeColor=#6a1b9a;fontSize=10;" vertex="1" parent="1"><mxGeometry x="280" y="900" width="150" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc32" value="Maintenir streak"      style="ellipse;fillColor=#f3e5f5;strokeColor=#6a1b9a;fontSize=10;" vertex="1" parent="1"><mxGeometry x="450" y="900" width="130" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc33" value="Consulter rapports"   style="ellipse;fillColor=#f3e5f5;strokeColor=#6a1b9a;fontSize=10;" vertex="1" parent="1"><mxGeometry x="600" y="900" width="145" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc34" value="Gérer utilisateurs"   style="ellipse;fillColor=#e8f5e9;strokeColor=#1b5e20;fontSize=10;" vertex="1" parent="1"><mxGeometry x="770" y="900" width="145" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc35" value="Gérer cours (CRUD)"   style="ellipse;fillColor=#e8f5e9;strokeColor=#1b5e20;fontSize=10;" vertex="1" parent="1"><mxGeometry x="935" y="900" width="145" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc36" value="Monitoring JVM / Services" style="ellipse;fillColor=#e8f5e9;strokeColor=#1b5e20;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1100" y="900" width="175" height="45" as="geometry"/></mxCell>
+
+    <!-- ADMIN row 2 -->
+    <mxCell id="uc37" value="Gérer intégrations (Keycloak / SMTP)" style="ellipse;fillColor=#e8f5e9;strokeColor=#1b5e20;fontSize=10;" vertex="1" parent="1"><mxGeometry x="280" y="1000" width="210" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc38" value="Configurer paramètres système" style="ellipse;fillColor=#e8f5e9;strokeColor=#1b5e20;fontSize=10;" vertex="1" parent="1"><mxGeometry x="510" y="1000" width="185" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc39" value="Gérer exercices IA"    style="ellipse;fillColor=#e8f5e9;strokeColor=#1b5e20;fontSize=10;" vertex="1" parent="1"><mxGeometry x="715" y="1000" width="145" height="45" as="geometry"/></mxCell>
+    <mxCell id="uc40" value="Voir statistiques globales" style="ellipse;fillColor=#e8f5e9;strokeColor=#1b5e20;fontSize=10;" vertex="1" parent="1"><mxGeometry x="880" y="1000" width="175" height="45" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         ACTEURS  (bâton UML) — uniquement humains
+    ═══════════════════════════════════════════ -->
+
+    <!-- Apprenant -->
+    <mxCell id="act1" value="Apprenant" style="shape=mxgraph.uml2.actor;whiteSpace=wrap;html=1;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=11;" vertex="1" parent="1"><mxGeometry x="80" y="380" width="50" height="80" as="geometry"/></mxCell>
+
+    <!-- Administrateur -->
+    <mxCell id="act2" value="Administrateur" style="shape=mxgraph.uml2.actor;whiteSpace=wrap;html=1;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=11;" vertex="1" parent="1"><mxGeometry x="80" y="880" width="50" height="80" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         ASSOCIATIONS  Apprenant → Use Cases
+    ═══════════════════════════════════════════ -->
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc1"  parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc2"  parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc3"  parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc4"  parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc5"  parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc6"  parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc11" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc16" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc21" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc25" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc28" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc31" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act1" target="uc33" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ASSOCIATIONS  Administrateur → Use Cases -->
+    <mxCell style="endArrow=none;" edge="1" source="act2" target="uc34" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act2" target="uc35" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act2" target="uc36" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act2" target="uc37" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act2" target="uc38" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act2" target="uc39" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act2" target="uc40" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell style="endArrow=none;" edge="1" source="act2" target="uc1"  parent="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="50" y="127"/></Array></mxGeometry></mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         INCLUDE / EXTEND
+    ═══════════════════════════════════════════ -->
+
+    <!-- uc6 → include → uc7  (Démarrer test inclut Soumettre audio) -->
+    <mxCell id="inc1" value="«include»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc6" target="uc7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc7 → include → uc8  (Soumettre audio inclut Obtenir niveau) -->
+    <mxCell id="inc2" value="«include»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc7" target="uc8" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc11 → include → uc12 (Générer exercice inclut Enregistrer audio) -->
+    <mxCell id="inc3" value="«include»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc11" target="uc12" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc12 → include → uc13 (Enregistrer audio inclut Score WER/F1) -->
+    <mxCell id="inc4" value="«include»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc12" target="uc13" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc13 → extend → uc14 (Score peut déclencher Feedback) -->
+    <mxCell id="ext1" value="«extend»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc14" target="uc13" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc13 → extend → uc15 (Score peut déclencher Révision SM-2) -->
+    <mxCell id="ext2" value="«extend»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc15" target="uc13" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc17 → include → uc19 (Message vocal inclut réponse SSE) -->
+    <mxCell id="inc5" value="«include»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc17" target="uc19" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc18 → include → uc19 -->
+    <mxCell id="inc6" value="«include»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc18" target="uc19" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc22 → include → uc23 (Interagir inclut SSE) -->
+    <mxCell id="inc7" value="«include»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc22" target="uc23" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc22 → extend → uc24 (Interagir peut déclencher XP) -->
+    <mxCell id="ext3" value="«extend»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc24" target="uc22" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- uc11 → include → uc31 (Exercice inclut Gagner XP) -->
+    <mxCell id="inc8" value="«include»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc11" target="uc31" parent="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="355" y="400"/><mxPoint x="355" y="922"/></Array></mxGeometry></mxCell>
+
+    <!-- uc31 → include → uc32 (XP inclut streak) -->
+    <mxCell id="inc9" value="«include»" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;fontSize=9;fontStyle=2;" edge="1" source="uc31" target="uc32" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         LÉGENDE
+    ═══════════════════════════════════════════ -->
+    <mxCell id="leg_box" value="" style="rounded=1;fillColor=#fffde7;strokeColor=#f9a825;" vertex="1" parent="1"><mxGeometry x="1295" y="980" width="260" height="120" as="geometry"/></mxCell>
+    <mxCell id="leg_title" value="Légende" style="text;fontStyle=1;fontSize=11;strokeColor=none;fillColor=none;" vertex="1" parent="1"><mxGeometry x="1305" y="985" width="80" height="20" as="geometry"/></mxCell>
+
+    <mxCell id="leg_a1" value="" style="shape=mxgraph.uml2.actor;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="1305" y="1005" width="24" height="38" as="geometry"/></mxCell>
+    <mxCell id="leg_t1" value="Acteur humain" style="text;fontSize=10;strokeColor=none;fillColor=none;" vertex="1" parent="1"><mxGeometry x="1338" y="1015" width="120" height="20" as="geometry"/></mxCell>
+
+    <mxCell id="leg_a2" value="" style="shape=mxgraph.uml2.actor;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="1305" y="1048" width="24" height="38" as="geometry"/></mxCell>
+    <mxCell id="leg_t2" value="Administrateur" style="text;fontSize=10;strokeColor=none;fillColor=none;" vertex="1" parent="1"><mxGeometry x="1338" y="1058" width="120" height="20" as="geometry"/></mxCell>
+
+    <mxCell id="leg_e1" value="Cas d'utilisation" style="ellipse;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=9;" vertex="1" parent="1"><mxGeometry x="1305" y="1068" width="120" height="24" as="geometry"/></mxCell>
+
+  </root>
+</mxGraphModel>

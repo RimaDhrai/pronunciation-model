@@ -285,7 +285,7 @@ export default function AdminSettings() {
             <div className="mt-2 p-3 bg-amber-50 rounded-xl border border-amber-100">
               <p className="text-[10px] font-bold text-amber-700 mb-1">{t.startCmds}</p>
               <code className="text-[10px] text-amber-800 font-mono block leading-5 whitespace-pre">
-                {!whisperOk  && '> cd mon_projettalan_fastapi && python main.py\n'}
+                {!whisperOk  && '> cd fastapi && python main.py\n'}
                 {!ollamaOk && `> ollama run ${ollamaModelName}`}
               </code>
             </div>

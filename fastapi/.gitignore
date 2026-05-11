@@ -1,7 +1,43 @@
-venv/
+# ── Python ────────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+*.egg-info/
+
+# ── Environnements virtuels ────────────────────────────────────────────────
+venv/
+.venv/
+env/
+
+# ── Secrets ───────────────────────────────────────────────────────────────
 .env
-*.dll
-*.so
+*.env
+!.env.example
+
+# ── Couverture de tests ───────────────────────────────────────────────────
+coverage.xml
+.coverage
+htmlcov/
+
+# ── Modèles Whisper (fichiers volumineux) ────────────────────────────────
+*.bin
+*.pt
+models/
+
+# ── Fichiers audio temporaires ────────────────────────────────────────────
+*.wav
+*.mp3
+*.ogg
+uploads/
+storage/
+
+# ── Logs ──────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── OS / IDE ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

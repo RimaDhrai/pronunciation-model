@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -62,7 +63,7 @@ public class MasterController {
     // ── Sync turn ─────────────────────────────────────────────────────────────
 
     @PostMapping("/turn")
-    public ResponseEntity<?> turn(@RequestBody MasterTurnRequest req) {
+    public ResponseEntity<?> turn(@Valid @RequestBody MasterTurnRequest req) {
         if (req.sessionId == null || req.sessionId.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "session_id required"));
         }
@@ -84,7 +85,7 @@ public class MasterController {
     // ── SSE streaming turn (CHAT mode) ────────────────────────────────────────
 
     @PostMapping(value = "/turn/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter turnStream(@RequestBody MasterTurnRequest req) {
+    public SseEmitter turnStream(@Valid @RequestBody MasterTurnRequest req) {
         SseEmitter emitter = new SseEmitter(60_000L);
 
         if (req.sessionId == null || req.sessionId.isBlank()) {

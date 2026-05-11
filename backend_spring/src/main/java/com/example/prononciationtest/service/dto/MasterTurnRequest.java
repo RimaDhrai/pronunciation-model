@@ -1,17 +1,23 @@
 package com.example.prononciationtest.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
 
 public class MasterTurnRequest {
 
+    @NotBlank(message = "sessionId est requis")
     @JsonAlias("session_id")
     public String sessionId;
 
     /** CHAT | TEST | TEST_FINISH | EXERCISE */
+    @Pattern(regexp = "^(CHAT|TEST|TEST_FINISH|EXERCISE)$",
+             message = "mode doit être CHAT, TEST, TEST_FINISH ou EXERCISE")
     public String mode = "CHAT";
 
+    @Pattern(regexp = "^(fr|en)$", message = "lang doit être 'fr' ou 'en'")
     public String lang = "fr";
 
     /** User text (CHAT mode) or empty string */

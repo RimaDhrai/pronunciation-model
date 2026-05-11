@@ -598,7 +598,7 @@ export default function ExerciseSession() {
       const allScores = [...scores];
       const avg = allScores.length > 0 ? Math.round(allScores.reduce((a,b)=>a+b,0)/allScores.length) : 0;
       try {
-        await completeLevel(level, avg, TOTAL);
+        await completeLevel(level, avg, TOTAL, lang);
         // Rafraîchir user → XP, streak, badges mis à jour dans le contexte
         getMe().then(res => setUser(prev => ({ ...prev, ...res.data }))).catch(() => {});
       } catch {

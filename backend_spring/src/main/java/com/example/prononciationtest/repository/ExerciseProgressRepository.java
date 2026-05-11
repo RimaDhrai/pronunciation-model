@@ -10,7 +10,9 @@ public interface ExerciseProgressRepository extends JpaRepository<ExerciseProgre
 
     List<ExerciseProgress> findByUserId(Long userId);
 
-    Optional<ExerciseProgress> findByUserIdAndLevel(Long userId, String level);
+    List<ExerciseProgress> findByUserIdAndLang(Long userId, String lang);
 
-    boolean existsByUserIdAndLevelAndDoneTrue(Long userId, String level);
+    Optional<ExerciseProgress> findByUserIdAndLevelAndLang(Long userId, String level, String lang);
+
+    boolean existsByUserIdAndLevelAndLangAndDoneTrue(Long userId, String level, String lang);
 }

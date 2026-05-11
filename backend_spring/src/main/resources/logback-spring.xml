@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- ── Propriétés ──────────────────────────────────────────────────── -->
+    <property name="LOG_DIR"     value="logs"/>
+    <property name="APP_NAME"    value="speakcoach"/>
+    <property name="MAX_SIZE"    value="10MB"/>
+    <property name="MAX_HISTORY" value="30"/>
+
+    <!-- ── Profil DEV : console colorée ───────────────────────────────── -->
+    <springProfile name="default,dev">
+
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr(%-40logger{36}){cyan} %msg%n</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <!-- Niveau de l'application : DEBUG en dev -->
+        <logger name="com.example.prononciationtest" level="DEBUG"/>
+        <!-- Réduire le bruit Spring en dev -->
+        <logger name="org.springframework.security"  level="WARN"/>
+        <logger name="org.hibernate.SQL"             level="DEBUG"/>
+        <logger name="org.hibernate.orm.jdbc.bind"   level="TRACE"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+    </springProfile>
+
+    <!-- ── Profil PROD : fichiers avec rotation ────────────────────────── -->
+    <springProfile name="docker,prod">
+
+        <!-- Appender INFO/DEBUG → fichier journalier -->
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_DIR}/${APP_NAME}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <timeBasedFileNamingAndTriggeringPolicy
+                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>${MAX_SIZE}</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <maxHistory>${MAX_HISTORY}</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <!-- Appender ERROR séparé → fichier dédié aux erreurs -->
+        <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_DIR}/${APP_NAME}-errors.log</file>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>ERROR</level>
+            </filter>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_DIR}/${APP_NAME}-errors.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+                <maxHistory>${MAX_HISTORY}</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ERROR [%thread] %logger{36} - %msg%n%ex</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <!-- Niveau application : INFO en prod -->
+        <logger name="com.example.prononciationtest" level="INFO"/>
+        <!-- Silence les librairies verboses -->
+        <logger name="org.springframework.security"  level="WARN"/>
+        <logger name="org.hibernate"                 level="WARN"/>
+        <logger name="org.flywaydb"                  level="INFO"/>
+
+        <root level="WARN">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="FILE_ERROR"/>
+        </root>
+
+    </springProfile>
+
+</configuration>

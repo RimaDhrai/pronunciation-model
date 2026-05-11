@@ -1,5 +1,58 @@
-# Claude Code local config — ne pas publier sur GitHub
+# ── Environnement & secrets ────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.env
+
+# ── Claude Code ────────────────────────────────────────────────────────────
 .claude/
 
-# Variables d'environnement — contient les mots de passe
-.env
+# ── Java / Maven ───────────────────────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/wrapper/maven-wrapper.jar
+
+# ── Node / Frontend ────────────────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+frontend/dist/
+frontend/coverage/
+*.local
+
+# ── Python / FastAPI ───────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+fastapi/coverage.xml
+fastapi/htmlcov/
+fastapi/.coverage
+
+# ── Logs ───────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# ── Fichiers audio uploadés (peuvent être volumineux) ──────────────────────
+storage/
+uploads/
+
+# ── IDE ────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+Thumbs.db
+
+# ── JaCoCo / SonarQube ────────────────────────────────────────────────────
+*.exec
+.scannerwork/

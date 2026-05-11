@@ -1,0 +1,16 @@
+[run]
+source = .
+omit =
+    venv/*
+    tests/*
+    */__pycache__/*
+    */site-packages/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError
+
+[html]
+directory = htmlcov

@@ -129,7 +129,7 @@ const ExerciseSelection = () => {
   }, []);
 
   useEffect(() => {
-    getExerciseProgress()
+    getExerciseProgress(lang)
       .then(res => {
         setProgressData(res.data);
         const data = res.data || {};
@@ -147,7 +147,7 @@ const ExerciseSelection = () => {
     getDueCount()
       .then(res => setReviewCount(res.data?.count ?? 0))
       .catch(() => {});
-  }, []);
+  }, [lang]);
 
   const currentLevel = getCefrLevel(lang) || 'A1';
   const isCefrDone = isCefrCompleted(lang);

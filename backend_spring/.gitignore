@@ -1,11 +1,30 @@
-<<<<<<< HEAD
-HELP.md
+# ── Maven ──────────────────────────────────────────────────────────────────
 target/
+HELP.md
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# ── Secrets ────────────────────────────────────────────────────────────────
+.env
+*.env
+!.env.example
+
+# ── Logs ───────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Fichiers audio uploadés ────────────────────────────────────────────────
+src/main/resources/storage/
+storage/
+
+# ── IDE IntelliJ ───────────────────────────────────────────────────────────
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# ── IDE Eclipse / STS ──────────────────────────────────────────────────────
 .apt_generated
 .classpath
 .factorypath
@@ -14,31 +33,13 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+# ── IDE VS Code ────────────────────────────────────────────────────────────
 .vscode/
-=======
-venv/
-__pycache__/
-*.pyc
-.env
+
+# ── OS ─────────────────────────────────────────────────────────────────────
 .DS_Store
-*.egg-info/
-dist/
-build/
->>>>>>> 4f4784e18d6a72a71c2e2e27abb54b2da1b062d9
+Thumbs.db
+
+# ── JaCoCo ─────────────────────────────────────────────────────────────────
+*.exec
+.scannerwork/

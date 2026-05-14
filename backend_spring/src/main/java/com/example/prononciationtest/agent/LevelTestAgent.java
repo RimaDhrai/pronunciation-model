@@ -432,7 +432,7 @@ public class LevelTestAgent {
         String lang = state.<String>value("lang").orElse("fr");
         String soundKey = state.<String>value("current_sound").orElse("");
         String soundLabel = state.<String>value("current_label").orElse("");
-        String level = state.<String>value("estimated_level").orElse("B1");
+        String level = state.<String>value("estimated_level").orElse("A2");
 
         // Track phrases already shown in this session to avoid repetition
         @SuppressWarnings("unchecked")
@@ -613,11 +613,12 @@ public class LevelTestAgent {
     public static String computeLevel(List<Integer> scores) {
         if (scores == null || scores.isEmpty()) return "B1";
         double avg = scores.stream().mapToInt(Integer::intValue).average().orElse(50);
-        if (avg >= 85) return "C2";
-        if (avg >= 80) return "C1";
-        if (avg >= 65) return "B2";
-        if (avg >= 50) return "B1";
-        if (avg >= 35) return "A2";
+        // Calibrated for Whisper STT scoring
+        if (avg >= 80) return "C2";
+        if (avg >= 68) return "C1";
+        if (avg >= 55) return "B2";
+        if (avg >= 42) return "B1";
+        if (avg >= 28) return "A2";
         return "A1";
     }
 
@@ -633,11 +634,12 @@ public class LevelTestAgent {
             weightTotal += w;
         }
         double avg = weightedSum / weightTotal;
-        if (avg >= 85) return "C2";
-        if (avg >= 80) return "C1";
-        if (avg >= 65) return "B2";
-        if (avg >= 50) return "B1";
-        if (avg >= 35) return "A2";
+        // Calibrated for Whisper STT scoring
+        if (avg >= 80) return "C2";
+        if (avg >= 68) return "C1";
+        if (avg >= 55) return "B2";
+        if (avg >= 42) return "B1";
+        if (avg >= 28) return "A2";
         return "A1";
     }
 

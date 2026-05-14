@@ -69,7 +69,14 @@ public class ChatbotController {
                    .trim();
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
+    
+    /** Send an SSE error event and complete the emitter. Swallows IOException (client already gone). */
+    private void sseError(SseEmitter emitter, String message) {
+        try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", message)))); }
+        catch (IOException ex) { log.debug("SSE error-write failed (client gone): {}", ex.getMessage()); }
+        emitter.complete();
+    }
+// ═════════════════════════════════════════════════════════════════════════
     // POST /session/start
     // ═════════════════════════════════════════════════════════════════════════
 
@@ -197,8 +204,7 @@ public class ChatbotController {
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
-                    emitter.send(SseEmitter.event().name("error").data(Map.of("error", "Session expirée")));
-                    emitter.complete();
+                    sseError(emitter, "Session expirée");
                     return;
                 }
 
@@ -207,8 +213,7 @@ public class ChatbotController {
 
                 ChatSttResponse stt = chatbotClient.chatStt(audio, nativeLang);
                 if (stt.hasError()) {
-                    emitter.send(SseEmitter.event().name("error").data(Map.of("error", stt.getError())));
-                    emitter.complete();
+                    sseError(emitter, stt.getError() != null ? stt.getError() : "STT error");
                     return;
                 }
 
@@ -244,18 +249,15 @@ public class ChatbotController {
                         )));
                         emitter.complete();
                     } catch (Exception e) {
-                        try { emitter.send(SseEmitter.event().name("error").data(Map.of("error", e.getMessage()))); } catch (IOException ignored) {}
-                        emitter.complete();
+                        sseError(emitter, e.getMessage());
                     }
                 }).exceptionally(e -> {
-                    try { emitter.send(SseEmitter.event().name("error").data(Map.of("error", e.getMessage()))); } catch (IOException ignored) {}
-                    emitter.complete();
+                    sseError(emitter, e.getMessage());
                     return null;
                 });
 
             } catch (Exception e) {
-                try { emitter.send(SseEmitter.event().name("error").data(Map.of("error", e.getMessage()))); } catch (IOException ignored) {}
-                emitter.complete();
+                sseError(emitter, e.getMessage());
             }
         });
 
@@ -315,8 +317,7 @@ public class ChatbotController {
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
-                    emitter.send(SseEmitter.event().name("error").data(Map.of("error", "Session expirée")));
-                    emitter.complete();
+                    sseError(emitter, "Session expirée");
                     return;
                 }
 
@@ -338,18 +339,15 @@ public class ChatbotController {
                         )));
                         emitter.complete();
                     } catch (Exception e) {
-                        try { emitter.send(SseEmitter.event().name("error").data(Map.of("error", e.getMessage()))); } catch (IOException ignored) {}
-                        emitter.complete();
+                        sseError(emitter, e.getMessage());
                     }
                 }).exceptionally(e -> {
-                    try { emitter.send(SseEmitter.event().name("error").data(Map.of("error", e.getMessage()))); } catch (IOException ignored) {}
-                    emitter.complete();
+                    sseError(emitter, e.getMessage());
                     return null;
                 });
 
             } catch (Exception e) {
-                try { emitter.send(SseEmitter.event().name("error").data(Map.of("error", e.getMessage()))); } catch (IOException ignored) {}
-                emitter.complete();
+                sseError(emitter, e.getMessage());
             }
         });
 
@@ -370,24 +368,21 @@ public class ChatbotController {
     ) {
         SseEmitter emitter = new SseEmitter(120000L);
         emitter.onTimeout(() -> {
-            try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", "Timeout — réessaie")))); } catch (IOException ignored) {}
-            emitter.complete();
+            sseError(emitter, "Timeout — réessaie");
         });
         emitter.onError(ex -> emitter.complete());
 
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
-                    emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", "Session expirée"))));
-                    emitter.complete();
+                    sseError(emitter, "Session expirée");
                     return;
                 }
 
                 // 1 ── STT
                 ChatSttResponse stt = chatbotClient.chatStt(audio, nativeLang);
                 if (stt.hasError()) {
-                    emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", stt.getError() != null ? stt.getError() : "STT error"))));
-                    emitter.complete();
+                    sseError(emitter, stt.getError() != null ? stt.getError() : "STT error");
                     return;
                 }
 
@@ -404,7 +399,7 @@ public class ChatbotController {
                 // 2 ── LLM streaming — each token forwarded immediately
                 chatbotAgent.chatStreaming(sessionId, userText, weakWords, avgConf, token -> {
                     try { emitter.send(SseEmitter.event().name("token").data(json(Map.of("text", token)))); }
-                    catch (IOException ignored) {}
+                    catch (IOException ex) { log.debug("SSE write failed: {}", ex.getMessage()); }
                 }).thenAccept(response -> {
                     try {
                         // 3 ── TTS
@@ -427,20 +422,17 @@ public class ChatbotController {
                             sessionMemory.addWeakWords(masterSessionId, weakWords);
                         }
                     } catch (Exception ex) {
-                        try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", "Server error")))); } catch (IOException ignored) {}
-                        emitter.complete();
+                        sseError(emitter, "Server error");
                     }
                 }).exceptionally(ex -> {
                     Throwable cause = ex instanceof java.util.concurrent.CompletionException ? ex.getCause() : ex;
                     String errMsg = cause instanceof java.util.concurrent.TimeoutException ? "TIMEOUT" : "Server error";
-                    try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", errMsg)))); } catch (IOException ignored) {}
-                    emitter.complete();
+                    sseError(emitter, errMsg);
                     return null;
                 });
 
             } catch (Exception e) {
-                try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", e.getMessage())))); } catch (IOException ignored) {}
-                emitter.complete();
+                sseError(emitter, e.getMessage());
             }
         });
 
@@ -464,14 +456,13 @@ public class ChatbotController {
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
-                    emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", "Session expirée"))));
-                    emitter.complete();
+                    sseError(emitter, "Session expirée");
                     return;
                 }
 
                 chatbotAgent.chatStreaming(sessionId, message, List.of(), null, token -> {
                     try { emitter.send(SseEmitter.event().name("token").data(json(Map.of("text", token)))); }
-                    catch (IOException ignored) {}
+                    catch (IOException ex) { log.debug("SSE write failed: {}", ex.getMessage()); }
                 }).thenAccept(response -> {
                     try {
                         String audioB64 = "";
@@ -491,20 +482,17 @@ public class ChatbotController {
                             sessionMemory.incrementChatRound(masterSessionId);
                         }
                     } catch (Exception ex) {
-                        try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", "Server error")))); } catch (IOException ignored) {}
-                        emitter.complete();
+                        sseError(emitter, "Server error");
                     }
                 }).exceptionally(ex -> {
                     Throwable cause = ex instanceof java.util.concurrent.CompletionException ? ex.getCause() : ex;
                     String errMsg = cause instanceof java.util.concurrent.TimeoutException ? "TIMEOUT" : "Server error";
-                    try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", errMsg)))); } catch (IOException ignored) {}
-                    emitter.complete();
+                    sseError(emitter, errMsg);
                     return null;
                 });
 
             } catch (Exception e) {
-                try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", e.getMessage())))); } catch (IOException ignored) {}
-                emitter.complete();
+                sseError(emitter, e.getMessage());
             }
         });
 

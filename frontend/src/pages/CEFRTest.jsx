@@ -118,7 +118,6 @@ function Hearts({ lives, max = MAX_LIVES }) {
 
 /* ── Global CSS ─────────────────────────────────────────────────────── */
 const css = `
-  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
   @keyframes spin     { to { transform: rotate(360deg); } }
   @keyframes float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
   @keyframes fadeUp   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
@@ -230,18 +229,19 @@ export default function CEFRTest() {
   const handleStartRec = async () => {
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(null); capturedBlob.current = null; setError(null);
+    setRecState('recording');
+    await startRecording();
     recStartTimeRef.current = Date.now();
-    setRecState('recording'); await startRecording();
   };
 
   const handleStopRec = async () => {
-    if (recStartTimeRef.current && Date.now() - recStartTimeRef.current < 800) {
+    if (recStartTimeRef.current && Date.now() - recStartTimeRef.current < 500) {
       await stopRecording();
       setRecState('idle');
       setError(t('Enregistrement trop court.', 'Recording too short.')); return;
     }
     const blob = await stopRecording();
-    if (!blob || blob.size < 100) { setError(t('Enregistrement trop court.', 'Recording too short.')); setRecState('idle'); return; }
+    if (!blob || blob.size < 500) { setError(t('Enregistrement trop court.', 'Recording too short.')); setRecState('idle'); return; }
     capturedBlob.current = blob;
     setAudioUrl(URL.createObjectURL(blob));
     setRecState('recorded');

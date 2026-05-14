@@ -4,6 +4,8 @@ import com.example.prononciationtest.service.iservice.IFileStorageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -12,6 +14,8 @@ import java.util.UUID;
 
 @Service
 public class FileStorageService implements IFileStorageService {
+
+    private static final Logger log = LoggerFactory.getLogger(FileStorageService.class);
 
     @Value("${app.storage.video-dir:./storage/videos}")
     private String videoDir;
@@ -72,7 +76,7 @@ public class FileStorageService implements IFileStorageService {
         try {
             Files.deleteIfExists(Paths.get("." + relativePath));
         } catch (IOException e) {
-            System.out.println("[Storage] Suppression échouée : " + relativePath);
+            log.warn("[Storage] Deletion failed: {}", relativePath);
         }
     }
 

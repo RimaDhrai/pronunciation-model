@@ -3,11 +3,17 @@ version: '3.9'
 networks:
   speakcoach-net:
     driver: bridge
+  sonar-net:
+    driver: bridge
 
 volumes:
   postgres_data:
   spring_storage:
   keycloak_data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  sonar_postgres_data:
 
 services:
 
@@ -103,10 +109,16 @@ services:
       # FastAPI
       PYTHON_BASE_URL: http://fastapi:8000
 
-      # Ollama sur le host
-      OLLAMA_BASE_URL: http://host.docker.internal:11434
-      OLLAMA_MODEL: qwen2.5:3b
-      OLLAMA_MODEL_CHATBOT: qwen2.5:3b
+      # Ollama (desactive - remplace par Azure OpenAI)
+      # OLLAMA_BASE_URL: http://host.docker.internal:11434
+      # OLLAMA_MODEL: qwen2.5:3b
+      # OLLAMA_MODEL_CHATBOT: qwen2.5:3b
+
+      # Azure OpenAI gpt-4.1-mini
+      AZURE_OPENAI_ENABLED: "true"
+      AZURE_OPENAI_ENDPOINT: https://rima-mp3uulbs-eastus2.cognitiveservices.azure.com/
+      AZURE_OPENAI_KEY: ${AZURE_OPENAI_KEY}
+      AZURE_OPENAI_DEPLOYMENT: gpt-4.1-mini-2
 
       # Keycloak — ✅ UNIQUEMENT le JWK URI via réseau Docker interne
       # On supprime ISSUER_URI → plus de validation du claim iss
@@ -179,3 +191,54 @@ services:
         condition: service_healthy
     networks:
       - speakcoach-net
+
+  # ── Base de données SonarQube ────────────────────────────────────────────────
+  sonar-postgres:
+    image: postgres:16-alpine
+    container_name: sonar-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sonarqube
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    volumes:
+      - sonar_postgres_data:/var/lib/postgresql/data
+    networks:
+      - sonar-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar -d sonarqube"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── SonarQube Community Edition ──────────────────────────────────────────────
+  sonarqube:
+    image: sonarqube:10.6-community
+    container_name: sonarqube
+    restart: unless-stopped
+    depends_on:
+      sonar-postgres:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-postgres:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    ports:
+      - "9000:9000"
+    networks:
+      - sonar-net
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/api/system/status | grep -q UP"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s

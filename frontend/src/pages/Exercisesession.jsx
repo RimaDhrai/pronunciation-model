@@ -409,7 +409,7 @@ export default function ExerciseSession() {
   const capturedBlobRef  = useRef(null);
   const recStartTimeRef  = useRef(null);
 
-  const { isRecording, audioLevel, error: micError, startRecording, stopRecording, resetRecording } = useAudioRecorder();
+  const { isRecording, audioLevelRef, error: micError, startRecording, stopRecording, resetRecording } = useAudioRecorder();
 
   const currentPhrase = phrases[currentIdx] || '';
 
@@ -482,18 +482,18 @@ export default function ExerciseSession() {
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(null); capturedBlobRef.current = null;
     setError(null); setRecState('recording'); setPhase('recording');
-    recStartTimeRef.current = Date.now();
     await startRecording();
+    recStartTimeRef.current = Date.now();
   };
 
   const handleStopRec = async () => {
-    if (recStartTimeRef.current && Date.now() - recStartTimeRef.current < 800) {
+    if (recStartTimeRef.current && Date.now() - recStartTimeRef.current < 500) {
       await stopRecording();
       setRecState('idle'); setPhase('ready');
       setError(t.shortRec); return;
     }
     const blob = await stopRecording();
-    if (!blob || blob.size < 100) { setError(t.shortRec); setRecState('idle'); setPhase('ready'); return; }
+    if (!blob || blob.size < 500) { setError(t.shortRec); setRecState('idle'); setPhase('ready'); return; }
     capturedBlobRef.current = blob;
     setAudioUrl(URL.createObjectURL(blob));
     setRecState('recorded');
@@ -627,7 +627,7 @@ export default function ExerciseSession() {
   // ── ERROR (no phrases loaded) ──
   if (phase === 'error') return (
     <Layout title={t.pageTitle(level)}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');*{font-family:'Nunito',sans-serif;}`}</style>
+      <style>{`*{font-family:'Nunito','Segoe UI',sans-serif;}`}</style>
       <div style={{minHeight:'60vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'20px',textAlign:'center',padding:'0 20px'}}>
         <div style={{fontSize:'64px'}}>⚠️</div>
         <div style={{fontWeight:900,fontSize:'20px',color:'#C8305A'}}>{t.serverError}</div>
@@ -651,7 +651,7 @@ export default function ExerciseSession() {
   // ── LOADING ──
   if (phase === 'loading') return (
     <Layout title={t.pageTitle(level)}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');*{font-family:'Nunito',sans-serif;}`}</style>
+      <style>{`*{font-family:'Nunito','Segoe UI',sans-serif;}`}</style>
       <div style={{minHeight:'60vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'20px'}}>
         <div style={{
           width:'80px',height:'80px',borderRadius:'24px',
@@ -785,7 +785,6 @@ export default function ExerciseSession() {
   return (
     <Layout title={t.pageTitleActive(level, cfg.label)}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
         *{font-family:'Nunito','Segoe UI',sans-serif;}
         @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
         @keyframes slideUp{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -1009,7 +1008,7 @@ export default function ExerciseSession() {
           }}>
             {typeof WaveVisualizer !== 'undefined' && (
               <div style={{marginBottom:'16px'}}>
-                <WaveVisualizer isActive={isRecording} audioLevel={audioLevel} />
+                <WaveVisualizer isActive={isRecording} audioLevelRef={audioLevelRef} />
               </div>
             )}
 

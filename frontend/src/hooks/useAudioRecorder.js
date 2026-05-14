@@ -33,7 +33,7 @@ function pcmToWav(pcm, sr) {
 export function useAudioRecorder() {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob]     = useState(null);
-  const [audioLevel, setAudioLevel]   = useState(0);
+  const audioLevelRef                 = useRef(0);
   const [error, setError]             = useState(null);
 
   const mediaRecorderRef = useRef(null);
@@ -127,7 +127,7 @@ export function useAudioRecorder() {
         stream.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
         cancelAnimationFrame(animFrameRef.current);
-        setAudioLevel(0);
+        audioLevelRef.current = 0;
 
         const capturedSR = audioCtx.sampleRate;
         if (audioCtx.state !== 'closed') audioCtx.close().catch(() => {});
@@ -161,7 +161,7 @@ export function useAudioRecorder() {
         const data = new Uint8Array(analyserRef.current.frequencyBinCount);
         analyserRef.current.getByteFrequencyData(data);
         const avg = data.reduce((a, b) => a + b, 0) / data.length;
-        setAudioLevel(Math.min(1, avg / 128));
+        audioLevelRef.current = Math.min(1, avg / 128);
         animFrameRef.current = requestAnimationFrame(updateLevel);
       };
       updateLevel();
@@ -197,7 +197,7 @@ export function useAudioRecorder() {
   const resetRecording = useCallback(() => {
     setAudioBlob(null);
     setError(null);
-    setAudioLevel(0);
+    audioLevelRef.current = 0;
     chunksRef.current    = [];
     pcmChunksRef.current = [];
   }, []);
@@ -205,7 +205,7 @@ export function useAudioRecorder() {
   return {
     isRecording,
     audioBlob,
-    audioLevel,
+    audioLevelRef,
     error,
     startRecording,
     stopRecording,

@@ -200,7 +200,7 @@ public class SessionMemoryService {
                 entity.getErrorLogJson() != null ? entity.getErrorLogJson() : "[]",
                 new TypeReference<>() {});
             s.errorLog.addAll(log);
-        } catch (Exception ignored) {}
+        } catch (Exception ex) { log.debug("Could not parse errorLog JSON: {}", ex.getMessage()); }
         return s;
     }
 

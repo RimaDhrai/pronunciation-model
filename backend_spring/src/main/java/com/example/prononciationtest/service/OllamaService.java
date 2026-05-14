@@ -10,6 +10,8 @@ import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -21,6 +23,8 @@ import java.util.function.Consumer;
 @Service
 public class OllamaService implements IOllamaService {
 
+    private static final Logger log = LoggerFactory.getLogger(OllamaService.class);
+
     @Value("${ollama.base-url:http://localhost:11434}")
     private String ollamaBaseUrl;
 
@@ -29,6 +33,20 @@ public class OllamaService implements IOllamaService {
 
     @Value("${ollama.model.chatbot:qwen2.5:3b}")
     private String chatbotModel;
+
+    @Value("${azure.openai.enabled:false}")
+    private boolean azureEnabled;
+
+    @Value("${azure.openai.endpoint:}")
+    private String azureEndpoint;
+
+    @Value("${azure.openai.key:}")
+    private String azureKey;
+
+    @Value("${azure.openai.deployment:gpt-4.1-mini}")
+    private String azureDeployment;
+
+    private static final String AZURE_API_VERSION = "2025-01-01-preview";
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -44,11 +62,15 @@ public class OllamaService implements IOllamaService {
     @Async
     @EventListener(ApplicationReadyEvent.class)
     public void warmupOllama() {
+        if (azureEnabled) {
+            log.info("[Azure OpenAI] enabled - skipping Ollama warmup.");
+            return;
+        }
         try {
             callOllama("You are a helpful assistant.", "Hi", 1, 0.0);
-            System.out.println("[Ollama] Warmup OK â€” modÃ¨le chargÃ© en mÃ©moire.");
+            log.info("[Ollama] Warmup OK - model loaded in memory.");
         } catch (Exception e) {
-            System.out.println("[Ollama] Warmup ignorÃ© (Ollama non dÃ©marrÃ©) : " + e.getMessage());
+            log.warn("[Ollama] Warmup skipped (Ollama not started): {}", e.getMessage());
         }
     }
 
@@ -146,8 +168,8 @@ public class OllamaService implements IOllamaService {
         }
 
         String systemPrompt = "fr".equals(lang)
-                ? "Coach prononciation expert. Reponds en 3 parties numerotees sans emojis : 1. Evaluation de ce qui a ete prononce. 2. Erreurs ou mots manquants. 3. Conseil concret. Si l'apprenant n'a pas dit la phrase complete, dis-le clairement. Max 80 mots. Pas d'emojis."
-                : "Expert pronunciation coach. Reply in 3 numbered parts, no emojis: 1. Honest assessment of what was said. 2. Errors or missing words. 3. Concrete tip. If the learner did not say the full phrase, state it clearly. Max 80 words. No emojis.";
+                ? "Coach prononciation. 3 parties courtes : 1. Ce qui etait bien. 2. Mot(s) mal prononce(s) ou manquant(s). 3. Conseil pratique pour ce son. Max 60 mots. Pas d emojis. Ton encourageant."
+                : "Pronunciation coach. 3 short parts: 1. What was good. 2. Mispronounced or missing word(s). 3. Practical tip for that sound. Max 60 words. No emojis. Encouraging tone.";
 
         String userMsg = "fr".equals(lang)
                 ? String.format(
@@ -238,6 +260,11 @@ public class OllamaService implements IOllamaService {
      */
     public String streamChatbotResponse(
             List<Map<String, Object>> messages, Consumer<String> onToken) {
+        if (azureEnabled) {
+            String raw = streamAzureChatbot(messages, onToken);
+            String cleaned = raw.replaceAll("(?i)<think>[\\s\\S]*?</think>", "").trim();
+            return cleaned.isBlank() ? raw : cleaned;
+        }
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", chatbotModel);
         body.put("stream", true);
@@ -268,8 +295,7 @@ public class OllamaService implements IOllamaService {
                                         if (onToken != null)
                                             onToken.accept(token);
                                     }
-                                } catch (Exception ignored) {
-                                }
+                                } catch (Exception ignored) { log.debug("Skipping malformed SSE line"); }
                             }
                         }
                         return null;
@@ -301,19 +327,19 @@ public class OllamaService implements IOllamaService {
 
         String roleContext = switch (scenario) {
             case "customs" -> fr
-                    ? ("Douanier CDG ðŸ›‚. %s. Max 2 phrases. Passeport, sÃ©jour, bagages. Si [Prononciation incertaine: X] : corrige en restant dans le rÃ´le. Avance le scÃ©nario.")
+                    ? ("Tu es douanier a l'aeroport CDG. %s. Max 2 phrases. Verifie passeport, duree du sejour, bagages. Si [Prononciation incertaine: X] : corrige le mot X dans le role et ajoute [REPETE: \"phrase courte avec X\"]. Ne repete pas la meme phrase que l'apprenant. Avance le scenario.")
                             .formatted(levelHint)
-                    : ("UK Border Control Heathrow ðŸ›‚. %s. Max 2 sentences. Passport, stay, luggage. If [Uncertain pronunciation: X] : correct subtly in character. Advance scenario.")
+                    : ("You are a border control officer at Heathrow. %s. Max 2 sentences. Check passport, duration of stay, luggage. If [Uncertain pronunciation: X] : correct X in character then add [REPEAT: \"short phrase with X\"]. Never repeat the learner's sentence. Advance the scenario.")
                             .formatted(levelHint);
             case "interview" -> fr
-                    ? ("Manager RH entretien ðŸ’¼. %s. Max 2 phrases. Parcours, motivation, compÃ©tences. Si [Prononciation incertaine: X] : corrige discrÃ¨tement. Avance l'entretien.")
+                    ? ("Tu es manager RH en entretien d'embauche. %s. Max 2 phrases. Questions sur parcours, motivation, competences. Si [Prononciation incertaine: X] : corrige X discretement puis ajoute [REPETE: \"phrase courte avec X\"]. Jamais la meme phrase que l'apprenant. Avance l'entretien.")
                             .formatted(levelHint)
-                    : ("Hiring manager interview ðŸ’¼. %s. Max 2 sentences. Background, motivation, skills. If [Uncertain pronunciation: X] : correct subtly. Advance interview.")
+                    : ("You are a hiring manager conducting a job interview. %s. Max 2 sentences. Ask about background, motivation, skills. If [Uncertain pronunciation: X] : correct X subtly then add [REPEAT: \"short phrase with X\"]. Never repeat the learner's sentence. Advance the interview.")
                             .formatted(levelHint);
             case "restaurant" -> fr
-                    ? ("Serveur restaurant parisien ðŸ½. %s. Max 2 phrases. Accueil â†’ commande â†’ addition. Si [Prononciation incertaine: X] : corrige dans le rÃ´le.")
+                    ? ("Tu es serveur dans un restaurant parisien elegant. %s. Max 2 phrases. Guide : accueil -> carte -> commande -> addition. Si [Prononciation incertaine: X] : corrige X naturellement puis ajoute [REPETE: \"phrase courte avec X\"]. Ne repete pas la phrase de l'apprenant.")
                             .formatted(levelHint)
-                    : ("London restaurant waiter ðŸ½. %s. Max 2 sentences. Welcome â†’ order â†’ bill. If [Uncertain pronunciation: X] : correct subtly in character.")
+                    : ("You are a waiter at a London restaurant. %s. Max 2 sentences. Guide: welcome -> menu -> order -> bill. If [Uncertain pronunciation: X] : correct X naturally then add [REPEAT: \"short phrase with X\"]. Never repeat the learner's sentence.")
                             .formatted(levelHint);
             default -> buildChatbotSystemPrompt(lang, level);
         };
@@ -325,11 +351,11 @@ public class OllamaService implements IOllamaService {
             case "en" ->
                 """
                         You are a warm English pronunciation coach. Learner level: %s.
-                        STYLE: have a real conversation â€” ask questions, react to what the learner says, share opinions.
-                        PRONUNCIATION HELP: ONLY add [REPEAT: "short phrase"] when the learner made a clear pronunciation error \
-                        (signaled by [Uncertain pronunciation: X]) or when it feels natural after 3-4 turns of free chat.
-                        Never force a [REPEAT] every turn. Most replies should be pure conversation.
-                        Max 3 sentences. No <think>. Friendly and natural.
+                        STYLE: have a real conversation - ask questions, react naturally, change topics.
+                        ABSOLUTE RULE: Never repeat the learner's message word for word.
+                        CORRECTION: If [Uncertain pronunciation: X] appears, correct X then add [REPEAT: "3-5 NEW words containing X"]. The [REPEAT] phrase must be DIFFERENT from all previous ones. Never write "Repeat after me" in plain text.
+                        NO ERROR: pure conversation, no [REPEAT] tag.
+                        NEVER two [REPEAT] in a row. Max 2 sentences. No <think>. Friendly tone.
                         """
                         .formatted(level);
             case "es" ->
@@ -350,12 +376,12 @@ public class OllamaService implements IOllamaService {
                         .formatted(level, level);
             default ->
                 """
-                        Tu es un coach de prononciation franÃ§aise sympathique. Niveau apprenant : %s.
-                        STYLE : mÃ¨ne une vraie conversation â€” pose des questions, rÃ©agis Ã  ce que dit l'apprenant, exprime des opinions, change de sujet, partage des anecdotes.
-                        RÃˆGLE ABSOLUE : Ne rÃ©pÃ¨te JAMAIS le message de l'apprenant mot pour mot. RÃ©ponds avec tes propres mots, diffÃ©rents de ceux qu'il vient de dire.
-                        AIDE PRONONCIATION : utilise [RÃ‰PÃˆTE: "courte phrase originale"] SEULEMENT si l'apprenant a fait une erreur claire (signalÃ©e par [Prononciation incertaine: X]) ou aprÃ¨s 4+ Ã©changes sans correction.
-                        Ne mets JAMAIS [RÃ‰PÃˆTE] deux tours de suite. La majoritÃ© des rÃ©ponses = conversation pure, sans balise.
-                        Max 2-3 phrases courtes. Jamais de <think>. Ton chaleureux, variÃ©, naturel.
+                        Tu es un coach de prononciation francaise sympathique. Niveau apprenant : %s.
+                        STYLE : mene une vraie conversation - pose des questions, reagis, change de sujet naturellement.
+                        REGLE ABSOLUE : Ne repete JAMAIS le message de l'apprenant mot pour mot.
+                        CORRECTION : Si [Prononciation incertaine: X] apparait, reponds en corrigeant X puis ajoute [REPETE: "3-5 mots NOUVEAUX contenant X"]. La phrase [REPETE] doit etre differente de toutes les phrases precedentes. Ne dis pas "Repete apres moi" en texte brut.
+                        SANS ERREUR : conversation pure, sans balise [REPETE].
+                        JAMAIS deux [REPETE] de suite. Max 2 phrases. Pas de <think>. Ton chaleureux.
                         """
                         .formatted(level);
         };
@@ -366,44 +392,42 @@ public class OllamaService implements IOllamaService {
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public String generateLevelTestPhrase(String lang, String soundContext, String level) {
-        String levelHint = "fr".equals(lang) ? switch (level) {
-            case "A1" -> "trÃ¨s simple (4-6 mots)";
-            case "A2" -> "simple (6-8 mots)";
-            case "B1" -> "intermÃ©diaire (9-12 mots)";
-            case "B2" -> "avancÃ© (12-15 mots)";
-            case "C1" -> "sophistiquÃ© (15-18 mots)";
-            case "C2" -> "trÃ¨s sophistiquÃ© (18-22 mots)";
-            default -> "intermÃ©diaire";
-        } : switch (level) {
-            case "A1" -> "very simple (4-6 words)";
-            case "A2" -> "simple (6-8 words)";
-            case "B1" -> "intermediate (9-12 words)";
-            case "B2" -> "advanced (12-15 words)";
-            case "C1" -> "sophisticated (15-18 words)";
-            case "C2" -> "very sophisticated (18-22 words)";
-            default -> "intermediate";
-        };
-
         String[] words = soundContext.split(",");
         String w0 = words[0].trim();
         String w1 = words.length > 1 ? words[1].trim() : w0;
+        String w2 = words.length > 2 ? words[2].trim() : w0;
+
+        String cefrSpec = "fr".equals(lang) ? switch (level) {
+            case "A1" -> "niveau CECR A1 : phrase de 4-6 mots, present simple, vocabulaire de base (maison, famille, couleurs). Exemple de structure : \"Le [nom] est [adjectif].\"";
+            case "A2" -> "niveau CECR A2 : phrase de 6-9 mots, verbes courants, lieux et activites du quotidien. Exemple : \"Je vais [lieu] avec [personne] chaque [moment]\"";
+            case "B1" -> "niveau CECR B1 : phrase de 9-13 mots, proposition subordonnee simple, vocabulaire thematique (voyage, travail, loisirs)";
+            case "B2" -> "niveau CECR B2 : phrase de 12-16 mots, structures complexes, vocabulaire varie et precis, connecteurs logiques";
+            case "C1" -> "niveau CECR C1 : phrase de 15-19 mots, subjonctif ou conditionnel, vocabulaire soutenu, idiotismes naturels";
+            case "C2" -> "niveau CECR C2 : phrase de 18-22 mots, registre soutenu, structures syntaxiques elaborees, vocabulaire riche";
+            default -> "niveau CECR B1 : phrase naturelle de 9-13 mots";
+        } : switch (level) {
+            case "A1" -> "CEFR A1: 4-6 words, present simple, basic vocabulary (home, family, colors). Example: \"The [noun] is [adjective].\"";
+            case "A2" -> "CEFR A2: 6-9 words, common verbs, daily places and activities";
+            case "B1" -> "CEFR B1: 9-13 words, simple subordinate clause, thematic vocabulary (travel, work, leisure)";
+            case "B2" -> "CEFR B2: 12-16 words, complex structures, precise varied vocabulary, logical connectors";
+            case "C1" -> "CEFR C1: 15-19 words, sophisticated grammar, natural idioms, formal vocabulary";
+            case "C2" -> "CEFR C2: 18-22 words, elevated register, elaborate syntax, rich vocabulary";
+            default -> "CEFR B1: natural sentence of 9-13 words";
+        };
 
         String system = "fr".equals(lang)
-                ? "Tu gÃ©nÃ¨res UNE phrase franÃ§aise parlÃ©e (" + levelHint
-                        + "). INTERDIT d'utiliser des formules d'introduction (pas de 'Voici', pas de 'Bien sÃ»r'). RÃ©ponds DIRECTEMENT avec la phrase."
-                : "Generate ONE spoken English sentence (" + levelHint
-                        + "). FORBIDDEN to use introduction phrases (no 'Here is', no 'Sure'). Reply DIRECTLY with the sentence.";
+                ? "Tu generes UNE phrase francaise orale, " + cefrSpec + ". La phrase doit contenir au moins 2 des mots cibles. INTERDIT : introduction, guillemets, explication. Reponds UNIQUEMENT avec la phrase."
+                : "Generate ONE spoken English sentence, " + cefrSpec + ". The sentence must contain at least 2 target words. FORBIDDEN: introduction, quotes, explanation. Reply with the sentence ONLY.";
         String prompt = "fr".equals(lang)
-                ? "Phrase avec Â« " + w0 + " Â» et Â« " + w1 + " Â»:"
-                : "Sentence using \"" + w0 + "\" and \"" + w1 + "\":";
+                ? "Mots cibles : " + w0 + ", " + w1 + ", " + w2 + ". Phrase :"
+                : "Target words: " + w0 + ", " + w1 + ", " + w2 + ". Sentence:";
 
-        String cleaned = cleanLevelTestPhrase(callOllama(system, prompt, 60, 0.75));
+        String cleaned = cleanLevelTestPhrase(callOllama(system, prompt, 45, 0.7));
         if (cleaned.length() < 8 || taxonomy.isHallucination(cleaned, lang) || cleaned.contains("indisponible")) {
             return taxonomy.getFallback(lang, level, "general");
         }
         return cleaned;
     }
-
     public String generateLevelTestTip(String lang, String soundLabel) {
         String system = "fr".equals(lang)
                 ? "Coach prononciation. RÃ©ponds avec UNE phrase de conseil pratique, max 15 mots, sans tiret ni numÃ©ro."
@@ -450,7 +474,7 @@ public class OllamaService implements IOllamaService {
                         + learner + ". Reponds en 2-3 phrases courtes. Pas de tirets."
                 : "You are a pronunciation coach. FORBIDDEN to use the name Alex. Address the learner only by their name: "
                         + learner + ". Reply in 2-3 short sentences. No dashes.";
-        String raw = callOllama(system, prompt, 80, 0.4);
+        String raw = callOllama(system, prompt, 55, 0.4);
         raw = raw.replaceAll("(?i)\\bAlex\\b", learner);
         String result = raw.length() > 20 ? raw : buildLevelTestFeedbackFallback(lang, soundLabel, contextWords, score);
         if (feedbackCache.size() < 200)
@@ -584,6 +608,9 @@ public class OllamaService implements IOllamaService {
 
     private String callOllamaMessages(String model, List<Map<String, Object>> messages,
             int maxTokens, double temperature, int numCtx) {
+        if (azureEnabled) {
+            return callAzureOpenAI(messages, maxTokens, temperature);
+        }
         try {
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("model", model);
@@ -794,6 +821,23 @@ public class OllamaService implements IOllamaService {
     }
 
     public boolean isHealthy() {
+        if (azureEnabled) {
+            try {
+                String url = azureEndpoint.replaceAll("/$", "")
+                        + "/openai/deployments/" + azureDeployment
+                        + "/chat/completions?api-version=" + AZURE_API_VERSION;
+                HttpHeaders h = new HttpHeaders();
+                h.setContentType(MediaType.APPLICATION_JSON);
+                h.set("api-key", azureKey);
+                Map<String, Object> body = Map.of(
+                        "messages", List.of(Map.of("role", "user", "content", "hi")),
+                        "max_tokens", 1);
+                restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(body, h), String.class);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
         try {
             return restTemplate
                     .getForEntity(ollamaBaseUrl + "/api/tags", String.class)
@@ -803,6 +847,68 @@ public class OllamaService implements IOllamaService {
         }
     }
 
+    private String callAzureOpenAI(List<Map<String, Object>> messages, int maxTokens, double temperature) {
+        try {
+            String url = azureEndpoint.replaceAll("/$", "")
+                    + "/openai/deployments/" + azureDeployment
+                    + "/chat/completions?api-version=" + AZURE_API_VERSION;
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("messages", messages);
+            body.put("max_tokens", maxTokens);
+            body.put("temperature", temperature);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", azureKey);
+            ResponseEntity<byte[]> response = restTemplate.exchange(
+                    url, HttpMethod.POST, new HttpEntity<>(body, headers), byte[].class);
+            JsonNode json = objectMapper.readTree(response.getBody());
+            return json.path("choices").path(0).path("message").path("content").asText("").trim();
+        } catch (Exception e) {
+            return "Response unavailable: " + e.getMessage();
+        }
+    }
+
+    private String streamAzureChatbot(List<Map<String, Object>> messages, Consumer<String> onToken) {
+        String url = azureEndpoint.replaceAll("/$", "")
+                + "/openai/deployments/" + azureDeployment
+                + "/chat/completions?api-version=" + AZURE_API_VERSION;
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("messages", messages);
+        body.put("max_tokens", 110);
+        body.put("temperature", 0.72);
+        body.put("stream", true);
+        StringBuilder full = new StringBuilder();
+        try {
+            restTemplate.execute(url, HttpMethod.POST,
+                    request -> {
+                        request.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                        request.getHeaders().set("api-key", azureKey);
+                        objectMapper.writeValue(request.getBody(), body);
+                    },
+                    response -> {
+                        try (BufferedReader reader = new BufferedReader(
+                                new InputStreamReader(response.getBody(), StandardCharsets.UTF_8))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                if (line.isBlank() || line.equals("data: [DONE]")) continue;
+                                if (line.startsWith("data: ")) line = line.substring(6);
+                                try {
+                                    JsonNode node = objectMapper.readTree(line);
+                                    String token = node.path("choices").path(0).path("delta").path("content").asText("");
+                                    if (!token.isEmpty()) {
+                                        full.append(token);
+                                        if (onToken != null) onToken.accept(token);
+                                    }
+                                } catch (Exception ignored) { log.debug("Skipping malformed SSE line"); }
+                            }
+                        }
+                        return null;
+                    });
+        } catch (Exception e) {
+            if (full.isEmpty()) return "Response unavailable";
+        }
+        return full.toString().trim();
+    }
     private String stripEmojis(String s) {
         if (s == null) return "";
         // Remove surrogate pairs (supplementary plane emojis like U+1F3AF)

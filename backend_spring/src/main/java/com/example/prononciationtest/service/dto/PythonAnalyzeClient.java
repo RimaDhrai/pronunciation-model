@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class PythonAnalyzeClient implements IPythonAnalyzeClient {
 
-    @Value("${python.base-url:http://localhost:8000}")
+    @Value("${python.base-url:#{'http://localhost:8000'}}")
     private String pythonBaseUrl;
 
     private final RestTemplate restTemplate;

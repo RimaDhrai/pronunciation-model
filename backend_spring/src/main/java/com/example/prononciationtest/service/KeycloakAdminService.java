@@ -63,7 +63,7 @@ public class KeycloakAdminService implements IKeycloakAdminService {
     @Value("${keycloak.admin.client-id}")
     private String clientId;
 
-    @Value("${app.frontend.url:http://localhost:8081}")
+    @Value("${app.frontend.url:#{'http://localhost:8081'}}")
     private String frontendUrl;
 
     private static final ParameterizedTypeReference<Map<String, Object>> MAP_TYPE =

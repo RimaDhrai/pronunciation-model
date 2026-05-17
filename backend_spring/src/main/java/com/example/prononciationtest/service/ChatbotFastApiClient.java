@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ChatbotFastApiClient implements IChatbotFastApiClient {
 
-    @Value("${python.base-url:http://localhost:8000}")
+    @Value("${python.base-url:#{'http://localhost:8000'}}")
     private String fastApiUrl;
 
     private final RestTemplate restTemplate;

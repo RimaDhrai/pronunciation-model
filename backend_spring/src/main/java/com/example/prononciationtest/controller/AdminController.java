@@ -22,13 +22,13 @@ public class AdminController {
 
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
 
-    @Value("${ollama.model:qwen2.5:7b}")
+    @Value("${ollama.model:#{'qwen2.5:7b'}}")
     private String ollamaModel;
 
-    @Value("${ollama.model.chatbot:qwen2.5:3b}")
+    @Value("${ollama.model.chatbot:#{'qwen2.5:3b'}}")
     private String chatbotModel;
 
-    @Value("${python.base-url:http://localhost:8000}")
+    @Value("${python.base-url:#{'http://localhost:8000'}}")
     private String pythonBaseUrl;
 
     private final UserRepository          userRepo;

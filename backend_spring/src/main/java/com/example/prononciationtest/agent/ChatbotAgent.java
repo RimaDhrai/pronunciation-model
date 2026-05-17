@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,16 +27,33 @@ import static org.bsc.langgraph4j.StateGraph.START;
 @Component
 public class ChatbotAgent {
 
+    private static final String NODE_PREPARE_CONTEXT = "prepare_context";
+    private static final String NODE_GENERATE_RESPONSE = "generate_response";
+    private static final String KEY_LEVEL = KEY_LEVEL;
+    private static final String KEY_SCENARIO = KEY_SCENARIO;
+    private static final String KEY_CONTENT = KEY_CONTENT;
+    private static final String KEY_ASSISTANT = KEY_ASSISTANT;
+    private static final String KEY_USER_INPUT = KEY_USER_INPUT;
+    private static final String KEY_WEAK_WORDS = KEY_WEAK_WORDS;
+    private static final String KEY_PRON_SCORE = KEY_PRON_SCORE;
+    private static final String KEY_IS_GREETING = KEY_IS_GREETING;
+    private static final String KEY_LAST_RESPONSE = KEY_LAST_RESPONSE;
+    private static final String KEY_HISTORY = KEY_HISTORY;
+    private static final String KEY_SKIP_LLM = KEY_SKIP_LLM;
+
     private static final Logger log = LoggerFactory.getLogger(ChatbotAgent.class);
     private static final int MAX_HISTORY = 20;
     private static final long SESSION_TTL_MS = 3_600_000L;
 
     // Réponses rapides uniquement pour messages très courts (salutations isolées)
     // Ne jamais court-circuiter des phrases complètes contenant ces mots
-    private static final Map<String, String> QUICK_RESPONSES = new LinkedHashMap<>() {{
-        put("bonjour|salut|coucou|hello|hi", "Bonjour ! Comment puis-je t'aider aujourd'hui ? 🎙️");
-        put("au revoir|bye|goodbye|à plus", "À bientôt ! Continue à pratiquer, tu fais de beaux progrès ! 👋✨");
-    }};
+    private static final Map<String, String> QUICK_RESPONSES;
+    static {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("bonjour|salut|coucou|hello|hi", "Bonjour ! Comment puis-je t'aider aujourd'hui ? 🎙️");
+        map.put("au revoir|bye|goodbye|à plus", "À bientôt ! Continue à pratiquer, tu fais de beaux progrès ! 👋✨");
+        QUICK_RESPONSES = Collections.unmodifiableMap(map);
+    }
 
     private final OllamaService ollamaService;
     private final ThreadPoolTaskExecutor taskExecutor;
@@ -64,16 +80,19 @@ public class ChatbotAgent {
     }
 
     @PostConstruct
-    void buildGraph() throws Exception {
-        graph = new StateGraph<>(AgentState::new)
-                .addEdge(START, "prepare_context")
-                .addNode("prepare_context", (s, c) -> CompletableFuture.completedFuture(prepareContextNode(s)))
-                .addEdge("prepare_context", "generate_response")
-                .addNode("generate_response", (s, c) -> CompletableFuture.completedFuture(generateResponseNode(s)))
-                .addEdge("generate_response", END)
-                .compile(CompileConfig.builder().checkpointSaver(checkpointer).build());
-
-        log.info("ChatbotAgent initialisé avec cache intelligent");
+    void buildGraph() {
+        try {
+            graph = new StateGraph<>(AgentState::new)
+                    .addEdge(START, NODE_PREPARE_CONTEXT)
+                    .addNode(NODE_PREPARE_CONTEXT, (s, c) -> CompletableFuture.completedFuture(prepareContextNode(s)))
+                    .addEdge(NODE_PREPARE_CONTEXT, NODE_GENERATE_RESPONSE)
+                    .addNode(NODE_GENERATE_RESPONSE, (s, c) -> CompletableFuture.completedFuture(generateResponseNode(s)))
+                    .addEdge(NODE_GENERATE_RESPONSE, END)
+                    .compile(CompileConfig.builder().checkpointSaver(checkpointer).build());
+            log.info("ChatbotAgent initialisé avec cache intelligent");
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to build StateGraph in ChatbotAgent", e);
+        }
     }
 
     @PreDestroy
@@ -114,8 +133,8 @@ public class ChatbotAgent {
             try {
                 Map<String, String> meta = sessionMeta.getOrDefault(sessionId, Map.of());
                 String lang     = meta.getOrDefault("lang",     "fr");
-                String level    = meta.getOrDefault("level",    "B1");
-                String scenario = meta.getOrDefault("scenario", "");
+                String level    = meta.getOrDefault(KEY_LEVEL,    "B1");
+                String scenario = meta.getOrDefault(KEY_SCENARIO, "");
 
                 String content  = ollamaService.buildChatbotUserContent(userText, weakWords, pronScore, lang);
                 String system   = ollamaService.getChatbotSystemPrompt(lang, level, scenario);
@@ -135,8 +154,8 @@ public class ChatbotAgent {
 
                 // Update history
                 List<Map<String, String>> updated = new ArrayList<>(history);
-                updated.add(Map.of("role", "user",      "content", userText != null ? userText : ""));
-                updated.add(Map.of("role", "assistant", "content", response));
+                updated.add(Map.of("role", "user",      KEY_CONTENT, userText != null ? userText : ""));
+                updated.add(Map.of("role", KEY_ASSISTANT, KEY_CONTENT, response));
                 trimHistory(updated);
                 historyCache.put(sessionId, updated);
 
@@ -153,7 +172,7 @@ public class ChatbotAgent {
     /**
      * Version synchrone (compatible avec l'existant)
      */
-    public String chat(String sessionId, String userText, List<String> weakWords, Double pronScore) throws Exception {
+    public String chat(String sessionId, String userText, List<String> weakWords, Double pronScore) {
         if (!lastUsed.containsKey(sessionId)) {
             throw new IllegalArgumentException("Session introuvable ou expirée: " + sessionId);
         }
@@ -162,9 +181,6 @@ public class ChatbotAgent {
         // Cache rapide
         String quick = getQuickResponse(userText);
         if (quick != null) return quick;
-
-        String cached = findSimilarCachedResponse(userText);
-        if (cached != null) return cached;
 
         return generateResponse(sessionId, userText, weakWords, pronScore);
     }
@@ -176,13 +192,15 @@ public class ChatbotAgent {
         String quick = getQuickResponse(userText);
         if (quick != null) return quick;
 
-        String cached = findSimilarCachedResponse(userText);
-        if (cached != null) return cached;
-
         // Réponse temporaire pendant que LLM travaille
         taskExecutor.execute(() -> {
             try { chat(sessionId, userText, List.of(), null); }
-            catch (Exception e) { log.debug("[Chatbot] Background prefetch failed: {}", e.getMessage()); }
+            catch (Exception e) {
+                if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                log.debug("[Chatbot] Background prefetch failed: {}", e.getMessage());
+            }
         });
 
         return "🤔 Je réfléchis... (ta prochaine réponse sera plus personnalisée)";
@@ -192,30 +210,34 @@ public class ChatbotAgent {
     // Noyau de génération
     // ═════════════════════════════════════════════════════════════════════════
 
-    private String generateResponse(String sessionId, String userText, List<String> weakWords, Double pronScore) throws Exception {
-        RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
-        AgentState result = graph.invoke(Map.of(
-                "user_input", userText != null ? userText : "",
-                "weak_words", weakWords != null ? weakWords : List.of(),
-                "pron_score", pronScore != null ? pronScore : -1.0,
-                "is_greeting", false
-        ), config).orElseThrow(() -> new RuntimeException("Agent state error"));
+    private String generateResponse(String sessionId, String userText, List<String> weakWords, Double pronScore) {
+        try {
+            RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
+            AgentState result = graph.invoke(Map.of(
+                    KEY_USER_INPUT, userText != null ? userText : "",
+                    KEY_WEAK_WORDS, weakWords != null ? weakWords : List.of(),
+                    KEY_PRON_SCORE, pronScore != null ? pronScore : -1.0,
+                    KEY_IS_GREETING, false
+            ), config).orElseThrow(() -> new IllegalStateException("Agent state error"));
 
-        String response = result.<String>value("last_response").orElse(getFallbackResponse());
+            String response = result.<String>value(KEY_LAST_RESPONSE).orElse(getFallbackResponse());
 
-        result.<List<Map<String, String>>>value("history")
-                .ifPresent(h -> historyCache.put(sessionId, new ArrayList<>(h)));
+            result.<List<Map<String, String>>>value(KEY_HISTORY)
+                    .ifPresent(h -> historyCache.put(sessionId, new ArrayList<>(h)));
 
-        return response;
+            return response;
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to generate response in ChatbotAgent", e);
+        }
     }
 
-    public String startSession(String sessionId, String lang, String level, String scenario) throws Exception {
+    public String startSession(String sessionId, String lang, String level, String scenario) {
         evictExpired();
         touch(sessionId);
         sessionMeta.put(sessionId, Map.of(
                 "lang",     lang  != null ? lang     : "fr",
-                "level",    level != null ? level    : "B1",
-                "scenario", scenario != null ? scenario : ""
+                KEY_LEVEL,    level != null ? level    : "B1",
+                KEY_SCENARIO, scenario != null ? scenario : ""
         ));
 
         // Generate opening phrase via Ollama (async with 7s timeout — fallback if slow)
@@ -232,14 +254,18 @@ public class ChatbotAgent {
         }
         String greeting = buildGreeting(lang, level, scenario, openingPhrase);
 
-        RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
-        graph.invoke(Map.of(
-                "lang", lang, "level", level, "scenario", scenario != null ? scenario : "",
-                "user_input", "", "weak_words", List.of(), "pron_score", -1.0,
-                "is_greeting", true, "pending_assistant_msg", greeting
-        ), config);
+        try {
+            RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
+            graph.invoke(Map.of(
+                    "lang", lang, KEY_LEVEL, level, KEY_SCENARIO, scenario != null ? scenario : "",
+                    KEY_USER_INPUT, "", KEY_WEAK_WORDS, List.of(), KEY_PRON_SCORE, -1.0,
+                    KEY_IS_GREETING, true, "pending_assistant_msg", greeting
+            ), config);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to initialize session in ChatbotAgent", e);
+        }
 
-        historyCache.put(sessionId, new ArrayList<>(List.of(Map.of("role", "assistant", "content", greeting))));
+        historyCache.put(sessionId, new ArrayList<>(List.of(Map.of("role", KEY_ASSISTANT, KEY_CONTENT, greeting))));
         return greeting;
     }
 
@@ -268,64 +294,7 @@ public class ChatbotAgent {
         return null;
     }
 
-    /** Cache désactivé pour les réponses conversationnelles — chaque échange doit être contextuel. */
-    private String findSimilarCachedResponse(String userText) {
-        return null; // désactivé : le cache retournait de vieilles réponses hors-contexte
-    }
 
-    private void cacheResponse(String userText, String response) {
-        if (userText.length() < 100 && response.length() < 300) {
-            responseCache.put(userText.toLowerCase().trim(), response);
-        }
-    }
-
-    private void prefetchNext(String sessionId, String userText) {
-        String intent = detectIntent(userText);
-        String prefetchKey = sessionId + "_" + intent;
-
-        // Ne pas précharger si déjà fait
-        if (prefetchCache.containsKey(prefetchKey)) return;
-
-        CompletableFuture<String> prefetch = CompletableFuture.supplyAsync(() -> {
-            try {
-                return getPredictedResponse(intent);
-            } catch (Exception e) {
-                return null;
-            }
-        }, taskExecutor);
-
-        prefetchCache.put(prefetchKey, prefetch);
-
-        // Nettoyage après 15s
-        taskExecutor.execute(() -> {
-            try { Thread.sleep(15000); } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.debug("[Chatbot] Prefetch cleanup interrupted");
-            }
-            prefetchCache.remove(prefetchKey);
-        });
-    }
-
-    private String detectIntent(String text) {
-        String lower = text.toLowerCase();
-        if (lower.matches(".*(bonjour|salut|hello|coucou).*")) return "greeting";
-        if (lower.matches(".*(merci|thanks).*")) return "thanks";
-        if (lower.matches(".*(comment|pourquoi|quand|où|qui).*")) return "question";
-        if (lower.matches(".*(difficile|trop|dur|compliqué).*")) return "difficulty";
-        if (lower.matches(".*(bien|super|parfait|excellent).*")) return "positive";
-        return "general";
-    }
-
-    private String getPredictedResponse(String intent) {
-        return switch (intent) {
-            case "greeting" -> "Content de te voir ! Quel son veux-tu pratiquer aujourd'hui ? 🎯";
-            case "thanks" -> "C'est normal, je suis là pour ça ! Continue comme ça ! 💪";
-            case "question" -> "Excellente question ! Veux-tu que je te donne un exemple ? 📚";
-            case "difficulty" -> "C'est en pratiquant qu'on progresse. Répète après moi lentement ! 🗣️";
-            case "positive" -> "Super ! Tu as l'air motivé(e). C'est l'esprit qu'il faut ! 🔥";
-            default -> "Parle-moi encore, je t'écoute ! 👂";
-        };
-    }
 
     private void streamWithDelay(String text, Consumer<String> onToken, int delayMs) {
         String[] words = text.split(" ");
@@ -345,44 +314,44 @@ public class ChatbotAgent {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> prepareContextNode(AgentState state) {
-        boolean isGreeting = state.<Boolean>value("is_greeting").orElse(false);
+        boolean isGreeting = state.<Boolean>value(KEY_IS_GREETING).orElse(false);
         String pendingMsg = state.<String>value("pending_assistant_msg").orElse("");
 
         List<Map<String, String>> history = new ArrayList<>(
-                state.<List<Map<String, String>>>value("history").orElse(new ArrayList<>())
+                state.<List<Map<String, String>>>value(KEY_HISTORY).orElse(new ArrayList<>())
         );
 
         if (isGreeting && !pendingMsg.isBlank()) {
-            history.add(Map.of("role", "assistant", "content", pendingMsg));
+            history.add(Map.of("role", KEY_ASSISTANT, KEY_CONTENT, pendingMsg));
             trimHistory(history);
-            return Map.of("history", history, "skip_llm", true, "last_response", pendingMsg);
+            return Map.of(KEY_HISTORY, history, KEY_SKIP_LLM, true, KEY_LAST_RESPONSE, pendingMsg);
         }
 
-        String userInput = state.<String>value("user_input").orElse("");
+        String userInput = state.<String>value(KEY_USER_INPUT).orElse("");
         if (!userInput.isBlank()) {
-            history.add(Map.of("role", "user", "content", userInput));
+            history.add(Map.of("role", "user", KEY_CONTENT, userInput));
             trimHistory(history);
         }
 
-        return Map.of("history", history, "skip_llm", false);
+        return Map.of(KEY_HISTORY, history, KEY_SKIP_LLM, false);
     }
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> generateResponseNode(AgentState state) {
-        if (state.<Boolean>value("skip_llm").orElse(false)) {
+        if (state.<Boolean>value(KEY_SKIP_LLM).orElse(false)) {
             return Map.of();
         }
 
         String lang = state.<String>value("lang").orElse("fr");
-        String level = state.<String>value("level").orElse("B1");
-        String scenario = state.<String>value("scenario").orElse("");
-        String userInput = state.<String>value("user_input").orElse("");
+        String level = state.<String>value(KEY_LEVEL).orElse("B1");
+        String scenario = state.<String>value(KEY_SCENARIO).orElse("");
+        String userInput = state.<String>value(KEY_USER_INPUT).orElse("");
 
-        List<String> weakWords = state.<List<String>>value("weak_words").orElse(List.of());
-        double pronScoreRaw = state.<Double>value("pron_score").orElse(-1.0);
+        List<String> weakWords = state.<List<String>>value(KEY_WEAK_WORDS).orElse(List.of());
+        double pronScoreRaw = state.<Double>value(KEY_PRON_SCORE).orElse(-1.0);
         Double pronScoreArg = pronScoreRaw >= 0 ? pronScoreRaw : null;
 
-        List<Map<String, String>> history = state.<List<Map<String, String>>>value("history").orElse(List.of());
+        List<Map<String, String>> history = state.<List<Map<String, String>>>value(KEY_HISTORY).orElse(List.of());
 
         // BUG FIX: prepareContextNode a déjà ajouté le message user à history.
         // generateChatbotResponse va le rajouter AVEC les hints de prononciation.
@@ -406,10 +375,10 @@ public class ChatbotAgent {
         }
 
         List<Map<String, String>> updated = new ArrayList<>(history);
-        updated.add(Map.of("role", "assistant", "content", response));
+        updated.add(Map.of("role", KEY_ASSISTANT, KEY_CONTENT, response));
         trimHistory(updated);
 
-        return Map.of("history", updated, "last_response", response);
+        return Map.of(KEY_HISTORY, updated, KEY_LAST_RESPONSE, response);
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -432,22 +401,26 @@ public class ChatbotAgent {
         boolean isEn = "en".equals(lang);
 
         // Use Ollama-generated phrase if available, otherwise use a level-appropriate fallback
-        String phrase = (generatedPhrase != null && !generatedPhrase.isBlank()) ? generatedPhrase
-            : isEn
-                ? switch (level != null ? level : "B1") {
-                    case "A1" -> "Hello, how are you today?";
-                    case "A2" -> "I enjoy spending time with my friends";
-                    case "B1" -> "The weekend was really enjoyable and relaxing";
-                    case "B2" -> "It is important to keep learning throughout life";
-                    default   -> "Every experience shapes who we are as people";
-                }
-                : switch (level != null ? level : "B1") {
-                    case "A1" -> "Bonjour, comment vas-tu ?";
-                    case "A2" -> "J'aime passer du temps avec mes amis";
-                    case "B1" -> "Le week-end était vraiment agréable et reposant";
-                    case "B2" -> "Il est important de continuer à apprendre tout au long de la vie";
-                    default   -> "Chaque expérience façonne qui nous sommes en tant que personnes";
-                };
+        String phrase;
+        if (generatedPhrase != null && !generatedPhrase.isBlank()) {
+            phrase = generatedPhrase;
+        } else if (isEn) {
+            phrase = switch (level != null ? level : "B1") {
+                case "A1" -> "Hello, how are you today?";
+                case "A2" -> "I enjoy spending time with my friends";
+                case "B1" -> "The weekend was really enjoyable and relaxing";
+                case "B2" -> "It is important to keep learning throughout life";
+                default   -> "Every experience shapes who we are as people";
+            };
+        } else {
+            phrase = switch (level != null ? level : "B1") {
+                case "A1" -> "Bonjour, comment vas-tu ?";
+                case "A2" -> "J'aime passer du temps avec mes amis";
+                case "B1" -> "Le week-end était vraiment agréable et reposant";
+                case "B2" -> "Il est important de continuer à apprendre tout au long de la vie";
+                default   -> "Chaque expérience façonne qui nous sommes en tant que personnes";
+            };
+        }
 
         String tag   = isEn ? "[REPEAT: \"%s\"]" : "[RÉPÈTE: \"%s\"]";
         String intro = isEn
@@ -479,7 +452,7 @@ public class ChatbotAgent {
     public void updateLevel(String sessionId, String newLevel) {
         sessionMeta.computeIfPresent(sessionId, (k, old) -> {
             Map<String, String> updated = new java.util.HashMap<>(old);
-            updated.put("level", newLevel != null ? newLevel : "B1");
+            updated.put(KEY_LEVEL, newLevel != null ? newLevel : "B1");
             return updated;
         });
         log.info("[Chatbot] Level updated for session {}: {}", sessionId, newLevel);

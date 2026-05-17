@@ -30,7 +30,7 @@ public class ExerciseProgressController {
 
     // ── GET /api/exercises/progress ─────────────────────────────────────────
     @GetMapping
-    public ResponseEntity<?> getProgress(
+    public ResponseEntity<Map<String, Object>> getProgress(
             @RequestParam(defaultValue = "fr") String lang,
             Authentication auth) {
         User user = getUser(auth);
@@ -68,7 +68,7 @@ public class ExerciseProgressController {
 
     // ── POST /api/exercises/progress/{level}/complete ────────────────────────
     @PostMapping("/{level}/complete")
-    public ResponseEntity<?> completeLevel(
+    public ResponseEntity<Map<String, Object>> completeLevel(
             @PathVariable String level,
             @RequestParam int avgScore,
             @RequestParam(defaultValue = "10") int totalPhrases,
@@ -131,7 +131,7 @@ public class ExerciseProgressController {
 
     // ── GET /api/exercises/progress/{level} ──────────────────────────────────
     @GetMapping("/{level}")
-    public ResponseEntity<?> getLevelProgress(
+    public ResponseEntity<Map<String, Object>> getLevelProgress(
             @PathVariable String level,
             @RequestParam(defaultValue = "fr") String lang,
             Authentication auth) {

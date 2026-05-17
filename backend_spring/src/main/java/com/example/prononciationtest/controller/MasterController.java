@@ -44,7 +44,7 @@ public class MasterController {
     // ── Create session ────────────────────────────────────────────────────────
 
     @PostMapping("/session")
-    public ResponseEntity<?> createSession(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<Map<String, Object>> createSession(@RequestBody Map<String, Object> body) {
         String sessionId = (String) body.getOrDefault("session_id", UUID.randomUUID().toString());
         String lang      = (String) body.getOrDefault("lang",       "fr");
         String level     = (String) body.getOrDefault("level",      "B1");
@@ -63,7 +63,7 @@ public class MasterController {
     // ── Sync turn ─────────────────────────────────────────────────────────────
 
     @PostMapping("/turn")
-    public ResponseEntity<?> turn(@Valid @RequestBody MasterTurnRequest req) {
+    public ResponseEntity<Map<String, Object>> turn(@Valid @RequestBody MasterTurnRequest req) {
         if (req.sessionId == null || req.sessionId.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "session_id required"));
         }
@@ -134,7 +134,7 @@ public class MasterController {
     // ── Stats ─────────────────────────────────────────────────────────────────
 
     @GetMapping("/session/{sessionId}/stats")
-    public ResponseEntity<?> stats(@PathVariable String sessionId) {
+    public ResponseEntity<Map<String, Object>> stats(@PathVariable String sessionId) {
         Map<String, Object> stats = masterAgent.getStats(sessionId);
         return ResponseEntity.ok(stats);
     }

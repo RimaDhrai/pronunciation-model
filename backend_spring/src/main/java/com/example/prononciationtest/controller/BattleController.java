@@ -24,6 +24,8 @@ public class BattleController {
     private final OllamaService ollamaService;
 
     static final int TOTAL_ROUNDS = 3;
+    private static final String STATUS_FINISHED = "FINISHED";
+    private static final String KEY_WINNER = "winner";
 
     // ── Modèle de session battle ──────────────────────────────────────────────
     static class BattleSession {
@@ -72,10 +74,10 @@ public class BattleController {
             m.put("creatorRoundsCompleted",    creatorScores.size());
             m.put("challengerRoundsCompleted", challengerScores.size());
             m.put("isCreator",                 isCreator);
-            if ("FINISHED".equals(status)) {
-                if (creatorTotal > challengerTotal)      m.put("winner", creatorEmail);
-                else if (challengerTotal > creatorTotal) m.put("winner", challengerEmail);
-                else                                     m.put("winner", "TIE");
+            if (STATUS_FINISHED.equals(status)) {
+                if (creatorTotal > challengerTotal)      m.put(KEY_WINNER, creatorEmail);
+                else if (challengerTotal > creatorTotal) m.put(KEY_WINNER, challengerEmail);
+                else                                     m.put(KEY_WINNER, "TIE");
             }
             return m;
         }
@@ -83,15 +85,22 @@ public class BattleController {
 
     // ── Stockage in-memory + nettoyage automatique ────────────────────────────
     private final ConcurrentHashMap<String, BattleSession> battles = new ConcurrentHashMap<>();
+    private final java.util.concurrent.ScheduledExecutorService scheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+    private final Random rand = new Random();
 
     public BattleController(OllamaService ollamaService) {
         this.ollamaService = ollamaService;
         // Nettoyage toutes les 10 min — supprime les battles > 30 min
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+        scheduler.scheduleAtFixedRate(
             () -> battles.values().removeIf(b ->
                 b.createdAt.isBefore(LocalDateTime.now().minusMinutes(30))),
             10, 10, TimeUnit.MINUTES
         );
+    }
+
+    @jakarta.annotation.PreDestroy
+    public void shutdown() {
+        scheduler.shutdown();
     }
 
     // ── POST /api/battle/create ───────────────────────────────────────────────
@@ -175,7 +184,7 @@ public class BattleController {
 
         // Finir quand les deux ont soumis les 5 rounds
         if (b.creatorScores.size() >= TOTAL_ROUNDS && b.challengerScores.size() >= TOTAL_ROUNDS)
-            b.status = "FINISHED";
+            b.status = STATUS_FINISHED;
 
         return ResponseEntity.ok(b.toMap(email));
     }
@@ -186,7 +195,7 @@ public class BattleController {
         String email = email(auth);
         List<Map<String, Object>> mine = battles.values().stream()
                 .filter(b -> email.equals(b.creatorEmail) || email.equals(b.challengerEmail))
-                .filter(b -> !"FINISHED".equals(b.status))
+                .filter(b -> !STATUS_FINISHED.equals(b.status))
                 .map(b -> b.toMap(email))
                 .toList();
         return ResponseEntity.ok(mine);
@@ -212,7 +221,6 @@ public class BattleController {
     private String randomCode() {
         String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         StringBuilder sb = new StringBuilder();
-        Random rand = new Random();
         for (int i = 0; i < 6; i++) sb.append(chars.charAt(rand.nextInt(chars.length())));
         String code = sb.toString();
         return battles.containsKey(code) ? randomCode() : code;

@@ -32,6 +32,40 @@ import static org.bsc.langgraph4j.StateGraph.START;
 @Component
 public class LevelTestAgent {
 
+    private static final String KEY_IN_NASAL = "in_nasal";
+    private static final String KEY_ON_NASAL = "on_nasal";
+    private static final String KEY_AN_NASAL = "an_nasal";
+    private static final String KEY_LIAISON = "liaison";
+    private static final String KEY_SHORT_I = "short_i";
+    private static final String KEY_SCHWA = "schwa";
+    private static final String KEY_DIPHTHONG = "diphthong";
+    private static final String KEY_DARK_L = "dark_l";
+    private static final String KEY_ACTION = KEY_ACTION;
+    private static final String KEY_PICK_SOUND = KEY_PICK_SOUND;
+    private static final String KEY_GEN_FEEDBACK = KEY_GEN_FEEDBACK;
+    private static final String KEY_FEEDBACK_ONLY = KEY_FEEDBACK_ONLY;
+    private static final String KEY_SYNTHESIZE = KEY_SYNTHESIZE;
+    private static final String KEY_GEN_CONTENT = KEY_GEN_CONTENT;
+    private static final String KEY_INPUT_PHRASE = KEY_INPUT_PHRASE;
+    private static final String KEY_INPUT_SCORE = KEY_INPUT_SCORE;
+    private static final String KEY_LAST_FEEDBACK = KEY_LAST_FEEDBACK;
+    private static final String KEY_FEEDBACK = KEY_FEEDBACK;
+    private static final String KEY_ESTIMATED_LEVEL = KEY_ESTIMATED_LEVEL;
+    private static final String KEY_SOUND_QUEUE = KEY_SOUND_QUEUE;
+    private static final String KEY_HISTORY = KEY_HISTORY;
+    private static final String KEY_SCORE = KEY_SCORE;
+    private static final String KEY_CURRENT_STEP = KEY_CURRENT_STEP;
+    private static final String KEY_DISPLAY_STEP = KEY_DISPLAY_STEP;
+    private static final String KEY_CURRENT_SOUND = KEY_CURRENT_SOUND;
+    private static final String KEY_CURRENT_LABEL = KEY_CURRENT_LABEL;
+    private static final String KEY_USED_PHRASES = KEY_USED_PHRASES;
+    private static final String KEY_CURRENT_PHRASE = KEY_CURRENT_PHRASE;
+    private static final String KEY_CURRENT_TIP = KEY_CURRENT_TIP;
+    private static final String KEY_SOUND_LABEL = KEY_SOUND_LABEL;
+    private static final String KEY_FINAL_LEVEL = KEY_FINAL_LEVEL;
+    private static final String KEY_STRENGTHS = KEY_STRENGTHS;
+    private static final String KEY_WEAKNESSES = KEY_WEAKNESSES;
+
     private static final Logger log = LoggerFactory.getLogger(LevelTestAgent.class);
     private static final int TOTAL_STEPS = 20;
 
@@ -47,12 +81,12 @@ public class LevelTestAgent {
         // FR Context
         SOUND_CONTEXT_FR.put("r", "rouge, renard, bruit, Paris, partir, crier, brosse");
         SOUND_CONTEXT_FR.put("u", "rue, vu, bu, tu, sur, lune, bureau, futur");
-        SOUND_CONTEXT_FR.put("in_nasal", "main, vin, pain, lapin, cousin, matin, dessin");
-        SOUND_CONTEXT_FR.put("on_nasal", "bon, pont, balcon, mouton, chanson, salon");
-        SOUND_CONTEXT_FR.put("an_nasal", "grand, enfant, temps, vent, chanter, devant");
+        SOUND_CONTEXT_FR.put(KEY_IN_NASAL, "main, vin, pain, lapin, cousin, matin, dessin");
+        SOUND_CONTEXT_FR.put(KEY_ON_NASAL, "bon, pont, balcon, mouton, chanson, salon");
+        SOUND_CONTEXT_FR.put(KEY_AN_NASAL, "grand, enfant, temps, vent, chanter, devant");
         SOUND_CONTEXT_FR.put("eu", "deux, feu, heureux, beurre, sœur, bleu");
         SOUND_CONTEXT_FR.put("gn", "montagne, vigne, gagner, signe, campagne");
-        SOUND_CONTEXT_FR.put("liaison", "les enfants, vous avez, ils ont, un ami, en avant");
+        SOUND_CONTEXT_FR.put(KEY_LIAISON, "les enfants, vous avez, ils ont, un ami, en avant");
         SOUND_CONTEXT_FR.put("ch", "chat, chose, chercher, chocolat, perche");
         SOUND_CONTEXT_FR.put("j", "je, jour, jeu, jardin, plage, image");
         SOUND_CONTEXT_FR.put("ou", "roue, bouche, tout, sous, nous, jour, cou");
@@ -61,12 +95,12 @@ public class LevelTestAgent {
         // FR Labels
         SOUND_LABELS_FR.put("r", "Le R grasseyé [ʁ]");
         SOUND_LABELS_FR.put("u", "Le U français [y]");
-        SOUND_LABELS_FR.put("in_nasal", "La nasale IN [ɛ̃]");
-        SOUND_LABELS_FR.put("on_nasal", "La nasale ON [ɔ̃]");
-        SOUND_LABELS_FR.put("an_nasal", "La nasale AN [ɑ̃]");
+        SOUND_LABELS_FR.put(KEY_IN_NASAL, "La nasale IN [ɛ̃]");
+        SOUND_LABELS_FR.put(KEY_ON_NASAL, "La nasale ON [ɔ̃]");
+        SOUND_LABELS_FR.put(KEY_AN_NASAL, "La nasale AN [ɑ̃]");
         SOUND_LABELS_FR.put("eu", "Le son EU [ø/œ]");
         SOUND_LABELS_FR.put("gn", "Le son GN [ɲ]");
-        SOUND_LABELS_FR.put("liaison", "Les liaisons");
+        SOUND_LABELS_FR.put(KEY_LIAISON, "Les liaisons");
         SOUND_LABELS_FR.put("ch", "Le CH [ʃ]");
         SOUND_LABELS_FR.put("j", "Le J / GE [ʒ]");
         SOUND_LABELS_FR.put("ou", "Le OU [u]");
@@ -76,25 +110,25 @@ public class LevelTestAgent {
         SOUND_CONTEXT_EN.put("th", "think, the, three, that, both, through, weather");
         SOUND_CONTEXT_EN.put("r", "river, road, rain, run, arrive, current, worry");
         SOUND_CONTEXT_EN.put("ae", "cat, hat, bag, man, black, hand, stand, plan");
-        SOUND_CONTEXT_EN.put("short_i", "sit, him, big, fish, ring, win, ship, bit");
+        SOUND_CONTEXT_EN.put(KEY_SHORT_I, "sit, him, big, fish, ring, win, ship, bit");
         SOUND_CONTEXT_EN.put("ng", "running, singing, ring, king, bring, thing, wrong");
         SOUND_CONTEXT_EN.put("w", "water, walk, wind, world, wave, warm, window");
         SOUND_CONTEXT_EN.put("v", "voice, very, visit, village, love, live, above");
-        SOUND_CONTEXT_EN.put("schwa", "the, a, about, teacher, doctor, problem, system");
-        SOUND_CONTEXT_EN.put("diphthong", "day, time, boy, go, now, own, say, high");
-        SOUND_CONTEXT_EN.put("dark_l", "ball, full, milk, fall, tall, call, felt");
+        SOUND_CONTEXT_EN.put(KEY_SCHWA, "the, a, about, teacher, doctor, problem, system");
+        SOUND_CONTEXT_EN.put(KEY_DIPHTHONG, "day, time, boy, go, now, own, say, high");
+        SOUND_CONTEXT_EN.put(KEY_DARK_L, "ball, full, milk, fall, tall, call, felt");
 
         // EN Labels
         SOUND_LABELS_EN.put("th", "The TH sound [θ/ð]");
         SOUND_LABELS_EN.put("r", "American R [ɹ]");
         SOUND_LABELS_EN.put("ae", "Flat A [æ]");
-        SOUND_LABELS_EN.put("short_i", "Short I [ɪ]");
+        SOUND_LABELS_EN.put(KEY_SHORT_I, "Short I [ɪ]");
         SOUND_LABELS_EN.put("ng", "NG ending [ŋ]");
         SOUND_LABELS_EN.put("w", "The W sound [w]");
         SOUND_LABELS_EN.put("v", "The V sound [v]");
-        SOUND_LABELS_EN.put("schwa", "The Schwa [ə]");
-        SOUND_LABELS_EN.put("diphthong", "Diphthongs [eɪ/aɪ]");
-        SOUND_LABELS_EN.put("dark_l", "Dark L [ɫ]");
+        SOUND_LABELS_EN.put(KEY_SCHWA, "The Schwa [ə]");
+        SOUND_LABELS_EN.put(KEY_DIPHTHONG, "Diphthongs [eɪ/aɪ]");
+        SOUND_LABELS_EN.put(KEY_DARK_L, "Dark L [ɫ]");
 
         // Fallback Phrases FR
         Map<String, String> frPhrases = new HashMap<>();
@@ -196,45 +230,45 @@ public class LevelTestAgent {
     }
 
     @PostConstruct
-    void buildGraph() throws Exception {
+    void buildGraph() {
         log.info("[LevelTestAgent] Building LangGraph...");
-
-        graph = new StateGraph<>(AgentState::new)
-
-                .addConditionalEdges(START,
-                        state -> CompletableFuture.completedFuture(
-                                state.<String>value("action").orElse("next")),
-                        Map.of(
-                                "start", "pick_sound",
-                                "next", "gen_feedback",
-                                "feedback_only", "gen_feedback",
-                                "next_phrase", "pick_sound",
-                                "finish", "synthesize"
-                        ))
-
-                .addNode("pick_sound", (state, runnableConfig) ->
-                        CompletableFuture.completedFuture(pickSoundNode(state)))
-                .addEdge("pick_sound", "gen_content")
-
-                .addNode("gen_content", (state, runnableConfig) ->
-                        CompletableFuture.completedFuture(genContentNode(state)))
-                .addEdge("gen_content", END)
-
-                .addNode("gen_feedback", (state, runnableConfig) ->
-                        CompletableFuture.completedFuture(genFeedbackNode(state)))
-                .addConditionalEdges("gen_feedback",
-                        state -> CompletableFuture.completedFuture(
-                                state.<Boolean>value("done").orElse(false) ? "done" :
-                                        "feedback_only".equals(state.<String>value("action").orElse("next")) ? "stop" : "continue"),
-                        Map.of("continue", "pick_sound", "done", "synthesize", "stop", END))
-
-                .addNode("synthesize", (state, runnableConfig) ->
-                        CompletableFuture.completedFuture(synthesizeNode(state)))
-                .addEdge("synthesize", END)
-
-                .compile(CompileConfig.builder().checkpointSaver(checkpointer).build());
-
-        log.info("[LevelTestAgent] Graph built successfully");
+        try {
+            graph = new StateGraph<>(AgentState::new)
+                    .addConditionalEdges(START,
+                            state -> CompletableFuture.completedFuture(
+                                    state.<String>value(KEY_ACTION).orElse("next")),
+                            Map.of(
+                                    "start", KEY_PICK_SOUND,
+                                    "next", KEY_GEN_FEEDBACK,
+                                    KEY_FEEDBACK_ONLY, KEY_GEN_FEEDBACK,
+                                    "next_phrase", KEY_PICK_SOUND,
+                                    "finish", KEY_SYNTHESIZE
+                            ))
+                    .addNode(KEY_PICK_SOUND, (state, runnableConfig) ->
+                            CompletableFuture.completedFuture(pickSoundNode(state)))
+                    .addEdge(KEY_PICK_SOUND, KEY_GEN_CONTENT)
+                    .addNode(KEY_GEN_CONTENT, (state, runnableConfig) ->
+                            CompletableFuture.completedFuture(genContentNode(state)))
+                    .addEdge(KEY_GEN_CONTENT, END)
+                    .addNode(KEY_GEN_FEEDBACK, (state, runnableConfig) ->
+                            CompletableFuture.completedFuture(genFeedbackNode(state)))
+                    .addConditionalEdges(KEY_GEN_FEEDBACK,
+                            state -> {
+                                boolean done = state.<Boolean>value("done").orElse(false);
+                                if (done) return CompletableFuture.completedFuture("done");
+                                String action = state.<String>value(KEY_ACTION).orElse("next");
+                                String nextNode = KEY_FEEDBACK_ONLY.equals(action) ? "stop" : "continue";
+                                return CompletableFuture.completedFuture(nextNode);
+                            },
+                            Map.of("continue", KEY_PICK_SOUND, "done", KEY_SYNTHESIZE, "stop", END))
+                    .addNode(KEY_SYNTHESIZE, (state, runnableConfig) ->
+                            CompletableFuture.completedFuture(synthesizeNode(state)))
+                    .addEdge(KEY_SYNTHESIZE, END)
+                    .compile(CompileConfig.builder().checkpointSaver(checkpointer).build());
+            log.info("[LevelTestAgent] Graph built successfully");
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to build StateGraph in LevelTestAgent", e);
+        }
     }
 
     @PreDestroy
@@ -253,30 +287,30 @@ public class LevelTestAgent {
         validateSessionId(sessionId);
 
         try {
-            RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
+            RunnableConfig runConfig = RunnableConfig.builder().threadId(sessionId).build();
             AgentState result = graph.invoke(
-                    Map.of("lang", lang, "action", "start",
+                    Map.of("lang", lang, KEY_ACTION, "start",
                            "user_name", userName != null ? userName : "apprenant"),
-                    config
+                    runConfig
             ).orElseThrow(() -> new RuntimeException("Agent state empty after start"));
 
             stateCache.put(sessionId, result);
-            return buildStepResponse(result, lang, sessionId);
+            return buildStepResponse(result, sessionId);
         } catch (Exception e) {
             log.error("start() failed for session {}: {}", sessionId, e.getMessage());
             throw new RuntimeException("Failed to start test: " + e.getMessage(), e);
         }
     }
 
-    @Retryable(value = {TimeoutException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
+    @Retryable(retryFor = {TimeoutException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
     public Map<String, Object> next(String sessionId, int score, String phrase) {
         validateInputs(sessionId, score, phrase);
 
         try {
-            RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
+            RunnableConfig runConfig = RunnableConfig.builder().threadId(sessionId).build();
             AgentState result = graph.invoke(
-                    Map.of("action", "next", "input_score", score, "input_phrase", phrase != null ? phrase : ""),
-                    config
+                    Map.of(KEY_ACTION, "next", KEY_INPUT_SCORE, score, KEY_INPUT_PHRASE, phrase != null ? phrase : ""),
+                    runConfig
             ).orElseThrow(() -> new RuntimeException("Agent state empty after next"));
 
             stateCache.put(sessionId, result);
@@ -286,9 +320,8 @@ public class LevelTestAgent {
                 return buildFinishResponse(result);
             }
 
-            Map<String, Object> resp = new LinkedHashMap<>(buildStepResponse(result,
-                    result.<String>value("lang").orElse("fr"), sessionId));
-            resp.put("feedback", result.<String>value("last_feedback").orElse(""));
+            Map<String, Object> resp = new LinkedHashMap<>(buildStepResponse(result, sessionId));
+            resp.put(KEY_FEEDBACK, result.<String>value(KEY_LAST_FEEDBACK).orElse(""));
             return resp;
         } catch (Exception e) {
             log.error("next() failed for session {}: {}", sessionId, e.getMessage());
@@ -300,10 +333,10 @@ public class LevelTestAgent {
         validateInputs(sessionId, score, phrase);
 
         try {
-            RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
+            RunnableConfig runConfig = RunnableConfig.builder().threadId(sessionId).build();
             AgentState result = graph.invoke(
-                    Map.of("action", "feedback_only", "input_score", score, "input_phrase", phrase != null ? phrase : ""),
-                    config
+                    Map.of(KEY_ACTION, KEY_FEEDBACK_ONLY, KEY_INPUT_SCORE, score, KEY_INPUT_PHRASE, phrase != null ? phrase : ""),
+                    runConfig
             ).orElseThrow(() -> new RuntimeException("Agent state empty after submitFeedback"));
 
             stateCache.put(sessionId, result);
@@ -312,8 +345,8 @@ public class LevelTestAgent {
             if (done) return buildFinishResponse(result);
 
             Map<String, Object> resp = new LinkedHashMap<>();
-            resp.put("feedback", result.<String>value("last_feedback").orElse(""));
-            resp.put("estimated_level", result.<String>value("estimated_level").orElse("B1"));
+            resp.put(KEY_FEEDBACK, result.<String>value(KEY_LAST_FEEDBACK).orElse(""));
+            resp.put(KEY_ESTIMATED_LEVEL, result.<String>value(KEY_ESTIMATED_LEVEL).orElse("B1"));
             resp.put("done", false);
             return resp;
         } catch (Exception e) {
@@ -326,16 +359,16 @@ public class LevelTestAgent {
         validateSessionId(sessionId);
 
         try {
-            RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
+            RunnableConfig runConfig = RunnableConfig.builder().threadId(sessionId).build();
             AgentState result = graph.invoke(
-                    Map.of("action", "next_phrase"),
-                    config
+                    Map.of(KEY_ACTION, "next_phrase"),
+                    runConfig
             ).orElseThrow(() -> new RuntimeException("Agent state empty after fetchNextPhrase"));
 
             stateCache.put(sessionId, result);
 
             String lang = result.<String>value("lang").orElse("fr");
-            return buildStepResponse(result, lang, sessionId);
+            return buildStepResponse(result, sessionId);
         } catch (Exception e) {
             log.error("fetchNextPhrase() failed for session {}: {}", sessionId, e.getMessage());
             throw new RuntimeException("Failed to fetch next phrase: " + e.getMessage(), e);
@@ -346,10 +379,10 @@ public class LevelTestAgent {
         validateSessionId(sessionId);
 
         try {
-            RunnableConfig config = RunnableConfig.builder().threadId(sessionId).build();
+            RunnableConfig runConfig = RunnableConfig.builder().threadId(sessionId).build();
             AgentState result = graph.invoke(
-                    Map.of("action", "finish"),
-                    config
+                    Map.of(KEY_ACTION, "finish"),
+                    runConfig
             ).orElseThrow(() -> new RuntimeException("Agent state empty after finish"));
 
             stateCache.invalidate(sessionId);
@@ -388,21 +421,21 @@ public class LevelTestAgent {
         String lang = state.<String>value("lang").orElse("fr");
 
         @SuppressWarnings("unchecked")
-        List<String> queue = new ArrayList<>(state.<List<String>>value("sound_queue")
+        List<String> queue = new ArrayList<>(state.<List<String>>value(KEY_SOUND_QUEUE)
                 .filter(q -> !q.isEmpty())
                 .orElseGet(() -> buildSoundQueue(lang)));
 
         // Sounds the user mastered (≥75) in THIS session → skip their repetitions
         @SuppressWarnings("unchecked")
-        Set<String> masteredSounds = state.<List<Map<String, Object>>>value("history")
+        Set<String> masteredSounds = state.<List<Map<String, Object>>>value(KEY_HISTORY)
                 .orElse(List.of()).stream()
-                .filter(h -> h.get("score") instanceof Number n && n.intValue() >= 75)
+                .filter(h -> h.get(KEY_SCORE) instanceof Number n && n.intValue() >= 75)
                 .map(h -> (String) h.getOrDefault("sound", ""))
                 .filter(s -> !s.isBlank())
                 .collect(Collectors.toSet());
 
-        int step        = state.<Integer>value("current_step").orElse(0);
-        int displayStep = state.<Integer>value("display_step").orElse(0);
+        int step        = state.<Integer>value(KEY_CURRENT_STEP).orElse(0);
+        int displayStep = state.<Integer>value(KEY_DISPLAY_STEP).orElse(0);
 
         // Advance past repeated mastered sounds (first occurrence always shown)
         while (step < queue.size() && masteredSounds.contains(queue.get(step))) {
@@ -411,33 +444,33 @@ public class LevelTestAgent {
         }
 
         if (step >= queue.size() || displayStep >= TOTAL_STEPS) {
-            return Map.of("done", true, "sound_queue", queue,
-                          "current_step", step, "display_step", displayStep);
+            return Map.of("done", true, KEY_SOUND_QUEUE, queue,
+                          KEY_CURRENT_STEP, step, KEY_DISPLAY_STEP, displayStep);
         }
 
         String soundKey   = queue.get(step);
         String soundLabel = getSoundLabel(lang, soundKey);
 
         return Map.of(
-                "sound_queue",   queue,
-                "current_step",  step,
-                "display_step",  displayStep,
-                "current_sound", soundKey,
-                "current_label", soundLabel,
+                KEY_SOUND_QUEUE,   queue,
+                KEY_CURRENT_STEP,  step,
+                KEY_DISPLAY_STEP,  displayStep,
+                KEY_CURRENT_SOUND, soundKey,
+                KEY_CURRENT_LABEL, soundLabel,
                 "done",          false
         );
     }
 
     private Map<String, Object> genContentNode(AgentState state) {
         String lang = state.<String>value("lang").orElse("fr");
-        String soundKey = state.<String>value("current_sound").orElse("");
-        String soundLabel = state.<String>value("current_label").orElse("");
-        String level = state.<String>value("estimated_level").orElse("A2");
+        String soundKey = state.<String>value(KEY_CURRENT_SOUND).orElse("");
+        String soundLabel = state.<String>value(KEY_CURRENT_LABEL).orElse("");
+        String level = state.<String>value(KEY_ESTIMATED_LEVEL).orElse("A2");
 
         // Track phrases already shown in this session to avoid repetition
         @SuppressWarnings("unchecked")
         Set<String> usedPhrases = new HashSet<>(
-                state.<List<String>>value("used_phrases").orElse(List.of())
+                state.<List<String>>value(KEY_USED_PHRASES).orElse(List.of())
         );
 
         String cacheKey = lang + ":" + soundKey + ":" + level;
@@ -453,8 +486,8 @@ public class LevelTestAgent {
         if (cachedPhrase != null && cachedTip != null) {
             log.debug("Cache hit for sound: {}", soundKey);
             usedPhrases.add(cachedPhrase);
-            return Map.of("current_phrase", cachedPhrase, "current_tip", cachedTip,
-                          "used_phrases", new ArrayList<>(usedPhrases));
+            return Map.of(KEY_CURRENT_PHRASE, cachedPhrase, KEY_CURRENT_TIP, cachedTip,
+                          KEY_USED_PHRASES, new ArrayList<>(usedPhrases));
         }
 
         String soundContext = getSoundContext(lang, soundKey);
@@ -483,14 +516,17 @@ public class LevelTestAgent {
                 tipCache.put(cacheKey, tip);
             }
         } catch (Exception e) {
+            if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             log.warn("Generation failed: {}", e.getMessage());
-            phrase = getFallbackPhrase(lang, soundKey, soundContext, level);
+            phrase = getFallbackPhrase(lang, soundKey, soundContext);
             tip = getFallbackTip(lang, soundKey);
         }
 
         usedPhrases.add(phrase);
-        return Map.of("current_phrase", phrase, "current_tip", tip,
-                      "used_phrases", new ArrayList<>(usedPhrases));
+        return Map.of(KEY_CURRENT_PHRASE, phrase, KEY_CURRENT_TIP, tip,
+                      KEY_USED_PHRASES, new ArrayList<>(usedPhrases));
     }
 
     private String generatePhraseWithRetry(String lang, String context, String level, String soundKey) {
@@ -502,7 +538,7 @@ public class LevelTestAgent {
         } catch (Exception e) {
             log.warn("Ollama phrase generation failed: {}", e.getMessage());
         }
-        return getFallbackPhrase(lang, soundKey, context, level);
+        return getFallbackPhrase(lang, soundKey, context);
     }
 
     private String generateTipWithRetry(String lang, String soundLabel, String soundKey) {
@@ -520,10 +556,10 @@ public class LevelTestAgent {
     @SuppressWarnings("unchecked")
     private Map<String, Object> genFeedbackNode(AgentState state) {
         String lang = state.<String>value("lang").orElse("fr");
-        String soundKey = state.<String>value("current_sound").orElse("");
+        String soundKey = state.<String>value(KEY_CURRENT_SOUND).orElse("");
         String soundLabel = getSoundLabel(lang, soundKey);
-        String phrase = state.<String>value("input_phrase").orElse("");
-        int score = state.<Integer>value("input_score").orElse(0);
+        String phrase = state.<String>value(KEY_INPUT_PHRASE).orElse("");
+        int score = state.<Integer>value(KEY_INPUT_SCORE).orElse(0);
         String context = getSoundContext(lang, soundKey);
         String userName = state.<String>value("user_name").orElse("apprenant");
 
@@ -535,37 +571,40 @@ public class LevelTestAgent {
                     ).orTimeout(config.getTimeouts().getFeedbackGeneration(), TimeUnit.SECONDS)
                     .get(config.getTimeouts().getFeedbackGeneration(), TimeUnit.SECONDS);
         } catch (Exception e) {
+            if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             log.warn("Feedback generation failed: {}", e.getMessage());
             feedback = buildFallbackFeedback(lang, soundLabel, score);
         }
 
         List<Map<String, Object>> history = new ArrayList<>(
-                state.<List<Map<String, Object>>>value("history").orElse(new ArrayList<>())
+                state.<List<Map<String, Object>>>value(KEY_HISTORY).orElse(new ArrayList<>())
         );
-        int step = state.<Integer>value("current_step").orElse(0);
+        int step = state.<Integer>value(KEY_CURRENT_STEP).orElse(0);
         history.add(Map.of(
                 "step", step + 1,
                 "sound", soundKey,
-                "sound_label", soundLabel,
+                KEY_SOUND_LABEL, soundLabel,
                 "phrase", phrase,
-                "score", score
+                KEY_SCORE, score
         ));
 
         List<Integer> scores = history.stream()
-                .map(h -> (Integer) h.get("score"))
-                .collect(Collectors.toList());
+                .map(h -> (Integer) h.get(KEY_SCORE))
+                .toList();
 
-        int displayStep     = state.<Integer>value("display_step").orElse(0);
+        int displayStep     = state.<Integer>value(KEY_DISPLAY_STEP).orElse(0);
         int nextStep        = step + 1;
         int nextDisplayStep = displayStep + 1;
         boolean done        = nextDisplayStep >= TOTAL_STEPS;
 
         return Map.of(
-                "history",         history,
-                "current_step",    nextStep,
-                "display_step",    nextDisplayStep,
-                "estimated_level", computeLevel(scores),
-                "last_feedback",   feedback,
+                KEY_HISTORY,         history,
+                KEY_CURRENT_STEP,    nextStep,
+                KEY_DISPLAY_STEP,    nextDisplayStep,
+                KEY_ESTIMATED_LEVEL, computeLevel(scores),
+                KEY_LAST_FEEDBACK,   feedback,
                 "done", done
         );
     }
@@ -573,8 +612,8 @@ public class LevelTestAgent {
     @SuppressWarnings("unchecked")
     private Map<String, Object> synthesizeNode(AgentState state) {
         String lang = state.<String>value("lang").orElse("fr");
-        String finalLevel = computeCefr(state.<List<Map<String, Object>>>value("history").orElse(List.of()));
-        List<Map<String, Object>> history = state.<List<Map<String, Object>>>value("history").orElse(List.of());
+        String finalLevel = computeCefr(state.<List<Map<String, Object>>>value(KEY_HISTORY).orElse(List.of()));
+        List<Map<String, Object>> history = state.<List<Map<String, Object>>>value(KEY_HISTORY).orElse(List.of());
 
         String synthesis;
         try {
@@ -584,6 +623,9 @@ public class LevelTestAgent {
                     ).orTimeout(config.getTimeouts().getSynthesisGeneration(), TimeUnit.SECONDS)
                     .get(config.getTimeouts().getSynthesisGeneration(), TimeUnit.SECONDS);
         } catch (Exception e) {
+            if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             log.warn("Synthesis generation failed: {}", e.getMessage());
             synthesis = buildFallbackSynthesis(lang, history, finalLevel);
         }
@@ -591,17 +633,17 @@ public class LevelTestAgent {
         List<String> mastered = new ArrayList<>();
         List<String> toWork = new ArrayList<>();
         for (Map<String, Object> h : history) {
-            int sc = h.get("score") instanceof Number n ? n.intValue() : 0;
-            String label = (String) h.getOrDefault("sound_label", "");
+            int sc = h.get(KEY_SCORE) instanceof Number n ? n.intValue() : 0;
+            String label = (String) h.getOrDefault(KEY_SOUND_LABEL, "");
             if (sc >= 70) mastered.add(label);
             else if (sc < 50) toWork.add(label);
         }
 
         return Map.of(
-                "final_level", finalLevel,
+                KEY_FINAL_LEVEL, finalLevel,
                 "synthesis", synthesis,
-                "strengths", mastered.stream().limit(5).collect(Collectors.toList()),
-                "weaknesses", toWork.stream().limit(5).collect(Collectors.toList()),
+                KEY_STRENGTHS, mastered.stream().limit(5).toList(),
+                KEY_WEAKNESSES, toWork.stream().limit(5).toList(),
                 "done", true
         );
     }
@@ -629,11 +671,11 @@ public class LevelTestAgent {
         double weightedSum = 0, weightTotal = 0;
         for (int i = 0; i < n; i++) {
             double w = 1.0 + (double) i / n;
-            int sc = history.get(i).get("score") instanceof Number num ? num.intValue() : 0;
+            int sc = history.get(i).get(KEY_SCORE) instanceof Number num ? num.intValue() : 0;
             weightedSum += sc * w;
             weightTotal += w;
         }
-        double avg = weightedSum / weightTotal;
+        double avg = (weightTotal > 0) ? (weightedSum / weightTotal) : 0;
         // Calibrated for Whisper STT scoring
         if (avg >= 80) return "C2";
         if (avg >= 68) return "C1";
@@ -713,7 +755,7 @@ public class LevelTestAgent {
 
     private static final Random RNG = new Random();
 
-    private String getFallbackPhrase(String lang, String soundKey, String context, String level) {
+    private String getFallbackPhrase(String lang, String soundKey, String context) {
         Map<String, String> fallbacks = FALLBACK_PHRASES.getOrDefault(lang, FALLBACK_PHRASES.get("en"));
         String fallback = fallbacks.get(soundKey);
         
@@ -756,7 +798,7 @@ public class LevelTestAgent {
 
     private String buildFallbackSynthesis(String lang, List<Map<String, Object>> history, String finalLevel) {
         int avg = (int) history.stream()
-                .mapToInt(h -> h.get("score") instanceof Number n ? n.intValue() : 0)
+                .mapToInt(h -> h.get(KEY_SCORE) instanceof Number n ? n.intValue() : 0)
                 .average().orElse(50);
 
         if ("fr".equals(lang)) {
@@ -770,15 +812,15 @@ public class LevelTestAgent {
         }
     }
 
-    private Map<String, Object> buildStepResponse(AgentState state, String lang, String sessionId) {
-        int displayStep = state.<Integer>value("display_step").orElse(0);
+    private Map<String, Object> buildStepResponse(AgentState state, String sessionId) {
+        int displayStep = state.<Integer>value(KEY_DISPLAY_STEP).orElse(0);
         return Map.of(
                 "session_id",      sessionId,
-                "target_sound",    state.<String>value("current_sound").orElse(""),
-                "sound_label",     state.<String>value("current_label").orElse(""),
-                "estimated_level", state.<String>value("estimated_level").orElse("B1"),
-                "phrase",          state.<String>value("current_phrase").orElse(""),
-                "instruction",     state.<String>value("current_tip").orElse(""),
+                "target_sound",    state.<String>value(KEY_CURRENT_SOUND).orElse(""),
+                KEY_SOUND_LABEL,     state.<String>value(KEY_CURRENT_LABEL).orElse(""),
+                KEY_ESTIMATED_LEVEL, state.<String>value(KEY_ESTIMATED_LEVEL).orElse("B1"),
+                "phrase",          state.<String>value(KEY_CURRENT_PHRASE).orElse(""),
+                "instruction",     state.<String>value(KEY_CURRENT_TIP).orElse(""),
                 "step",            displayStep + 1,
                 "total",           TOTAL_STEPS
         );
@@ -786,21 +828,21 @@ public class LevelTestAgent {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> buildFinishResponse(AgentState state) {
-        List<Map<String, Object>> history = state.<List<Map<String, Object>>>value("history").orElse(List.of());
-        String finalLevel = state.<String>value("final_level").orElseGet(() -> computeCefr(history));
+        List<Map<String, Object>> history = state.<List<Map<String, Object>>>value(KEY_HISTORY).orElse(List.of());
+        String finalLevel = state.<String>value(KEY_FINAL_LEVEL).orElseGet(() -> computeCefr(history));
         int avgScore = history.stream()
-                .mapToInt(h -> h.get("score") instanceof Number n ? n.intValue() : 0)
+                .mapToInt(h -> h.get(KEY_SCORE) instanceof Number n ? n.intValue() : 0)
                 .sum();
         if (!history.isEmpty()) avgScore /= history.size();
 
         return Map.of(
                 "done", true,
-                "final_level", finalLevel,
-                "feedback", state.<String>value("synthesis").orElse(""),
-                "strengths", state.<List<String>>value("strengths").orElse(List.of()),
-                "weaknesses", state.<List<String>>value("weaknesses").orElse(List.of()),
-                "history", history,
-                "score", avgScore
+                KEY_FINAL_LEVEL, finalLevel,
+                KEY_FEEDBACK, state.<String>value("synthesis").orElse(""),
+                KEY_STRENGTHS, state.<List<String>>value(KEY_STRENGTHS).orElse(List.of()),
+                KEY_WEAKNESSES, state.<List<String>>value(KEY_WEAKNESSES).orElse(List.of()),
+                KEY_HISTORY, history,
+                KEY_SCORE, avgScore
         );
     }
 }

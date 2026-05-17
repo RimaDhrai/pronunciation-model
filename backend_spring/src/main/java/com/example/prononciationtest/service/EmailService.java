@@ -28,7 +28,7 @@ public class EmailService {
     @Value("${spring.mail.port:587}")
     private int defaultPort;
 
-    @Value("${app.frontend.url:http://localhost:8081}")
+    @Value("${app.frontend.url:#{'http://localhost:8081'}}")
     private String frontendUrl;
 
     public EmailService(MailSettingsRepository mailSettingsRepo) {

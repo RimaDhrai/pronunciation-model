@@ -40,6 +40,9 @@ import java.util.concurrent.CompletableFuture;
 public class ChatbotController {
 
     private static final Logger log = LoggerFactory.getLogger(ChatbotController.class);
+    private static final String KEY_ERROR = "error";
+    private static final String MSG_SESSION_EXPIRED = "Session expirée";
+    private static final String MSG_SERVER_ERROR = "Server error";
 
     private final ChatbotAgent          chatbotAgent;
     private final IChatbotFastApiClient chatbotClient;
@@ -72,7 +75,7 @@ public class ChatbotController {
     
     /** Send an SSE error event and complete the emitter. Swallows IOException (client already gone). */
     private void sseError(SseEmitter emitter, String message) {
-        try { emitter.send(SseEmitter.event().name("error").data(json(Map.of("error", message)))); }
+        try { emitter.send(SseEmitter.event().name(KEY_ERROR).data(json(Map.of(KEY_ERROR, message)))); }
         catch (IOException ex) { log.debug("SSE error-write failed (client gone): {}", ex.getMessage()); }
         emitter.complete();
     }
@@ -115,7 +118,7 @@ public class ChatbotController {
         } catch (Exception e) {
             log.error("[Chatbot] startSession error: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Map.of(KEY_ERROR, e.getMessage()));
         }
     }
 
@@ -134,7 +137,7 @@ public class ChatbotController {
         try {
             if (!chatbotAgent.sessionExists(sessionId)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Session introuvable ou expirée", "retry", false));
+                        .body(Map.of(KEY_ERROR, "Session introuvable ou expirée", "retry", false));
             }
 
             // 1 ── STT via FastAPI (Whisper)
@@ -184,7 +187,7 @@ public class ChatbotController {
         } catch (Exception e) {
             log.error("[Chatbot] voice error: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Map.of(KEY_ERROR, e.getMessage()));
         }
     }
 
@@ -204,7 +207,7 @@ public class ChatbotController {
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
-                    sseError(emitter, "Session expirée");
+                    sseError(emitter, MSG_SESSION_EXPIRED);
                     return;
                 }
 
@@ -279,7 +282,7 @@ public class ChatbotController {
         try {
             if (!chatbotAgent.sessionExists(sessionId)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Session introuvable ou expirée"));
+                        .body(Map.of(KEY_ERROR, "Session introuvable ou expirée"));
             }
 
             String coachReply = chatbotAgent.chat(sessionId, message, List.of(), null);
@@ -298,7 +301,7 @@ public class ChatbotController {
         } catch (Exception e) {
             log.error("[Chatbot] text error: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Map.of(KEY_ERROR, e.getMessage()));
         }
     }
 
@@ -317,7 +320,7 @@ public class ChatbotController {
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
-                    sseError(emitter, "Session expirée");
+                    sseError(emitter, MSG_SESSION_EXPIRED);
                     return;
                 }
 
@@ -367,15 +370,13 @@ public class ChatbotController {
             @RequestParam(name = "master_session_id", required = false) String masterSessionId
     ) {
         SseEmitter emitter = new SseEmitter(120000L);
-        emitter.onTimeout(() -> {
-            sseError(emitter, "Timeout — réessaie");
-        });
+        emitter.onTimeout(() -> sseError(emitter, "Timeout — réessaie"));
         emitter.onError(ex -> emitter.complete());
 
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
-                    sseError(emitter, "Session expirée");
+                    sseError(emitter, MSG_SESSION_EXPIRED);
                     return;
                 }
 
@@ -422,7 +423,7 @@ public class ChatbotController {
                             sessionMemory.addWeakWords(masterSessionId, weakWords);
                         }
                     } catch (Exception ex) {
-                        sseError(emitter, "Server error");
+                        sseError(emitter, MSG_SERVER_ERROR);
                     }
                 }).exceptionally(ex -> {
                     Throwable cause = ex instanceof java.util.concurrent.CompletionException ? ex.getCause() : ex;
@@ -456,7 +457,7 @@ public class ChatbotController {
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
-                    sseError(emitter, "Session expirée");
+                    sseError(emitter, MSG_SESSION_EXPIRED);
                     return;
                 }
 
@@ -482,7 +483,7 @@ public class ChatbotController {
                             sessionMemory.incrementChatRound(masterSessionId);
                         }
                     } catch (Exception ex) {
-                        sseError(emitter, "Server error");
+                        sseError(emitter, MSG_SERVER_ERROR);
                     }
                 }).exceptionally(ex -> {
                     Throwable cause = ex instanceof java.util.concurrent.CompletionException ? ex.getCause() : ex;
@@ -508,7 +509,7 @@ public class ChatbotController {
     public ResponseEntity<?> getHistory(@RequestParam("session_id") String sessionId) {
         if (!chatbotAgent.sessionExists(sessionId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Session introuvable ou expirée"));
+                    .body(Map.of(KEY_ERROR, "Session introuvable ou expirée"));
         }
         List<Map<String, String>> history = chatbotAgent.getHistory(sessionId);
         Map<String, Object> resp = new LinkedHashMap<>();

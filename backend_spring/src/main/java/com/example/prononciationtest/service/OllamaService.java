@@ -19,19 +19,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 @Service
 public class OllamaService implements IOllamaService {
 
     private static final Logger log = LoggerFactory.getLogger(OllamaService.class);
 
-    @Value("${ollama.base-url:http://localhost:11434}")
+    @Value("${ollama.base-url:#{'http://localhost:11434'}}")
     private String ollamaBaseUrl;
 
-    @Value("${ollama.model:qwen2.5:3b}")
+    @Value("${ollama.model:#{'qwen2.5:3b'}}")
     private String ollamaModel;
 
-    @Value("${ollama.model.chatbot:qwen2.5:3b}")
+    @Value("${ollama.model.chatbot:#{'qwen2.5:3b'}}")
     private String chatbotModel;
 
     @Value("${azure.openai.enabled:false}")
@@ -84,7 +92,8 @@ public class OllamaService implements IOllamaService {
             default -> "fr".equals(lang) ? "18-22 mots" : "18-22 words";
         };
 
-        String system, prompt;
+        String system;
+        String prompt;
         if ("fr".equals(lang)) {
             system = "Tu gÃ©nÃ¨res UNE phrase franÃ§aise parlÃ©e, niveau " + level + ". " +
                     "INTERDIT : explications, guillemets, tirets, numÃ©ros, mÃ©ta-commentaires. " +
@@ -141,11 +150,12 @@ public class OllamaService implements IOllamaService {
             for (Map<String, Object> op : ops) {
                 switch ((String) op.get("op")) {
                     case "SUB" -> errors.append(
-                            String.format("  - '%s' â†’ '%s'\n", op.get("expected"), op.get("got")));
+                            String.format("  - '%s' \u2192 '%s'%n", op.get("expected"), op.get("got")));
                     case "DEL" -> errors.append(
-                            String.format("  - '%s' : non prononcÃ©\n", op.get("expected")));
+                            String.format("  - '%s' : non prononc\u00e9%n", op.get("expected")));
                     case "INS" -> errors.append(
-                            String.format("  - '%s' : ajoutÃ©\n", op.get("got")));
+                            String.format("  - '%s' : ajout\u00e9%n", op.get("got")));
+                    default -> {}
                 }
             }
         }
@@ -160,9 +170,9 @@ public class OllamaService implements IOllamaService {
         // soit honnÃªte
         if (Boolean.TRUE.equals(hallucination)) {
             String halNote = "fr".equals(lang)
-                    ? String.format("  - âš ï¸ L'apprenant n'a probablement prononcÃ© que %d/%d mots de la phrase\n",
+                    ? String.format("  - \u26A0\uFE0F L'apprenant n'a probablement prononcé que %d/%d mots de la phrase%n",
                             nMatch, nExpected)
-                    : String.format("  - âš ï¸ Learner likely said only %d/%d words of the phrase\n", nMatch,
+                    : String.format("  - \u26A0\uFE0F Learner likely said only %d/%d words of the phrase%n", nMatch,
                             nExpected);
             errors.insert(0, halNote);
         }
@@ -173,9 +183,9 @@ public class OllamaService implements IOllamaService {
 
         String userMsg = "fr".equals(lang)
                 ? String.format(
-                        "Niveau %s\nPhrase attendue : \"%s\"\nTranscrit : \"%s\"\nScore : %s/100\nDetails:\n%s",
+                        "Niveau %s%nPhrase attendue : \"%s\"%nTranscrit : \"%s\"%nScore : %s/100%nDetails:%n%s",
                         level, expectedPhrase, cleanTranscription, scoreResult.get("score"), errors)
-                : String.format("Level %s\nExpected: \"%s\"\nTranscribed: \"%s\"\nScore: %s/100\nDetails:\n%s",
+                : String.format("Level %s%nExpected: \"%s\"%nTranscribed: \"%s\"%nScore: %s/100%nDetails:%n%s",
                         level, expectedPhrase, cleanTranscription, scoreResult.get("score"), errors);
 
         return stripEmojis(callOllama(systemPrompt, userMsg, 160, 0.3));
@@ -302,7 +312,7 @@ public class OllamaService implements IOllamaService {
                     });
         } catch (Exception e) {
             if (full.isEmpty())
-                return "âš ï¸ RÃ©ponse indisponible";
+                return "\u26A0\uFE0F Réponse indisponible";
         }
         String raw = full.toString().trim();
         String cleaned = raw.replaceAll("(?i)<think>[\\s\\S]*?</think>", "").trim();
@@ -450,7 +460,7 @@ public class OllamaService implements IOllamaService {
         String perf = "fr".equals(lang)
                 ? (score >= 75 ? "trÃ¨s bonne (score " + score + "/100)"
                         : score >= 55 ? "correcte (score " + score + "/100)"
-                                : "Ã  amÃ©liorer (score " + score + "/100)")
+                                : "à améliorer (score " + score + "/100)")
                 : (score >= 75 ? "very good (score " + score + "/100)"
                         : score >= 55 ? "decent (score " + score + "/100)"
                                 : "needs work (score " + score + "/100)");
@@ -511,7 +521,7 @@ public class OllamaService implements IOllamaService {
                 return "TrÃ¨s bon niveau (" + finalLevel + ") ! Tu es sur la bonne voie.";
             if (avg >= 55)
                 return "Bon niveau gÃ©nÃ©ral (" + finalLevel + "). Quelques sons mÃ©ritent plus de pratique.";
-            return "Des bases solides Ã  renforcer. Pratique rÃ©guliÃ¨rement les sons ciblÃ©s pour progresser.";
+            return "Des bases solides à renforcer. Pratique régulièrement les sons ciblés pour progresser.";
         } else {
             if (avg >= 75)
                 return "Very good pronunciation (" + finalLevel + ")! Keep up the great work.";
@@ -532,7 +542,7 @@ public class OllamaService implements IOllamaService {
             // Remove common list prefixes (e.g., "-", "*", "1.")
             line = line.replaceAll("^[\\-\\*\\d\\.\\)]+\\s*", "");
             // Strip surrounding quotation marks or french guillemets
-            line = line.replaceAll("^[\"'Â«Â»â€œâ€â€ž]+|[\"'Â«Â»â€œâ€â€ž]+$", "");
+            line = line.replaceAll("(^[\\"\\'«»“”„]+)|([\\"\\'«»“”„]+$)", "");
             // If a short prefix before a colon exists, drop it (e.g., "Phrase: ...")
             if (line.contains(":") && line.indexOf(':') < 20) {
                 line = line.substring(line.indexOf(':') + 1).strip();
@@ -629,7 +639,7 @@ public class OllamaService implements IOllamaService {
             JsonNode json = objectMapper.readTree(response.getBody());
             return json.path("message").path("content").asText("").trim();
         } catch (Exception e) {
-            return "âš ï¸ RÃ©ponse indisponible : " + e.getMessage();
+            return "\u26A0\uFE0F Réponse indisponible : " + e.getMessage();
         }
     }
 
@@ -746,7 +756,7 @@ public class OllamaService implements IOllamaService {
 
         StringBuilder sb = new StringBuilder();
         for (Map<String, Object> r : stepResults) {
-            sb.append(String.format("  son=%s score=%s\n",
+            sb.append(String.format("  son=%s score=%s%n",
                     r.getOrDefault("targetSound", r.getOrDefault("target_sound", "?")),
                     r.getOrDefault("score", "?")));
         }
@@ -784,7 +794,7 @@ public class OllamaService implements IOllamaService {
                 ? "Une phrase originale, vivante, de 8-12 mots, niveau " + level + "."
                 : "An original, lively phrase, 8-12 words, level " + level + ".";
         String raw = callOllama(system, prompt, 60, 0.7);
-        String cleaned = raw == null ? "" : raw.replaceAll("^[\"'Â«Â»\\s]+|[\"'Â«Â»\\s]+$", "").trim();
+        String cleaned = raw == null ? "" : raw.replaceAll("(^[\\"\\'«»\\s]+)|([\\"\\'«»\\s]+$)", "").trim();
         if (taxonomy.isHallucination(cleaned, lang)) {
             return taxonomy.getBattleFallback(lang, level);
         }

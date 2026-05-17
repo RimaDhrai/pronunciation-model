@@ -4,7 +4,6 @@ package com.example.prononciationtest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -32,7 +31,6 @@ public class AppConfig {
      * peut prendre jusqu'à ~30 s sur CPU.
      */
     @Bean
-    @Qualifier("chatbotRestTemplate")
     public RestTemplate chatbotRestTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5_000);

@@ -58,7 +58,7 @@ public class LevelTestAgentController {
 
     @PostMapping("/start")
     @Operation(summary = "Start CEFR level assessment")
-    public ResponseEntity<?> start(
+    public ResponseEntity<Map<String, Object>> start(
             @RequestParam(defaultValue = "fr") String lang,
             Authentication auth) {
         try {
@@ -100,7 +100,7 @@ public class LevelTestAgentController {
 
     @PostMapping("/next")
     @Operation(summary = "Submit score for current step and get next")
-    public ResponseEntity<?> next(
+    public ResponseEntity<Map<String, Object>> next(
             @RequestParam String sessionId,
             @RequestParam(required = false, defaultValue = "") String phrase,
             @RequestParam int score,
@@ -128,7 +128,7 @@ public class LevelTestAgentController {
 
     @PostMapping("/feedback")
     @Operation(summary = "Task 1: generate feedback for current step (fast)")
-    public ResponseEntity<?> submitFeedback(
+    public ResponseEntity<Map<String, Object>> submitFeedback(
             @RequestParam String sessionId,
             @RequestParam(required = false, defaultValue = "") String phrase,
             @RequestParam int score,
@@ -153,7 +153,7 @@ public class LevelTestAgentController {
 
     @PostMapping("/next-phrase")
     @Operation(summary = "Task 2: prefetch next sound + phrase (call after /feedback returns)")
-    public ResponseEntity<?> nextPhrase(@RequestParam String sessionId) {
+    public ResponseEntity<Map<String, Object>> nextPhrase(@RequestParam String sessionId) {
         try {
             Map<String, Object> result = levelTestAgent.fetchNextPhrase(sessionId);
             return ResponseEntity.ok(result);
@@ -170,7 +170,7 @@ public class LevelTestAgentController {
 
     @PostMapping("/finish")
     @Operation(summary = "Force-finish assessment early")
-    public ResponseEntity<?> finish(
+    public ResponseEntity<Map<String, Object>> finish(
             @RequestParam String sessionId,
             Authentication auth) {
         try {
@@ -206,7 +206,7 @@ public class LevelTestAgentController {
 
     @GetMapping("/history")
     @Operation(summary = "User test history")
-    public ResponseEntity<?> history(Authentication auth) {
+    public ResponseEntity<List<Map<String, Object>>> history(Authentication auth) {
         try {
             User user = userRepo.findByEmail(currentEmail(auth))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
@@ -240,7 +240,7 @@ public class LevelTestAgentController {
 
     @GetMapping("/progression")
     @Operation(summary = "User score progression over all completed CEFR tests")
-    public ResponseEntity<?> progression(Authentication auth) {
+    public ResponseEntity<Map<String, Object>> progression(Authentication auth) {
         try {
             User user = userRepo.findByEmail(currentEmail(auth))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
@@ -289,7 +289,7 @@ public class LevelTestAgentController {
 
     @GetMapping("/history/{sessionId}/steps")
     @Operation(summary = "Step detail for a past test")
-    public ResponseEntity<?> historySteps(@PathVariable String sessionId, Authentication auth) {
+    public ResponseEntity<List<Map<String, Object>>> historySteps(@PathVariable String sessionId, Authentication auth) {
         try {
             List<Map<String, Object>> steps = stepRepo
                     .findBySessionIdOrderByStepNumber(sessionId)

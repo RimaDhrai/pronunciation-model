@@ -29,17 +29,17 @@ public class ChatbotAgent {
 
     private static final String NODE_PREPARE_CONTEXT = "prepare_context";
     private static final String NODE_GENERATE_RESPONSE = "generate_response";
-    private static final String KEY_LEVEL = KEY_LEVEL;
-    private static final String KEY_SCENARIO = KEY_SCENARIO;
-    private static final String KEY_CONTENT = KEY_CONTENT;
-    private static final String KEY_ASSISTANT = KEY_ASSISTANT;
-    private static final String KEY_USER_INPUT = KEY_USER_INPUT;
-    private static final String KEY_WEAK_WORDS = KEY_WEAK_WORDS;
-    private static final String KEY_PRON_SCORE = KEY_PRON_SCORE;
-    private static final String KEY_IS_GREETING = KEY_IS_GREETING;
-    private static final String KEY_LAST_RESPONSE = KEY_LAST_RESPONSE;
-    private static final String KEY_HISTORY = KEY_HISTORY;
-    private static final String KEY_SKIP_LLM = KEY_SKIP_LLM;
+    private static final String KEY_LEVEL = "level";
+    private static final String KEY_SCENARIO = "scenario";
+    private static final String KEY_CONTENT = "content";
+    private static final String KEY_ASSISTANT = "assistant";
+    private static final String KEY_USER_INPUT = "user_input";
+    private static final String KEY_WEAK_WORDS = "weak_words";
+    private static final String KEY_PRON_SCORE = "pron_score";
+    private static final String KEY_IS_GREETING = "is_greeting";
+    private static final String KEY_LAST_RESPONSE = "last_response";
+    private static final String KEY_HISTORY = "history";
+    private static final String KEY_SKIP_LLM = "skip_llm";
 
     private static final Logger log = LoggerFactory.getLogger(ChatbotAgent.class);
     private static final int MAX_HISTORY = 20;

@@ -206,7 +206,7 @@ public class LevelTestAgentController {
 
     @GetMapping("/history")
     @Operation(summary = "User test history")
-    public ResponseEntity<List<Map<String, Object>>> history(Authentication auth) {
+    public ResponseEntity<Object> history(Authentication auth) {
         try {
             User user = userRepo.findByEmail(currentEmail(auth))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
@@ -289,7 +289,7 @@ public class LevelTestAgentController {
 
     @GetMapping("/history/{sessionId}/steps")
     @Operation(summary = "Step detail for a past test")
-    public ResponseEntity<List<Map<String, Object>>> historySteps(@PathVariable String sessionId, Authentication auth) {
+    public ResponseEntity<Object> historySteps(@PathVariable String sessionId, Authentication auth) {
         try {
             List<Map<String, Object>> steps = stepRepo
                     .findBySessionIdOrderByStepNumber(sessionId)

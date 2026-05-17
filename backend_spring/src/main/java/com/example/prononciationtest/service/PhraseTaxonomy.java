@@ -14,6 +14,7 @@ import java.util.*;
 @Component
 public class PhraseTaxonomy {
 
+    private static final String TYPE_GENERAL = "general";
     private static final Map<String, List<String>> PHRASES = new HashMap<>();
     private static final Random RNG = new Random();
 
@@ -219,12 +220,12 @@ public class PhraseTaxonomy {
 
     static {
         // Populate French General
-        add("fr", "A1", "general", FR_A1_G);
-        add("fr", "A2", "general", FR_A2_G);
-        add("fr", "B1", "general", FR_B1_G);
-        add("fr", "B2", "general", FR_B2_G);
-        add("fr", "C1", "general", FR_C1_G);
-        add("fr", "C2", "general", FR_C2_G);
+        add("fr", "A1", TYPE_GENERAL, FR_A1_G);
+        add("fr", "A2", TYPE_GENERAL, FR_A2_G);
+        add("fr", "B1", TYPE_GENERAL, FR_B1_G);
+        add("fr", "B2", TYPE_GENERAL, FR_B2_G);
+        add("fr", "C1", TYPE_GENERAL, FR_C1_G);
+        add("fr", "C2", TYPE_GENERAL, FR_C2_G);
 
         // Populate French Battle (referencing FR_*_G arrays where identical)
         add("fr", "A1", "battle",
@@ -315,12 +316,12 @@ public class PhraseTaxonomy {
         );
 
         // Populate English General
-        add("en", "A1", "general", EN_A1_G);
-        add("en", "A2", "general", EN_A2_G);
-        add("en", "B1", "general", EN_B1_G);
-        add("en", "B2", "general", EN_B2_G);
-        add("en", "C1", "general", EN_C1_G);
-        add("en", "C2", "general", EN_C2_G);
+        add("en", "A1", TYPE_GENERAL, EN_A1_G);
+        add("en", "A2", TYPE_GENERAL, EN_A2_G);
+        add("en", "B1", TYPE_GENERAL, EN_B1_G);
+        add("en", "B2", TYPE_GENERAL, EN_B2_G);
+        add("en", "C1", TYPE_GENERAL, EN_C1_G);
+        add("en", "C2", TYPE_GENERAL, EN_C2_G);
 
         // Populate English Battle
         add("en", "A1", "battle",
@@ -477,12 +478,12 @@ public class PhraseTaxonomy {
 
     /**
      * Returns a random fallback phrase for the given lang / level / type.
-     * Cascades: requested type → "general" type → B1/general → hard-coded default.
+     * Cascades: requested type → TYPE_GENERAL type → B1/general → hard-coded default.
      */
     public String getFallback(String lang, String level, String type) {
         String l  = "en".equals(lang) ? "en" : "fr";
         String lv = normalize(level);
-        String tp = type != null ? type : "general";
+        String tp = type != null ? type : TYPE_GENERAL;
 
         List<String> list = PHRASES.get(l + "_" + lv + "_" + tp);
         if (empty(list)) list = PHRASES.get(l + "_" + lv + "_general");
@@ -501,7 +502,7 @@ public class PhraseTaxonomy {
 
     /** Returns all curated phrases for a bucket (unmodifiable). */
     public List<String> getAll(String lang, String level, String type) {
-        String key = ("en".equals(lang) ? "en" : "fr") + "_" + normalize(level) + "_" + (type != null ? type : "general");
+        String key = ("en".equals(lang) ? "en" : "fr") + "_" + normalize(level) + "_" + (type != null ? type : TYPE_GENERAL);
         return Collections.unmodifiableList(PHRASES.getOrDefault(key, List.of()));
     }
 

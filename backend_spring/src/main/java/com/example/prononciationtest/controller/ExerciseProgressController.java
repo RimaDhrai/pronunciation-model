@@ -20,6 +20,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ExerciseProgressController {
 
+    private static final String KEY_UNLOCKED = "unlocked";
     private static final List<String> LEVELS_ORDER = List.of("A1", "A2", "B1", "B2", "C1", "C2");
 
     private final ExerciseProgressRepository progressRepo;
@@ -55,16 +56,16 @@ public class ExerciseProgressController {
             data.put("completed",    p.getCompleted());
             data.put("lastAvgScore", p.getLastAvgScore());
             data.put("sessionsCount",p.getSessionsCount());
-            data.put("unlocked",     isUnlocked(user, p.getLevel(), lang, cefrIdx));
+            data.put(KEY_UNLOCKED,     isUnlocked(user, p.getLevel(), lang, cefrIdx));
             result.put(p.getLevel(), data);
         }
 
-        result.putIfAbsent("A1", Map.of("done", false, "mastered", false, "completed", 0, "unlocked", true));
+        result.putIfAbsent("A1", Map.of("done", false, "mastered", false, "completed", 0, KEY_UNLOCKED, true));
 
         if (cefrIdx >= 0) {
             for (int i = 0; i <= cefrIdx; i++) {
                 String lvl = LEVELS_ORDER.get(i);
-                result.putIfAbsent(lvl, Map.of("done", false, "mastered", false, "completed", 0, "unlocked", true));
+                result.putIfAbsent(lvl, Map.of("done", false, "mastered", false, "completed", 0, KEY_UNLOCKED, true));
             }
         }
 
@@ -150,7 +151,7 @@ public class ExerciseProgressController {
 
         if (p == null) {
             boolean unlocked = isUnlocked(user, level, lang, cefrIdx);
-            return ResponseEntity.ok(Map.of("level", level, "lang", lang, "done", false, "mastered", false, "completed", 0, "unlocked", unlocked));
+            return ResponseEntity.ok(Map.of("level", level, "lang", lang, "done", false, "mastered", false, "completed", 0, KEY_UNLOCKED, unlocked));
         }
 
         boolean unlocked = isUnlocked(user, level, lang, cefrIdx);
@@ -163,7 +164,7 @@ public class ExerciseProgressController {
             "completed",    p.getCompleted(),
             "lastAvgScore", p.getLastAvgScore(),
             "sessionsCount", p.getSessionsCount(),
-            "unlocked",     unlocked
+            KEY_UNLOCKED,     unlocked
         ));
     }
 }

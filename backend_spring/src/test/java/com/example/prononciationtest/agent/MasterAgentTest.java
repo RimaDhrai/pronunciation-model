@@ -47,7 +47,7 @@ class MasterAgentTest {
     // â”€â”€ turn â€” SESSION_NOT_FOUND guard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Test
-    void turn_unknownSession_returnsSessionNotFound() throws Exception {
+    void turn_unknownSession_returnsSessionNotFound() {
         var result = agent.turn("ghost", "CHAT", "fr", "hello",
                 null, null, null, null, null, null);
 
@@ -58,7 +58,7 @@ class MasterAgentTest {
     // â”€â”€ XP formula (computeXp) via EXERCISE turn â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Test
-    void turn_exercise_score90OrAbove_earns15Xp() throws Exception {
+    void turn_exercise_score90OrAbove_earns15Xp() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("Dis bonjour.");
 
         var result = agent.turn(SID, "EXERCISE", "fr", null,
@@ -68,7 +68,7 @@ class MasterAgentTest {
     }
 
     @Test
-    void turn_exercise_score75to89_earns10Xp() throws Exception {
+    void turn_exercise_score75to89_earns10Xp() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("Dis bonjour.");
 
         var result = agent.turn(SID, "EXERCISE", "fr", null,
@@ -78,7 +78,7 @@ class MasterAgentTest {
     }
 
     @Test
-    void turn_exercise_score60to74_earns5Xp() throws Exception {
+    void turn_exercise_score60to74_earns5Xp() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("Dis bonjour.");
 
         var result = agent.turn(SID, "EXERCISE", "fr", null,
@@ -88,7 +88,7 @@ class MasterAgentTest {
     }
 
     @Test
-    void turn_exercise_scoreBelw60_earns2Xp() throws Exception {
+    void turn_exercise_scoreBelw60_earns2Xp() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("Dis bonjour.");
 
         var result = agent.turn(SID, "EXERCISE", "fr", null,
@@ -100,7 +100,7 @@ class MasterAgentTest {
     // â”€â”€ XP accumulation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Test
-    void turn_exercise_multipleRounds_totalXpAccumulates() throws Exception {
+    void turn_exercise_multipleRounds_totalXpAccumulates() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("Phrase test.");
 
         agent.turn(SID, "EXERCISE", "fr", null, null, null, null, 95, null, null); // +15
@@ -112,7 +112,7 @@ class MasterAgentTest {
     // â”€â”€ exercise round increment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Test
-    void turn_exercise_incrementsRoundEachCall() throws Exception {
+    void turn_exercise_incrementsRoundEachCall() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("Phrase.");
 
         agent.turn(SID, "EXERCISE", "fr", null, null, null, null, null, null, null);
@@ -127,28 +127,28 @@ class MasterAgentTest {
     // â”€â”€ score labels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Test
-    void turn_exercise_scoreLabel_excellent() throws Exception {
+    void turn_exercise_scoreLabel_excellent() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("X.");
         var result = agent.turn(SID, "EXERCISE", "fr", null, null, null, null, 91, null, null);
         assertThat(result.get("score_label")).isEqualTo("Excellent");
     }
 
     @Test
-    void turn_exercise_scoreLabel_bien() throws Exception {
+    void turn_exercise_scoreLabel_bien() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("X.");
         var result = agent.turn(SID, "EXERCISE", "fr", null, null, null, null, 75, null, null);
         assertThat(result.get("score_label")).isEqualTo("Bien");
     }
 
     @Test
-    void turn_exercise_scoreLabel_passable() throws Exception {
+    void turn_exercise_scoreLabel_passable() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("X.");
         var result = agent.turn(SID, "EXERCISE", "fr", null, null, null, null, 60, null, null);
         assertThat(result.get("score_label")).isEqualTo("Passable");
     }
 
     @Test
-    void turn_exercise_scoreLabel_aAmeliorer() throws Exception {
+    void turn_exercise_scoreLabel_aAmeliorer() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("X.");
         var result = agent.turn(SID, "EXERCISE", "fr", null, null, null, null, 59, null, null);
         assertThat(result.get("score_label")).isEqualTo("À améliorer");
@@ -157,7 +157,7 @@ class MasterAgentTest {
     // â”€â”€ phoneme errors propagated to error_log regardless of mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Test
-    void turn_exercise_phonemeErrors_persistedToErrorLog() throws Exception {
+    void turn_exercise_phonemeErrors_persistedToErrorLog() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("X.");
 
         agent.turn(SID, "EXERCISE", "fr", null, null, null, null, 80, null,
@@ -167,7 +167,7 @@ class MasterAgentTest {
     }
 
     @Test
-    void turn_chat_phonemeErrors_persistedToErrorLog() throws Exception {
+    void turn_chat_phonemeErrors_persistedToErrorLog() {
         when(chatbotAgent.chat(any(), any(), any(), any())).thenReturn("Bravo !");
 
         agent.turn(SID, "CHAT", "fr", "Bonjour", null, null, null, null, null,
@@ -203,7 +203,7 @@ class MasterAgentTest {
     // â”€â”€ createSession â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Test
-    void createSession_returnsSessionIdAndGreeting() throws Exception {
+    void createSession_returnsSessionIdAndGreeting() {
         when(chatbotAgent.startSession(any(), any(), any(), any()))
                 .thenReturn("Bonjour ! Prêt à pratiquer ?");
 
@@ -217,7 +217,7 @@ class MasterAgentTest {
     // â”€â”€ TEST mode: CEFR level propagation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Test
-    void turn_testFinish_propagatesCefrLevel() throws Exception {
+    void turn_testFinish_propagatesCefrLevel() {
         sessionMemory.setTestSessionId(SID, SID);
 
         Map<String, Object> finishResult = new HashMap<>();
@@ -235,7 +235,7 @@ class MasterAgentTest {
     // â”€â”€ mode normalization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Test
-    void turn_modeIsCaseInsensitive() throws Exception {
+    void turn_modeIsCaseInsensitive() {
         when(ollamaService.generatePhrase(any(), any())).thenReturn("Phrase.");
 
         var result = agent.turn(SID, "exercise", "fr", null, null, null, null, 80, null, null);
@@ -244,7 +244,7 @@ class MasterAgentTest {
     }
 
     @Test
-    void turn_nullMode_defaultsToChat() throws Exception {
+    void turn_nullMode_defaultsToChat() {
         when(chatbotAgent.chat(any(), any(), any(), any())).thenReturn("Réponse.");
 
         var result = agent.turn(SID, null, "fr", "hello", null, null, null, null, null, null);

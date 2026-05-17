@@ -19,19 +19,24 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import org.slf4j.LoggerFactory;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 @Service
 public class OllamaService implements IOllamaService {
 
     private static final Logger log = LoggerFactory.getLogger(OllamaService.class);
+    private static final String KEY_SCORE = "score";
+    private static final String REGEX_THINK = "(?i)<think>[\\s\\S]*?</think>";
+    private static final String KEY_STREAM = "stream";
+    private static final String KEY_TEMPERATURE = "temperature";
+    private static final String KEY_MESSAGES = "messages";
+    private static final String KEY_MESSAGE = "message";
+    private static final String KEY_CONTENT = "content";
+    private static final String SUFFIX_SCORE_100 = "/100)";
+    private static final String PATH_DEPLOYMENTS = "/openai/deployments/";
+    private static final String PATH_COMPLETIONS_VERSION = "/chat/completions?api-version=";
+    private static final String HEADER_API_KEY = "api-key";
+    private static final String KEY_MAX_TOKENS = "max_tokens";
+
 
     @Value("${ollama.base-url:#{'http://localhost:11434'}}")
     private String ollamaBaseUrl;
@@ -155,7 +160,7 @@ public class OllamaService implements IOllamaService {
                             String.format("  - '%s' : non prononc\u00e9%n", op.get("expected")));
                     case "INS" -> errors.append(
                             String.format("  - '%s' : ajout\u00e9%n", op.get("got")));
-                    default -> {}
+                    default -> log.trace("Unknown op");
                 }
             }
         }
@@ -184,9 +189,9 @@ public class OllamaService implements IOllamaService {
         String userMsg = "fr".equals(lang)
                 ? String.format(
                         "Niveau %s%nPhrase attendue : \"%s\"%nTranscrit : \"%s\"%nScore : %s/100%nDetails:%n%s",
-                        level, expectedPhrase, cleanTranscription, scoreResult.get("score"), errors)
+                        level, expectedPhrase, cleanTranscription, scoreResult.get(KEY_SCORE), errors)
                 : String.format("Level %s%nExpected: \"%s\"%nTranscribed: \"%s\"%nScore: %s/100%nDetails:%n%s",
-                        level, expectedPhrase, cleanTranscription, scoreResult.get("score"), errors);
+                        level, expectedPhrase, cleanTranscription, scoreResult.get(KEY_SCORE), errors);
 
         return stripEmojis(callOllama(systemPrompt, userMsg, 160, 0.3));
     }
@@ -206,7 +211,7 @@ public class OllamaService implements IOllamaService {
         // numCtx=2048 pour le chatbot (historique 6 messages + system prompt)
         String raw = callOllamaMessages(chatbotModel, messages, 110, 0.65, 1024);
         // Supprime les balises <think>...</think> si le mod├â┬¿le les g├â┬®n├â┬¿re
-        String cleaned = raw.replaceAll("(?i)<think>[\\s\\S]*?</think>", "").trim();
+        String cleaned = raw.replaceAll(REGEX_THINK, "").trim();
         return cleaned.isBlank() ? raw.trim() : cleaned;
     }
 
@@ -253,14 +258,14 @@ public class OllamaService implements IOllamaService {
     public List<Map<String, Object>> buildChatbotMessagesList(
             List<Map<String, String>> history, String userContent, String systemPrompt) {
         List<Map<String, Object>> messages = new ArrayList<>();
-        messages.add(Map.of("role", "system", "content", systemPrompt));
+        messages.add(Map.of("role", "system", KEY_CONTENT, systemPrompt));
         if (history != null) {
             int start = Math.max(0, history.size() - 4);
             for (Map<String, String> h : history.subList(start, history.size())) {
-                messages.add(Map.of("role", h.get("role"), "content", h.get("content")));
+                messages.add(Map.of("role", h.get("role"), KEY_CONTENT, h.get(KEY_CONTENT)));
             }
         }
-        messages.add(Map.of("role", "user", "content", userContent));
+        messages.add(Map.of("role", "user", KEY_CONTENT, userContent));
         return messages;
     }
 
@@ -272,14 +277,14 @@ public class OllamaService implements IOllamaService {
             List<Map<String, Object>> messages, Consumer<String> onToken) {
         if (azureEnabled) {
             String raw = streamAzureChatbot(messages, onToken);
-            String cleaned = raw.replaceAll("(?i)<think>[\\s\\S]*?</think>", "").trim();
+            String cleaned = raw.replaceAll(REGEX_THINK, "").trim();
             return cleaned.isBlank() ? raw : cleaned;
         }
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", chatbotModel);
-        body.put("stream", true);
-        body.put("options", Map.of("temperature", 0.72, "num_predict", 110, "num_ctx", 1024));
-        body.put("messages", messages);
+        body.put(KEY_STREAM, true);
+        body.put("options", Map.of(KEY_TEMPERATURE, 0.72, "num_predict", 110, "num_ctx", 1024));
+        body.put(KEY_MESSAGES, messages);
 
         StringBuilder full = new StringBuilder();
         try {
@@ -315,7 +320,7 @@ public class OllamaService implements IOllamaService {
                 return "\u26A0\uFE0F R├®ponse indisponible";
         }
         String raw = full.toString().trim();
-        String cleaned = raw.replaceAll("(?i)<think>[\\s\\S]*?</think>", "").trim();
+        String cleaned = raw.replaceAll(REGEX_THINK, "").trim();
         return cleaned.isBlank() ? raw : cleaned;
     }
 
@@ -335,7 +340,7 @@ public class OllamaService implements IOllamaService {
             default -> "use rich and natural language";
         };
 
-        String roleContext = switch (scenario) {
+        return switch (scenario) {
             case "customs" -> fr
                     ? ("Tu es douanier a l'aeroport CDG. %s. Max 2 phrases. Verifie passeport, duree du sejour, bagages. Si [Prononciation incertaine: X] : corrige le mot X dans le role et ajoute [REPETE: \"phrase courte avec X\"]. Ne repete pas la meme phrase que l'apprenant. Avance le scenario.")
                             .formatted(levelHint)
@@ -353,7 +358,6 @@ public class OllamaService implements IOllamaService {
                             .formatted(levelHint);
             default -> buildChatbotSystemPrompt(lang, level);
         };
-        return roleContext;
     }
 
     private String buildChatbotSystemPrompt(String lang, String level) {
@@ -449,6 +453,26 @@ public class OllamaService implements IOllamaService {
         return raw.length() > 10 ? raw : "";
     }
 
+    private String getPerformanceLabel(String lang, int score) {
+        if ("fr".equals(lang)) {
+            if (score >= 75) {
+                return "très bonne (score " + score + SUFFIX_SCORE_100;
+            } else if (score >= 55) {
+                return "correcte (score " + score + SUFFIX_SCORE_100;
+            } else {
+                return "à améliorer (score " + score + SUFFIX_SCORE_100;
+            }
+        } else {
+            if (score >= 75) {
+                return "very good (score " + score + SUFFIX_SCORE_100;
+            } else if (score >= 55) {
+                return "decent (score " + score + SUFFIX_SCORE_100;
+            } else {
+                return "needs work (score " + score + SUFFIX_SCORE_100;
+            }
+        }
+    }
+
     public String generateLevelTestFeedback(String lang, String soundLabel,
             String contextWords, String phrase, int score, String userName) {
         String cacheKey = lang + "_" + soundLabel + "_" + (score / 10);
@@ -457,13 +481,7 @@ public class OllamaService implements IOllamaService {
             return cached;
 
         String learner = (userName != null && !userName.isBlank()) ? userName : "apprenant";
-        String perf = "fr".equals(lang)
-                ? (score >= 75 ? "tr├â┬¿s bonne (score " + score + "/100)"
-                        : score >= 55 ? "correcte (score " + score + "/100)"
-                                : "├á am├®liorer (score " + score + "/100)")
-                : (score >= 75 ? "very good (score " + score + "/100)"
-                        : score >= 55 ? "decent (score " + score + "/100)"
-                                : "needs work (score " + score + "/100)");
+        String perf = getPerformanceLabel(lang, score);
 
         String prompt = "fr".equals(lang)
                 ? "Tu es un coach de prononciation bienveillant. L'apprenant s'appelle " + learner
@@ -496,9 +514,10 @@ public class OllamaService implements IOllamaService {
             List<Map<String, Object>> history,
             String finalLevel) {
         StringBuilder lines = new StringBuilder();
-        int total = 0, count = 0;
+        int total = 0;
+        int count = 0;
         for (Map<String, Object> h : history) {
-            int sc = h.get("score") instanceof Number n ? n.intValue() : 0;
+            int sc = h.get(KEY_SCORE) instanceof Number n ? n.intValue() : 0;
             total += sc;
             count++;
             lines.append("- ").append(h.getOrDefault("sound_label", "?"))
@@ -600,10 +619,10 @@ public class OllamaService implements IOllamaService {
 
     private String callOllama(String system, String userPrompt, int maxTokens, double temperature) {
         List<Map<String, Object>> messages = system.isBlank()
-                ? List.of(Map.of("role", "user", "content", userPrompt))
+                ? List.of(Map.of("role", "user", KEY_CONTENT, userPrompt))
                 : List.of(
                         Map.of("role", "system", "content", system),
-                        Map.of("role", "user", "content", userPrompt));
+                        Map.of("role", "user", KEY_CONTENT, userPrompt));
         return callOllamaMessages(ollamaModel, messages, maxTokens, temperature);
     }
 
@@ -624,9 +643,9 @@ public class OllamaService implements IOllamaService {
         try {
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("model", model);
-            body.put("stream", false);
-            body.put("options", Map.of("temperature", temperature, "num_predict", maxTokens, "num_ctx", numCtx));
-            body.put("messages", messages);
+            body.put(KEY_STREAM, false);
+            body.put("options", Map.of(KEY_TEMPERATURE, temperature, "num_predict", maxTokens, "num_ctx", numCtx));
+            body.put(KEY_MESSAGES, messages);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -834,14 +853,14 @@ public class OllamaService implements IOllamaService {
         if (azureEnabled) {
             try {
                 String url = azureEndpoint.replaceAll("/$", "")
-                        + "/openai/deployments/" + azureDeployment
-                        + "/chat/completions?api-version=" + AZURE_API_VERSION;
+                        + PATH_DEPLOYMENTS + azureDeployment
+                        + PATH_COMPLETIONS_VERSION + AZURE_API_VERSION;
                 HttpHeaders h = new HttpHeaders();
                 h.setContentType(MediaType.APPLICATION_JSON);
-                h.set("api-key", azureKey);
+                h.set(HEADER_API_KEY, azureKey);
                 Map<String, Object> body = Map.of(
-                        "messages", List.of(Map.of("role", "user", "content", "hi")),
-                        "max_tokens", 1);
+                        KEY_MESSAGES, List.of(Map.of("role", "user", KEY_CONTENT, "hi")),
+                        KEY_MAX_TOKENS, 1);
                 restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(body, h), String.class);
                 return true;
             } catch (Exception e) {
@@ -860,15 +879,15 @@ public class OllamaService implements IOllamaService {
     private String callAzureOpenAI(List<Map<String, Object>> messages, int maxTokens, double temperature) {
         try {
             String url = azureEndpoint.replaceAll("/$", "")
-                    + "/openai/deployments/" + azureDeployment
-                    + "/chat/completions?api-version=" + AZURE_API_VERSION;
+                    + PATH_DEPLOYMENTS + azureDeployment
+                    + PATH_COMPLETIONS_VERSION + AZURE_API_VERSION;
             Map<String, Object> body = new LinkedHashMap<>();
-            body.put("messages", messages);
-            body.put("max_tokens", maxTokens);
-            body.put("temperature", temperature);
+            body.put(KEY_MESSAGES, messages);
+            body.put(KEY_MAX_TOKENS, maxTokens);
+            body.put(KEY_TEMPERATURE, temperature);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("api-key", azureKey);
+            headers.set(HEADER_API_KEY, azureKey);
             ResponseEntity<byte[]> response = restTemplate.exchange(
                     url, HttpMethod.POST, new HttpEntity<>(body, headers), byte[].class);
             JsonNode json = objectMapper.readTree(response.getBody());
@@ -878,21 +897,40 @@ public class OllamaService implements IOllamaService {
         }
     }
 
+    private void processAzureStreamLine(String line, StringBuilder full, Consumer<String> onToken) {
+        if (line.isBlank() || line.equals("data: [DONE]")) {
+            return;
+        }
+        String cleanLine = line.startsWith("data: ") ? line.substring(6) : line;
+        try {
+            JsonNode node = objectMapper.readTree(cleanLine);
+            String token = node.path("choices").path(0).path("delta").path(KEY_CONTENT).asText("");
+            if (!token.isEmpty()) {
+                full.append(token);
+                if (onToken != null) {
+                    onToken.accept(token);
+                }
+            }
+        } catch (Exception ignored) {
+            log.debug("Skipping malformed SSE line");
+        }
+    }
+
     private String streamAzureChatbot(List<Map<String, Object>> messages, Consumer<String> onToken) {
         String url = azureEndpoint.replaceAll("/$", "")
-                + "/openai/deployments/" + azureDeployment
-                + "/chat/completions?api-version=" + AZURE_API_VERSION;
+                + PATH_DEPLOYMENTS + azureDeployment
+                + PATH_COMPLETIONS_VERSION + AZURE_API_VERSION;
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("messages", messages);
-        body.put("max_tokens", 110);
-        body.put("temperature", 0.72);
-        body.put("stream", true);
+        body.put(KEY_MESSAGES, messages);
+        body.put(KEY_MAX_TOKENS, 110);
+        body.put(KEY_TEMPERATURE, 0.72);
+        body.put(KEY_STREAM, true);
         StringBuilder full = new StringBuilder();
         try {
             restTemplate.execute(url, HttpMethod.POST,
                     request -> {
                         request.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-                        request.getHeaders().set("api-key", azureKey);
+                        request.getHeaders().set(HEADER_API_KEY, azureKey);
                         objectMapper.writeValue(request.getBody(), body);
                     },
                     response -> {
@@ -900,16 +938,7 @@ public class OllamaService implements IOllamaService {
                                 new InputStreamReader(response.getBody(), StandardCharsets.UTF_8))) {
                             String line;
                             while ((line = reader.readLine()) != null) {
-                                if (line.isBlank() || line.equals("data: [DONE]")) continue;
-                                if (line.startsWith("data: ")) line = line.substring(6);
-                                try {
-                                    JsonNode node = objectMapper.readTree(line);
-                                    String token = node.path("choices").path(0).path("delta").path("content").asText("");
-                                    if (!token.isEmpty()) {
-                                        full.append(token);
-                                        if (onToken != null) onToken.accept(token);
-                                    }
-                                } catch (Exception ignored) { log.debug("Skipping malformed SSE line"); }
+                                processAzureStreamLine(line, full, onToken);
                             }
                         }
                         return null;

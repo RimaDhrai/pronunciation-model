@@ -44,6 +44,8 @@ public class ChatbotController {
     private static final String MSG_SESSION_EXPIRED = "Session expirée";
     private static final String MSG_SESSION_NOT_FOUND = "Session introuvable ou expirée";
     private static final String MSG_SERVER_ERROR = "Server error";
+    private static final String KEY_RESPONSE = "response";
+    private static final String MSG_TIMEOUT = "Timeout — réessaie";
 
     private final ChatbotAgent          chatbotAgent;
     private final IChatbotFastApiClient chatbotClient;
@@ -204,7 +206,7 @@ public class ChatbotController {
             @RequestParam(name = "native_lang", defaultValue = "fr") String nativeLang
     ) {
         SseEmitter emitter = new SseEmitter(30000L); // 30s timeout
-        emitter.onTimeout(() -> sseError(emitter, "Timeout — réessaie"));
+        emitter.onTimeout(() -> sseError(emitter, MSG_TIMEOUT));
         emitter.onError(ex -> emitter.complete());
         handleVoiceStream(emitter, sessionId, audio, nativeLang, null, true);
         return emitter;
@@ -259,7 +261,7 @@ public class ChatbotController {
             @RequestParam String message
     ) {
         SseEmitter emitter = new SseEmitter(30000L);
-        emitter.onTimeout(() -> sseError(emitter, "Timeout — réessaie"));
+        emitter.onTimeout(() -> sseError(emitter, MSG_TIMEOUT));
         emitter.onError(ex -> emitter.complete());
         handleTextStream(emitter, sessionId, message, "fr", null, true);
         return emitter;
@@ -278,7 +280,7 @@ public class ChatbotController {
             @RequestParam(name = "master_session_id", required = false) String masterSessionId
     ) {
         SseEmitter emitter = new SseEmitter(120000L);
-        emitter.onTimeout(() -> sseError(emitter, "Timeout — réessaie"));
+        emitter.onTimeout(() -> sseError(emitter, MSG_TIMEOUT));
         emitter.onError(ex -> emitter.complete());
         handleVoiceStream(emitter, sessionId, audio, nativeLang, masterSessionId, false);
         return emitter;
@@ -297,7 +299,7 @@ public class ChatbotController {
             @RequestParam(name = "master_session_id", required = false) String masterSessionId
     ) {
         SseEmitter emitter = new SseEmitter(60000L);
-        emitter.onTimeout(() -> sseError(emitter, "Timeout — réessaie"));
+        emitter.onTimeout(() -> sseError(emitter, MSG_TIMEOUT));
         emitter.onError(ex -> emitter.complete());
         handleTextStream(emitter, sessionId, message, lang, masterSessionId, false);
         return emitter;
@@ -305,6 +307,31 @@ public class ChatbotController {
 
 
     // ── Common Streaming Logic Helpers ───────────────────────────────────────
+
+    private String synthesizeTts(String text, String lang) {
+        try {
+            return chatbotClient.chatTts(stripRepeatTag(text), lang);
+        } catch (Exception ex) {
+            log.warn("[Chatbot] TTS failed: {}", ex.getMessage());
+            return "";
+        }
+    }
+
+    private void sendVoiceComplete(SseEmitter emitter, String response, String audioB64, ChatSttResponse stt, String masterSessionId, List<String> weakWords) throws IOException {
+        Map<String, Object> completeData = new LinkedHashMap<>();
+        completeData.put(KEY_RESPONSE, response);
+        completeData.put("audio_base64", audioB64);
+        completeData.put("audio_format", "mp3");
+        completeData.put("pron_score", stt.getPronScore() != null ? stt.getPronScore() : -1);
+        completeData.put("pron_feedback", stt.getPronFeedback() != null ? stt.getPronFeedback() : "");
+        emitter.send(SseEmitter.event().name("complete").data(json(completeData)));
+        emitter.complete();
+
+        if (masterSessionId != null && !masterSessionId.isBlank()
+                && !weakWords.isEmpty() && sessionMemory.exists(masterSessionId)) {
+            sessionMemory.addWeakWords(masterSessionId, weakWords);
+        }
+    }
 
     private void handleVoiceStream(
             SseEmitter emitter,
@@ -321,7 +348,6 @@ public class ChatbotController {
                     return;
                 }
 
-                // 1 ── STT
                 if (sendStatusEvents) {
                     emitter.send(SseEmitter.event().name("status").data(Map.of("step", "stt", "message", "Transcription en cours...")));
                 }
@@ -342,7 +368,6 @@ public class ChatbotController {
                         "confidence", avgConf
                 ))));
 
-                // 2 ── LLM streaming — each token forwarded immediately
                 if (sendStatusEvents) {
                     emitter.send(SseEmitter.event().name("status").data(Map.of("step", "llm", "message", "Génération de la réponse...")));
                 }
@@ -355,32 +380,11 @@ public class ChatbotController {
                     }
                 }).thenAccept(response -> {
                     try {
-                        // 3 ── TTS
                         if (sendStatusEvents) {
                             emitter.send(SseEmitter.event().name("status").data(Map.of("step", "tts", "message", "Synthèse vocale...")));
                         }
-
-                        String audioB64 = "";
-                        try {
-                            audioB64 = chatbotClient.chatTts(stripRepeatTag(response), nativeLang);
-                        } catch (Exception ex) {
-                            log.warn("[Chatbot] TTS failed: {}", ex.getMessage());
-                        }
-
-                        Map<String, Object> completeData = new LinkedHashMap<>();
-                        completeData.put("response", response);
-                        completeData.put("audio_base64", audioB64 != null ? audioB64 : "");
-                        completeData.put("audio_format", "mp3");
-                        completeData.put("pron_score", stt.getPronScore() != null ? stt.getPronScore() : -1);
-                        completeData.put("pron_feedback", stt.getPronFeedback() != null ? stt.getPronFeedback() : "");
-                        emitter.send(SseEmitter.event().name("complete").data(json(completeData)));
-                        emitter.complete();
-
-                        // 4 ── Report weak words to MasterAgent memory (fire-and-forget)
-                        if (masterSessionId != null && !masterSessionId.isBlank()
-                                && !weakWords.isEmpty() && sessionMemory.exists(masterSessionId)) {
-                            sessionMemory.addWeakWords(masterSessionId, weakWords);
-                        }
+                        String audioB64 = synthesizeTts(response, nativeLang);
+                        sendVoiceComplete(emitter, response, audioB64, stt, masterSessionId, weakWords);
                     } catch (Exception ex) {
                         sseError(emitter, MSG_SERVER_ERROR);
                     }
@@ -395,6 +399,20 @@ public class ChatbotController {
                 sseError(emitter, e.getMessage());
             }
         });
+    }
+
+    private void sendTextComplete(SseEmitter emitter, String response, String audioB64, String masterSessionId) throws IOException {
+        emitter.send(SseEmitter.event().name("complete").data(json(Map.of(
+                KEY_RESPONSE, response,
+                "audio_base64", audioB64,
+                "audio_format", "mp3"
+        ))));
+        emitter.complete();
+
+        if (masterSessionId != null && !masterSessionId.isBlank()
+                && sessionMemory.exists(masterSessionId)) {
+            sessionMemory.incrementChatRound(masterSessionId);
+        }
     }
 
     private void handleTextStream(
@@ -424,19 +442,8 @@ public class ChatbotController {
                     }
                 }).thenAccept(response -> {
                     try {
-                        String audioB64 = chatbotClient.chatTts(stripRepeatTag(response), lang);
-                        emitter.send(SseEmitter.event().name("complete").data(json(Map.of(
-                                "response", response,
-                                "audio_base64", audioB64 != null ? audioB64 : "",
-                                "audio_format", "mp3"
-                        ))));
-                        emitter.complete();
-
-                        // Report turn count to MasterAgent memory (fire-and-forget)
-                        if (masterSessionId != null && !masterSessionId.isBlank()
-                                && sessionMemory.exists(masterSessionId)) {
-                            sessionMemory.incrementChatRound(masterSessionId);
-                        }
+                        String audioB64 = synthesizeTts(response, lang);
+                        sendTextComplete(emitter, response, audioB64, masterSessionId);
                     } catch (Exception ex) {
                         sseError(emitter, MSG_SERVER_ERROR);
                     }

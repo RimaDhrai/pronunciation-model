@@ -164,12 +164,12 @@ public class LevelTestAgent {
         Map<String, String> frTips = new HashMap<>();
         frTips.put("r", "Pour le R français, faites vibrer le fond de la gorge.");
         frTips.put("u", "Arrondissez les lèvres comme pour siffler et dites 'i'.");
-        frTips.put("in_nasal", "Laissez l'air passer par le nez.");
-        frTips.put("on_nasal", "Arrondissez les lèvres, air par le nez.");
-        frTips.put("an_nasal", "Ouvrez la bouche, langue vers le bas.");
+        frTips.put(KEY_IN_NASAL, "Laissez l'air passer par le nez.");
+        frTips.put(KEY_ON_NASAL, "Arrondissez les lèvres, air par le nez.");
+        frTips.put(KEY_AN_NASAL, "Ouvrez la bouche, langue vers le bas.");
         frTips.put("eu", "Arrondissez les lèvres comme pour 'o' et dites 'é'.");
         frTips.put("gn", "Collez la langue au palais.");
-        frTips.put("liaison", "Enchaînez les mots naturellement.");
+        frTips.put(KEY_LIAISON, "Enchaînez les mots naturellement.");
         frTips.put("ch", "Avancez les lèvres, soufflez doucement.");
         frTips.put("j", "Faites vibrer les cordes vocales.");
         FALLBACK_TIPS.put("fr", frTips);
@@ -179,13 +179,13 @@ public class LevelTestAgent {
         enTips.put("th", "Place your tongue lightly between your teeth and blow.");
         enTips.put("r", "Curl your tongue back slightly.");
         enTips.put("ae", "Open your mouth wide, push your tongue forward.");
-        enTips.put("short_i", "Relax your tongue, shorter than long 'ee'.");
+        enTips.put(KEY_SHORT_I, "Relax your tongue, shorter than long 'ee'.");
         enTips.put("ng", "Close the back of your throat like humming.");
         enTips.put("w", "Round your lips tightly first, then release.");
         enTips.put("v", "Touch your upper teeth to your lower lip.");
-        enTips.put("schwa", "Most relaxed vowel, mouth almost closed.");
-        enTips.put("diphthong", "Start on one vowel and glide smoothly.");
-        enTips.put("dark_l", "Raise the back of your tongue toward the soft palate.");
+        enTips.put(KEY_SCHWA, "Most relaxed vowel, mouth almost closed.");
+        enTips.put(KEY_DIPHTHONG, "Start on one vowel and glide smoothly.");
+        enTips.put(KEY_DARK_L, "Raise the back of your tongue toward the soft palate.");
         FALLBACK_TIPS.put("en", enTips);
     }
 

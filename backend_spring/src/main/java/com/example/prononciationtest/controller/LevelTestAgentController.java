@@ -321,7 +321,7 @@ public class LevelTestAgentController {
         if (user == null) { log.warn("[LevelTest] User not found for persist"); return; }
 
         String finalLevel = ((String) body.getOrDefault("final_level", "B1")).toUpperCase().trim();
-        int    avgScore   = body.get("score") instanceof Number n ? n.intValue() : 0;
+        int    avgScore   = body.get(KEY_SCORE) instanceof Number n ? n.intValue() : 0;
         String feedback   = (String) body.getOrDefault("feedback", "");
         List<Map<String, Object>> history =
             (List<Map<String, Object>>) body.getOrDefault("history", List.of());

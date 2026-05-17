@@ -291,13 +291,12 @@ public class LevelTestAgent {
                     Map.of("lang", lang, KEY_ACTION, "start",
                            "user_name", userName != null ? userName : "apprenant"),
                     runConfig
-            ).orElseThrow(() -> new RuntimeException("Agent state empty after start"));
+            ).orElseThrow(() -> new IllegalStateException("Agent state empty after start"));
 
             stateCache.put(sessionId, result);
             return buildStepResponse(result, sessionId);
         } catch (Exception e) {
-            log.error("start() failed for session {}: {}", sessionId, e.getMessage());
-            throw new RuntimeException("Failed to start test: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to start test for session " + sessionId, e);
         }
     }
 
@@ -310,7 +309,7 @@ public class LevelTestAgent {
             AgentState result = graph.invoke(
                     Map.of(KEY_ACTION, "next", KEY_INPUT_SCORE, score, KEY_INPUT_PHRASE, phrase != null ? phrase : ""),
                     runConfig
-            ).orElseThrow(() -> new RuntimeException("Agent state empty after next"));
+            ).orElseThrow(() -> new IllegalStateException("Agent state empty after next"));
 
             stateCache.put(sessionId, result);
 
@@ -323,8 +322,7 @@ public class LevelTestAgent {
             resp.put(KEY_FEEDBACK, result.<String>value(KEY_LAST_FEEDBACK).orElse(""));
             return resp;
         } catch (Exception e) {
-            log.error("next() failed for session {}: {}", sessionId, e.getMessage());
-            throw new RuntimeException("Failed to process next step: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to process next step for session " + sessionId, e);
         }
     }
 
@@ -336,7 +334,7 @@ public class LevelTestAgent {
             AgentState result = graph.invoke(
                     Map.of(KEY_ACTION, KEY_FEEDBACK_ONLY, KEY_INPUT_SCORE, score, KEY_INPUT_PHRASE, phrase != null ? phrase : ""),
                     runConfig
-            ).orElseThrow(() -> new RuntimeException("Agent state empty after submitFeedback"));
+            ).orElseThrow(() -> new IllegalStateException("Agent state empty after submitFeedback"));
 
             stateCache.put(sessionId, result);
 
@@ -349,8 +347,7 @@ public class LevelTestAgent {
             resp.put("done", false);
             return resp;
         } catch (Exception e) {
-            log.error("submitFeedback() failed for session {}: {}", sessionId, e.getMessage());
-            throw new RuntimeException("Failed to submit feedback: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to submit feedback for session " + sessionId, e);
         }
     }
 
@@ -362,14 +359,13 @@ public class LevelTestAgent {
             AgentState result = graph.invoke(
                     Map.of(KEY_ACTION, "next_phrase"),
                     runConfig
-            ).orElseThrow(() -> new RuntimeException("Agent state empty after fetchNextPhrase"));
+            ).orElseThrow(() -> new IllegalStateException("Agent state empty after fetchNextPhrase"));
 
             stateCache.put(sessionId, result);
 
             return buildStepResponse(result, sessionId);
         } catch (Exception e) {
-            log.error("fetchNextPhrase() failed for session {}: {}", sessionId, e.getMessage());
-            throw new RuntimeException("Failed to fetch next phrase: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to fetch next phrase for session " + sessionId, e);
         }
     }
 
@@ -381,13 +377,12 @@ public class LevelTestAgent {
             AgentState result = graph.invoke(
                     Map.of(KEY_ACTION, "finish"),
                     runConfig
-            ).orElseThrow(() -> new RuntimeException("Agent state empty after finish"));
+            ).orElseThrow(() -> new IllegalStateException("Agent state empty after finish"));
 
             stateCache.invalidate(sessionId);
             return buildFinishResponse(result);
         } catch (Exception e) {
-            log.error("finish() failed for session {}: {}", sessionId, e.getMessage());
-            throw new RuntimeException("Failed to finish test: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to finish test for session " + sessionId, e);
         }
     }
 

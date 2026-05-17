@@ -111,6 +111,53 @@ public class ChatbotAgent {
     /**
      * Real Ollama streaming — tokens arrive from the LLM and are forwarded via onToken as they come.
      */
+    private List<Map<String, String>> getHistoryForLlm(List<Map<String, String>> history) {
+        if (!history.isEmpty() && "user".equals(history.get(history.size() - 1).get("role"))) {
+            return new ArrayList<>(history.subList(0, history.size() - 1));
+        }
+        return new ArrayList<>(history);
+    }
+
+    private String doChatStreaming(String sessionId, String userText, List<String> weakWords,
+                                   Double pronScore, Consumer<String> onToken) {
+        try {
+            Map<String, String> meta = sessionMeta.getOrDefault(sessionId, Map.of());
+            String lang     = meta.getOrDefault("lang",     "fr");
+            String level    = meta.getOrDefault(KEY_LEVEL,    "B1");
+            String scenario = meta.getOrDefault(KEY_SCENARIO, "");
+
+            String content  = ollamaService.buildChatbotUserContent(userText, weakWords, pronScore, lang);
+            String system   = ollamaService.getChatbotSystemPrompt(lang, level, scenario);
+
+            List<Map<String, String>> history = historyCache.getOrDefault(sessionId, List.of());
+            List<Map<String, String>> historyForLlm = getHistoryForLlm(history);
+
+            List<Map<String, Object>> messages =
+                    ollamaService.buildChatbotMessagesList(historyForLlm, content, system);
+
+            String response = ollamaService.streamChatbotResponse(messages, onToken);
+            if (response == null || response.isBlank()) {
+                response = getFallbackResponse(lang);
+            }
+
+            // Update history
+            List<Map<String, String>> updated = new ArrayList<>(history);
+            updated.add(Map.of("role", "user",      KEY_CONTENT, userText != null ? userText : ""));
+            updated.add(Map.of("role", KEY_ASSISTANT, KEY_CONTENT, response));
+            trimHistory(updated);
+            historyCache.put(sessionId, updated);
+
+            return response;
+        } catch (Exception e) {
+            log.error("Chat streaming error: {}", e.getMessage());
+            String fallback = getFallbackResponse(null);
+            if (onToken != null) {
+                onToken.accept(fallback);
+            }
+            return fallback;
+        }
+    }
+
     public CompletableFuture<String> chatStreaming(String sessionId, String userText,
                                                    List<String> weakWords, Double pronScore,
                                                    Consumer<String> onToken) {
@@ -124,49 +171,15 @@ public class ChatbotAgent {
         // Quick responses (greetings) still served instantly with word-delay illusion
         String quickResponse = getQuickResponse(userText);
         if (quickResponse != null) {
-            if (onToken != null) streamWithDelay(quickResponse, onToken, 20);
+            if (onToken != null) {
+                streamWithDelay(quickResponse, onToken, 20);
+            }
             return CompletableFuture.completedFuture(quickResponse);
         }
 
         // Real streaming via Ollama
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                Map<String, String> meta = sessionMeta.getOrDefault(sessionId, Map.of());
-                String lang     = meta.getOrDefault("lang",     "fr");
-                String level    = meta.getOrDefault(KEY_LEVEL,    "B1");
-                String scenario = meta.getOrDefault(KEY_SCENARIO, "");
-
-                String content  = ollamaService.buildChatbotUserContent(userText, weakWords, pronScore, lang);
-                String system   = ollamaService.getChatbotSystemPrompt(lang, level, scenario);
-
-                // Build history for LLM (exclude the last user msg — we pass it as content above)
-                List<Map<String, String>> history = historyCache.getOrDefault(sessionId, List.of());
-                List<Map<String, String>> historyForLlm = (!history.isEmpty()
-                        && "user".equals(history.get(history.size() - 1).get("role")))
-                        ? new ArrayList<>(history.subList(0, history.size() - 1))
-                        : new ArrayList<>(history);
-
-                List<Map<String, Object>> messages =
-                        ollamaService.buildChatbotMessagesList(historyForLlm, content, system);
-
-                String response = ollamaService.streamChatbotResponse(messages, onToken);
-                if (response == null || response.isBlank()) response = getFallbackResponse(lang);
-
-                // Update history
-                List<Map<String, String>> updated = new ArrayList<>(history);
-                updated.add(Map.of("role", "user",      KEY_CONTENT, userText != null ? userText : ""));
-                updated.add(Map.of("role", KEY_ASSISTANT, KEY_CONTENT, response));
-                trimHistory(updated);
-                historyCache.put(sessionId, updated);
-
-                return response;
-            } catch (Exception e) {
-                log.error("Chat streaming error: {}", e.getMessage());
-                String fallback = getFallbackResponse(null);
-                if (onToken != null) onToken.accept(fallback);
-                return fallback;
-            }
-        }, taskExecutor).orTimeout(55, TimeUnit.SECONDS);
+        return CompletableFuture.supplyAsync(() -> doChatStreaming(sessionId, userText, weakWords, pronScore, onToken), taskExecutor)
+                .orTimeout(55, TimeUnit.SECONDS);
     }
 
     /**
@@ -249,6 +262,9 @@ public class ChatbotAgent {
                             level != null ? level : "B1"), taskExecutor)
                     .orTimeout(7, TimeUnit.SECONDS)
                     .get(7, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.warn("[Chatbot] Greeting phrase interrupted");
+            Thread.currentThread().interrupt();
         } catch (Exception e) {
             log.warn("[Chatbot] Greeting phrase timeout, using fallback");
         }

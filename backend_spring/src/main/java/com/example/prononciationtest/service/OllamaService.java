@@ -542,7 +542,7 @@ public class OllamaService implements IOllamaService {
             // Remove common list prefixes (e.g., "-", "*", "1.")
             line = line.replaceAll("^[\\-\\*\\d\\.\\)]+\\s*", "");
             // Strip surrounding quotation marks or french guillemets
-            line = line.replaceAll("(^[\\\"\\'«»“”„]+)|([\\\"\\'«»“”„]+$)", "");
+            line = line.replaceAll("(^[\\\"'\\u00AB\\u00BB\\u201C\\u201D\\u201E]+)|([\\\"'\\u00AB\\u00BB\\u201C\\u201D\\u201E]+$)", "");
             // If a short prefix before a colon exists, drop it (e.g., "Phrase: ...")
             if (line.contains(":") && line.indexOf(':') < 20) {
                 line = line.substring(line.indexOf(':') + 1).strip();
@@ -794,7 +794,7 @@ public class OllamaService implements IOllamaService {
                 ? "Une phrase originale, vivante, de 8-12 mots, niveau " + level + "."
                 : "An original, lively phrase, 8-12 words, level " + level + ".";
         String raw = callOllama(system, prompt, 60, 0.7);
-        String cleaned = raw == null ? "" : raw.replaceAll("(^[\\\"\\'«»\\s]+)|([\\\"\\'«»\\s]+$)", "").trim();
+        String cleaned = raw == null ? "" : raw.replaceAll("(^[\\\"'\\u00AB\\u00BB\\s]+)|([\\\"'\\u00AB\\u00BB\\s]+$)", "").trim();
         if (taxonomy.isHallucination(cleaned, lang)) {
             return taxonomy.getBattleFallback(lang, level);
         }

@@ -4,14 +4,12 @@ import com.example.prononciationtest.entity.ExerciseProgress;
 import com.example.prononciationtest.entity.User;
 import com.example.prononciationtest.repository.ExerciseProgressRepository;
 import com.example.prononciationtest.repository.UserRepository;
+import com.example.prononciationtest.security.SecurityUtils;
 import com.example.prononciationtest.service.iservice.IGamificationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,12 +26,22 @@ public class ExerciseProgressController {
     private final UserRepository userRepo;
     private final IGamificationService gamificationService;
 
+    private boolean isUnlocked(User user, String level, String lang, int cefrIdx) {
+        int idx = LEVELS_ORDER.indexOf(level);
+        if (idx <= 0) {
+            return true;
+        }
+        boolean unlockedByProgress = progressRepo.existsByUserIdAndLevelAndLangAndDoneTrue(user.getId(), LEVELS_ORDER.get(idx - 1), lang);
+        boolean unlockedByCefr     = cefrIdx >= 0 && cefrIdx >= idx;
+        return unlockedByProgress || unlockedByCefr;
+    }
+
     // ── GET /api/exercises/progress ─────────────────────────────────────────
     @GetMapping
     public ResponseEntity<Map<String, Object>> getProgress(
             @RequestParam(defaultValue = "fr") String lang,
             Authentication auth) {
-        User user = getUser(auth);
+        User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
         List<ExerciseProgress> rows = progressRepo.findByUserIdAndLang(user.getId(), lang);
 
         String cefrLevel = "en".equals(lang) ? user.getCefrLevelEn() : user.getCefrLevel();
@@ -47,10 +55,7 @@ public class ExerciseProgressController {
             data.put("completed",    p.getCompleted());
             data.put("lastAvgScore", p.getLastAvgScore());
             data.put("sessionsCount",p.getSessionsCount());
-            int idx = LEVELS_ORDER.indexOf(p.getLevel());
-            boolean unlockedByProgress = idx == 0 || progressRepo.existsByUserIdAndLevelAndLangAndDoneTrue(user.getId(), LEVELS_ORDER.get(idx - 1), lang);
-            boolean unlockedByCefr     = cefrIdx >= 0 && cefrIdx >= idx;
-            data.put("unlocked", unlockedByProgress || unlockedByCefr);
+            data.put("unlocked",     isUnlocked(user, p.getLevel(), lang, cefrIdx));
             result.put(p.getLevel(), data);
         }
 
@@ -79,7 +84,7 @@ public class ExerciseProgressController {
             return ResponseEntity.badRequest().body(Map.of("error", "Niveau invalide : " + level));
         }
 
-        User user = getUser(auth);
+        User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
 
         ExerciseProgress progress = progressRepo
                 .findByUserIdAndLevelAndLang(user.getId(), level, lang)
@@ -135,7 +140,7 @@ public class ExerciseProgressController {
             @PathVariable String level,
             @RequestParam(defaultValue = "fr") String lang,
             Authentication auth) {
-        User user = getUser(auth);
+        User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
         ExerciseProgress p = progressRepo
                 .findByUserIdAndLevelAndLang(user.getId(), level, lang)
                 .orElse(null);
@@ -144,17 +149,11 @@ public class ExerciseProgressController {
         int cefrIdx = cefrLevel != null ? LEVELS_ORDER.indexOf(cefrLevel) : -1;
 
         if (p == null) {
-            int idx = LEVELS_ORDER.indexOf(level);
-            boolean unlocked = idx == 0
-                    || progressRepo.existsByUserIdAndLevelAndLangAndDoneTrue(user.getId(), LEVELS_ORDER.get(Math.max(0, idx - 1)), lang)
-                    || (cefrIdx >= 0 && cefrIdx >= idx);
+            boolean unlocked = isUnlocked(user, level, lang, cefrIdx);
             return ResponseEntity.ok(Map.of("level", level, "lang", lang, "done", false, "mastered", false, "completed", 0, "unlocked", unlocked));
         }
 
-        int idx = LEVELS_ORDER.indexOf(level);
-        boolean unlocked = idx == 0
-                || progressRepo.existsByUserIdAndLevelAndLangAndDoneTrue(user.getId(), LEVELS_ORDER.get(idx - 1), lang)
-                || (cefrIdx >= 0 && cefrIdx >= idx);
+        boolean unlocked = isUnlocked(user, level, lang, cefrIdx);
 
         return ResponseEntity.ok(Map.of(
             "level",        p.getLevel(),
@@ -163,29 +162,8 @@ public class ExerciseProgressController {
             "mastered",     p.isMastered(),
             "completed",    p.getCompleted(),
             "lastAvgScore", p.getLastAvgScore(),
-            "sessionsCount",p.getSessionsCount(),
+            "sessionsCount", p.getSessionsCount(),
             "unlocked",     unlocked
         ));
-    }
-
-    // ── Helper ───────────────────────────────────────────────────────────────
-    private String getEmail(Authentication auth) {
-        if (auth == null) return null;
-        if (auth instanceof JwtAuthenticationToken jwt) {
-            String email = jwt.getToken().getClaimAsString("email");
-            if (email != null && !email.isBlank()) return email;
-            String pref = jwt.getToken().getClaimAsString("preferred_username");
-            if (pref != null && pref.contains("@")) return pref;
-        }
-        return auth.getName();
-    }
-
-    private User getUser(Authentication auth) {
-        String email = getEmail(auth);
-        if (email == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Accès non autorisé : authentification manquante");
-        }
-        return userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
     }
 }

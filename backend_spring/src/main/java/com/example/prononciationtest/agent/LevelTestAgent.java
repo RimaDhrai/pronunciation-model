@@ -216,13 +216,12 @@ public class LevelTestAgent {
                 .recordStats()
                 .build();
 
-        this.phraseCache = Caffeine.newBuilder()
-                .expireAfterWrite(Duration.ofHours(1))
-                .maximumSize(500)
-                .recordStats()
-                .build();
+        this.phraseCache = createStringCache();
+        this.tipCache = createStringCache();
+    }
 
-        this.tipCache = Caffeine.newBuilder()
+    private Cache<String, String> createStringCache() {
+        return Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofHours(1))
                 .maximumSize(500)
                 .recordStats()

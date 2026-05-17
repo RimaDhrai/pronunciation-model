@@ -42,7 +42,7 @@ public class ChatbotController {
     private static final Logger log = LoggerFactory.getLogger(ChatbotController.class);
     private static final String KEY_ERROR = "error";
     private static final String MSG_SESSION_EXPIRED = "Session expirée";
-    private static final String MSG_SESSION_NOT_FOUND = MSG_SESSION_NOT_FOUND;
+    private static final String MSG_SESSION_NOT_FOUND = "Session introuvable ou expirée";
     private static final String MSG_SERVER_ERROR = "Server error";
 
     private final ChatbotAgent          chatbotAgent;
@@ -204,67 +204,9 @@ public class ChatbotController {
             @RequestParam(name = "native_lang", defaultValue = "fr") String nativeLang
     ) {
         SseEmitter emitter = new SseEmitter(30000L); // 30s timeout
-
-        CompletableFuture.runAsync(() -> {
-            try {
-                if (!chatbotAgent.sessionExists(sessionId)) {
-                    sseError(emitter, MSG_SESSION_EXPIRED);
-                    return;
-                }
-
-                // 1 ── STT
-                emitter.send(SseEmitter.event().name("status").data(Map.of("step", "stt", "message", "Transcription en cours...")));
-
-                ChatSttResponse stt = chatbotClient.chatStt(audio, nativeLang);
-                if (stt.hasError()) {
-                    sseError(emitter, stt.getError() != null ? stt.getError() : "STT error");
-                    return;
-                }
-
-                String userText = stt.getCleanText() != null ? stt.getCleanText() : "";
-                List<String> weakWords = stt.getWeakWords() != null ? stt.getWeakWords() : List.of();
-                double avgConf = stt.getAvgConfidence() != null ? stt.getAvgConfidence() : 1.0;
-
-                emitter.send(SseEmitter.event().name("transcript").data(Map.of(
-                        "text", userText,
-                        "weak_words", weakWords,
-                        "confidence", avgConf
-                )));
-
-                // 2 ── LLM avec streaming
-                emitter.send(SseEmitter.event().name("status").data(Map.of("step", "llm", "message", "Génération de la réponse...")));
-
-                chatbotAgent.chatStreaming(sessionId, userText, weakWords, avgConf, token -> {
-                    try {
-                        emitter.send(SseEmitter.event().name("token").data(Map.of("text", token)));
-                    } catch (IOException e) {
-                        log.error("Stream error: {}", e.getMessage());
-                    }
-                }).thenAccept(response -> {
-                    try {
-                        // 3 ── TTS
-                        emitter.send(SseEmitter.event().name("status").data(Map.of("step", "tts", "message", "Synthèse vocale...")));
-
-                        String audioB64 = chatbotClient.chatTts(stripRepeatTag(response), nativeLang);
-                        emitter.send(SseEmitter.event().name("complete").data(Map.of(
-                                "response", response,
-                                "audio_base64", audioB64 != null ? audioB64 : "",
-                                "audio_format", "mp3"
-                        )));
-                        emitter.complete();
-                    } catch (Exception e) {
-                        sseError(emitter, e.getMessage());
-                    }
-                }).exceptionally(e -> {
-                    sseError(emitter, e.getMessage());
-                    return null;
-                });
-
-            } catch (Exception e) {
-                sseError(emitter, e.getMessage());
-            }
-        });
-
+        emitter.onTimeout(() -> sseError(emitter, "Timeout — réessaie"));
+        emitter.onError(ex -> emitter.complete());
+        handleVoiceStream(emitter, sessionId, audio, nativeLang, null, true);
         return emitter;
     }
 
@@ -317,44 +259,9 @@ public class ChatbotController {
             @RequestParam String message
     ) {
         SseEmitter emitter = new SseEmitter(30000L);
-
-        CompletableFuture.runAsync(() -> {
-            try {
-                if (!chatbotAgent.sessionExists(sessionId)) {
-                    sseError(emitter, MSG_SESSION_EXPIRED);
-                    return;
-                }
-
-                emitter.send(SseEmitter.event().name("status").data(Map.of("step", "llm", "message", "Génération de la réponse...")));
-
-                chatbotAgent.chatStreaming(sessionId, message, List.of(), null, token -> {
-                    try {
-                        emitter.send(SseEmitter.event().name("token").data(Map.of("text", token)));
-                    } catch (IOException e) {
-                        log.error("Stream error: {}", e.getMessage());
-                    }
-                }).thenAccept(response -> {
-                    try {
-                        String audioB64 = chatbotClient.chatTts(stripRepeatTag(response), "fr");
-                        emitter.send(SseEmitter.event().name("complete").data(Map.of(
-                                "response", response,
-                                "audio_base64", audioB64 != null ? audioB64 : "",
-                                "audio_format", "mp3"
-                        )));
-                        emitter.complete();
-                    } catch (Exception e) {
-                        sseError(emitter, e.getMessage());
-                    }
-                }).exceptionally(e -> {
-                    sseError(emitter, e.getMessage());
-                    return null;
-                });
-
-            } catch (Exception e) {
-                sseError(emitter, e.getMessage());
-            }
-        });
-
+        emitter.onTimeout(() -> sseError(emitter, "Timeout — réessaie"));
+        emitter.onError(ex -> emitter.complete());
+        handleTextStream(emitter, sessionId, message, "fr", null, true);
         return emitter;
     }
 
@@ -373,7 +280,40 @@ public class ChatbotController {
         SseEmitter emitter = new SseEmitter(120000L);
         emitter.onTimeout(() -> sseError(emitter, "Timeout — réessaie"));
         emitter.onError(ex -> emitter.complete());
+        handleVoiceStream(emitter, sessionId, audio, nativeLang, masterSessionId, false);
+        return emitter;
+    }
 
+    // ═════════════════════════════════════════════════════════════════════════
+    // POST /text-sse  (text message + SSE)
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @PostMapping(value = "/text-sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(summary = "Send text with real Ollama streaming (SSE, POST)")
+    public SseEmitter sendTextSse(
+            @RequestParam("session_id") String sessionId,
+            @RequestParam String message,
+            @RequestParam(defaultValue = "fr") String lang,
+            @RequestParam(name = "master_session_id", required = false) String masterSessionId
+    ) {
+        SseEmitter emitter = new SseEmitter(60000L);
+        emitter.onTimeout(() -> sseError(emitter, "Timeout — réessaie"));
+        emitter.onError(ex -> emitter.complete());
+        handleTextStream(emitter, sessionId, message, lang, masterSessionId, false);
+        return emitter;
+    }
+
+
+    // ── Common Streaming Logic Helpers ───────────────────────────────────────
+
+    private void handleVoiceStream(
+            SseEmitter emitter,
+            String sessionId,
+            MultipartFile audio,
+            String nativeLang,
+            String masterSessionId,
+            boolean sendStatusEvents
+    ) {
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
@@ -382,39 +322,57 @@ public class ChatbotController {
                 }
 
                 // 1 ── STT
+                if (sendStatusEvents) {
+                    emitter.send(SseEmitter.event().name("status").data(Map.of("step", "stt", "message", "Transcription en cours...")));
+                }
+
                 ChatSttResponse stt = chatbotClient.chatStt(audio, nativeLang);
                 if (stt.hasError()) {
                     sseError(emitter, stt.getError() != null ? stt.getError() : "STT error");
                     return;
                 }
 
-                String userText    = stt.getCleanText()    != null ? stt.getCleanText()    : "";
-                List<String> weakWords = stt.getWeakWords() != null ? stt.getWeakWords()   : List.of();
-                double avgConf     = stt.getAvgConfidence() != null ? stt.getAvgConfidence(): 1.0;
+                String userText = stt.getCleanText() != null ? stt.getCleanText() : "";
+                List<String> weakWords = stt.getWeakWords() != null ? stt.getWeakWords() : List.of();
+                double avgConf = stt.getAvgConfidence() != null ? stt.getAvgConfidence() : 1.0;
 
-                Map<String, Object> transcriptData = new LinkedHashMap<>();
-                transcriptData.put("text",       userText);
-                transcriptData.put("weak_words", weakWords);
-                transcriptData.put("confidence", avgConf);
-                emitter.send(SseEmitter.event().name("transcript").data(json(transcriptData)));
+                emitter.send(SseEmitter.event().name("transcript").data(json(Map.of(
+                        "text", userText,
+                        "weak_words", weakWords,
+                        "confidence", avgConf
+                ))));
 
                 // 2 ── LLM streaming — each token forwarded immediately
+                if (sendStatusEvents) {
+                    emitter.send(SseEmitter.event().name("status").data(Map.of("step", "llm", "message", "Génération de la réponse...")));
+                }
+
                 chatbotAgent.chatStreaming(sessionId, userText, weakWords, avgConf, token -> {
-                    try { emitter.send(SseEmitter.event().name("token").data(json(Map.of("text", token)))); }
-                    catch (IOException ex) { log.debug("SSE write failed: {}", ex.getMessage()); }
+                    try {
+                        emitter.send(SseEmitter.event().name("token").data(json(Map.of("text", token))));
+                    } catch (IOException ex) {
+                        log.debug("SSE write failed: {}", ex.getMessage());
+                    }
                 }).thenAccept(response -> {
                     try {
                         // 3 ── TTS
+                        if (sendStatusEvents) {
+                            emitter.send(SseEmitter.event().name("status").data(Map.of("step", "tts", "message", "Synthèse vocale...")));
+                        }
+
                         String audioB64 = "";
-                        try { audioB64 = chatbotClient.chatTts(stripRepeatTag(response), nativeLang); }
-                        catch (Exception ex) { log.warn("[Chatbot] TTS failed: {}", ex.getMessage()); }
+                        try {
+                            audioB64 = chatbotClient.chatTts(stripRepeatTag(response), nativeLang);
+                        } catch (Exception ex) {
+                            log.warn("[Chatbot] TTS failed: {}", ex.getMessage());
+                        }
 
                         Map<String, Object> completeData = new LinkedHashMap<>();
-                        completeData.put("response",     response);
+                        completeData.put("response", response);
                         completeData.put("audio_base64", audioB64 != null ? audioB64 : "");
                         completeData.put("audio_format", "mp3");
-                        completeData.put("pron_score",   stt.getPronScore()    != null ? stt.getPronScore()    : -1);
-                        completeData.put("pron_feedback",stt.getPronFeedback() != null ? stt.getPronFeedback() : "");
+                        completeData.put("pron_score", stt.getPronScore() != null ? stt.getPronScore() : -1);
+                        completeData.put("pron_feedback", stt.getPronFeedback() != null ? stt.getPronFeedback() : "");
                         emitter.send(SseEmitter.event().name("complete").data(json(completeData)));
                         emitter.complete();
 
@@ -437,24 +395,16 @@ public class ChatbotController {
                 sseError(emitter, e.getMessage());
             }
         });
-
-        return emitter;
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // POST /text-sse  (text message + SSE)
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @PostMapping(value = "/text-sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @Operation(summary = "Send text with real Ollama streaming (SSE, POST)")
-    public SseEmitter sendTextSse(
-            @RequestParam("session_id") String sessionId,
-            @RequestParam String message,
-            @RequestParam(defaultValue = "fr") String lang,
-            @RequestParam(name = "master_session_id", required = false) String masterSessionId
+    private void handleTextStream(
+            SseEmitter emitter,
+            String sessionId,
+            String message,
+            String lang,
+            String masterSessionId,
+            boolean sendStatusEvents
     ) {
-        SseEmitter emitter = new SseEmitter(60000L);
-
         CompletableFuture.runAsync(() -> {
             try {
                 if (!chatbotAgent.sessionExists(sessionId)) {
@@ -462,20 +412,24 @@ public class ChatbotController {
                     return;
                 }
 
+                if (sendStatusEvents) {
+                    emitter.send(SseEmitter.event().name("status").data(Map.of("step", "llm", "message", "Génération de la réponse...")));
+                }
+
                 chatbotAgent.chatStreaming(sessionId, message, List.of(), null, token -> {
-                    try { emitter.send(SseEmitter.event().name("token").data(json(Map.of("text", token)))); }
-                    catch (IOException ex) { log.debug("SSE write failed: {}", ex.getMessage()); }
+                    try {
+                        emitter.send(SseEmitter.event().name("token").data(json(Map.of("text", token))));
+                    } catch (IOException e) {
+                        log.error("Stream error: {}", e.getMessage());
+                    }
                 }).thenAccept(response -> {
                     try {
-                        String audioB64 = "";
-                        try { audioB64 = chatbotClient.chatTts(stripRepeatTag(response), lang); }
-                        catch (Exception ex) { log.warn("[Chatbot] TTS failed: {}", ex.getMessage()); }
-
-                        Map<String, Object> completeData = new LinkedHashMap<>();
-                        completeData.put("response",     response);
-                        completeData.put("audio_base64", audioB64 != null ? audioB64 : "");
-                        completeData.put("audio_format", "mp3");
-                        emitter.send(SseEmitter.event().name("complete").data(json(completeData)));
+                        String audioB64 = chatbotClient.chatTts(stripRepeatTag(response), lang);
+                        emitter.send(SseEmitter.event().name("complete").data(json(Map.of(
+                                "response", response,
+                                "audio_base64", audioB64 != null ? audioB64 : "",
+                                "audio_format", "mp3"
+                        ))));
                         emitter.complete();
 
                         // Report turn count to MasterAgent memory (fire-and-forget)
@@ -497,58 +451,6 @@ public class ChatbotController {
                 sseError(emitter, e.getMessage());
             }
         });
-
-        return emitter;
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // GET /history
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @GetMapping("/history")
-    @Operation(summary = "Get full conversation history for the current session")
-    public ResponseEntity<?> getHistory(@RequestParam("session_id") String sessionId) {
-        if (!chatbotAgent.sessionExists(sessionId)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of(KEY_ERROR, MSG_SESSION_NOT_FOUND));
-        }
-        List<Map<String, String>> history = chatbotAgent.getHistory(sessionId);
-        Map<String, Object> resp = new LinkedHashMap<>();
-        resp.put("session_id", sessionId);
-        resp.put("history", history);
-        resp.put("count", history.size());
-        return ResponseEntity.ok(resp);
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    // GET /quick (ultra-rapide sans LLM)
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @GetMapping("/quick")
-    @Operation(summary = "Ultra-fast answer (cache only, no LLM)")
-    public ResponseEntity<?> quickAnswer(@RequestParam String message) {
-        String response = chatbotAgent.chatFast(null, message);
-        return ResponseEntity.ok(Map.of("response", response));
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    // DELETE /session/{sessionId}
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @DeleteMapping("/session/{sessionId}")
-    @Operation(summary = "End a chatbot session")
-    public ResponseEntity<Void> endSession(@PathVariable String sessionId) {
-        chatbotAgent.endSession(sessionId);
-        return ResponseEntity.ok().build();
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    // GET /ping (health check)
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @GetMapping("/ping")
-    @Operation(summary = "Health check")
-    public ResponseEntity<?> ping() {
-        return ResponseEntity.ok(Map.of("status", "alive", "timestamp", System.currentTimeMillis()));
-    }
 }

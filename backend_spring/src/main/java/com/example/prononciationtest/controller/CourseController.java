@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import com.example.prononciationtest.security.SecurityUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class CourseController {
             @RequestParam(defaultValue = "fr") String lang,
             Authentication auth) {
 
-        User user = getUser(auth);
+        User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
         String cefrLevel = user.getCefrLevel() != null ? user.getCefrLevel() : "B1";
 
         List<Course> current = courseRepo
@@ -90,7 +91,7 @@ public class CourseController {
         // Progress is only meaningful for authenticated users (not admin key)
         if (auth != null && !(auth instanceof org.springframework.security.authentication.UsernamePasswordAuthenticationToken upt && "admin".equals(upt.getPrincipal()))) {
             Optional<UserCourseProgress> progress = progressRepo
-                    .findByUserIdAndCourseId(getUser(auth).getId(), courseId);
+                    .findByUserIdAndCourseId(SecurityUtils.getAuthenticatedUser(auth, userRepo).getId(), courseId);
             response.put("progress", progress.orElse(null));
         }
         return ResponseEntity.ok(response);
@@ -216,7 +217,7 @@ public class CourseController {
             @PathVariable Long courseId,
             Authentication auth) {
 
-        User user = getUser(auth);
+        User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
 
         Optional<UserCourseProgress> existing = progressRepo
                 .findByUserIdAndCourseId(user.getId(), courseId);
@@ -248,7 +249,7 @@ public class CourseController {
             @RequestParam Integer percent,
             Authentication auth) {
 
-        User user = getUser(auth);
+        User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
 
         UserCourseProgress progress = progressRepo
                 .findByUserIdAndCourseId(user.getId(), courseId)
@@ -280,7 +281,7 @@ public class CourseController {
             return ResponseEntity.status(401).body(Map.of("message", "Non authentifié"));
         }
 
-        User user = getUser(auth);
+        User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
         List<UserCourseProgress> progressList = progressRepo.findByUserId(user.getId());
 
         List<Map<String, Object>> result = new ArrayList<>();
@@ -296,28 +297,7 @@ public class CourseController {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
-    private String getEmail(Authentication auth) {
-        if (auth instanceof JwtAuthenticationToken jwt) {
-            String email = jwt.getToken().getClaimAsString("email");
-            if (email != null && !email.isBlank()) return email;
-            String pref = jwt.getToken().getClaimAsString("preferred_username");
-            if (pref != null && pref.contains("@")) return pref;
-        }
-        return auth.getName();
-    }
-
-    private User getUser(Authentication auth) {
-        String email = getEmail(auth);
-        return userRepo.findByEmail(email).orElseGet(() -> {
-            User u = new User();
-            u.setEmail(email);
-            u.setPasswordHash("KC_MANAGED");
-            u.setCreatedAt(Instant.now());
-            u.setEnabled(true);
-            return userRepo.save(u);
-        });
-    }
-
+    
     private String getNextLevel(String current) {
         List<String> levels = List.of("A1", "A2", "B1", "B2", "C1", "C2");
         int idx = levels.indexOf(current);
@@ -333,7 +313,7 @@ public class CourseController {
             @PathVariable Long lessonId,
             Authentication auth) {
 
-        User user = getUser(auth);
+        User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
 
         // Upsert lesson_progress
         LessonProgress lp = lessonProgressRepo
@@ -388,7 +368,7 @@ public class CourseController {
             @PathVariable Long courseId,
             Authentication auth) {
 
-        User user = getUser(auth);
+        User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
         List<LessonProgress> rows = lessonProgressRepo
                 .findByUserIdAndCourseId(user.getId(), courseId);
 

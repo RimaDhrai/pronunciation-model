@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import com.example.prononciationtest.security.SecurityUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -68,7 +69,7 @@ public class LevelTestAgentController {
 
             // Persist session to DB (non-blocking)
             try {
-                User user = userRepo.findByEmail(currentEmail(auth)).orElse(null);
+                User user = SecurityUtils.getAuthenticatedUserOrNull(auth, userRepo);
                 if (user != null) {
                     if (user.getFullName() != null && !user.getFullName().isBlank()) {
                         userName = user.getFullName();
@@ -209,8 +210,7 @@ public class LevelTestAgentController {
     @Operation(summary = "User test history")
     public ResponseEntity<Object> history(Authentication auth) {
         try {
-            User user = userRepo.findByEmail(currentEmail(auth))
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+            User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
 
             List<Map<String, Object>> sessions = cefrSessionRepo
                     .findByUserIdOrderByStartedAtDesc(user.getId())
@@ -243,8 +243,7 @@ public class LevelTestAgentController {
     @Operation(summary = "User score progression over all completed CEFR tests")
     public ResponseEntity<Map<String, Object>> progression(Authentication auth) {
         try {
-            User user = userRepo.findByEmail(currentEmail(auth))
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+            User user = SecurityUtils.getAuthenticatedUser(auth, userRepo);
 
             List<CEFRSession> sessions = cefrSessionRepo
                     .findByUserIdOrderByStartedAtDesc(user.getId())
@@ -318,7 +317,7 @@ public class LevelTestAgentController {
 
     @SuppressWarnings("unchecked")
     private void persistResults(String sessionId, Map<String, Object> body, Authentication auth) {
-        User user = userRepo.findByEmail(currentEmail(auth)).orElse(null);
+        User user = SecurityUtils.getAuthenticatedUserOrNull(auth, userRepo);
         if (user == null) { log.warn("[LevelTest] User not found for persist"); return; }
 
         String finalLevel = ((String) body.getOrDefault("final_level", "B1")).toUpperCase().trim();
@@ -436,18 +435,5 @@ public class LevelTestAgentController {
             if (current <= SR_INTERVALS[i]) return SR_INTERVALS[i + 1];
         }
         return 30;
-    }
-
-    private String currentEmail(Authentication auth) {
-        if (auth == null)
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Non authentifié");
-        if (auth instanceof JwtAuthenticationToken jwt) {
-            String email = jwt.getToken().getClaimAsString("email");
-            if (email != null && !email.isBlank()) return email;
-        }
-        String name = auth.getName();
-        if (name == null || name.isBlank() || "anonymousUser".equals(name))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Non authentifié");
-        return name;
     }
 }

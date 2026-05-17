@@ -453,4 +453,54 @@ public class ChatbotController {
         });
     }
 
+    // ═════════════════════════════════════════════════════════════════════════
+    // GET /history
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @GetMapping("/history")
+    @Operation(summary = "Get full conversation history for the current session")
+    public ResponseEntity<?> getHistory(@RequestParam("session_id") String sessionId) {
+        if (!chatbotAgent.sessionExists(sessionId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of(KEY_ERROR, MSG_SESSION_NOT_FOUND));
+        }
+        List<Map<String, String>> history = chatbotAgent.getHistory(sessionId);
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("session_id", sessionId);
+        resp.put("history", history);
+        resp.put("count", history.size());
+        return ResponseEntity.ok(resp);
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // GET /quick (ultra-rapide sans LLM)
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @GetMapping("/quick")
+    @Operation(summary = "Ultra-fast answer (cache only, no LLM)")
+    public ResponseEntity<?> quickAnswer(@RequestParam String message) {
+        String response = chatbotAgent.chatFast(null, message);
+        return ResponseEntity.ok(Map.of("response", response));
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // DELETE /session/{sessionId}
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @DeleteMapping("/session/{sessionId}")
+    @Operation(summary = "End a chatbot session")
+    public ResponseEntity<Void> endSession(@PathVariable String sessionId) {
+        chatbotAgent.endSession(sessionId);
+        return ResponseEntity.ok().build();
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // GET /ping (health check)
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @GetMapping("/ping")
+    @Operation(summary = "Health check")
+    public ResponseEntity<?> ping() {
+        return ResponseEntity.ok(Map.of("status", "alive", "timestamp", System.currentTimeMillis()));
+    }
 }

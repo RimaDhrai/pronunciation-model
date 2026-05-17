@@ -134,12 +134,12 @@ public class LevelTestAgent {
         Map<String, String> frPhrases = new HashMap<>();
         frPhrases.put("r", "Le renard rouge court dans la forêt.");
         frPhrases.put("u", "La lune est visible dans le ciel bleu.");
-        frPhrases.put("in_nasal", "Le lapin mange du pain le matin.");
-        frPhrases.put("on_nasal", "Le mouton broute dans le salon.");
-        frPhrases.put("an_nasal", "L'enfant chante sous la pluie de vent.");
+        frPhrases.put(KEY_IN_NASAL, "Le lapin mange du pain le matin.");
+        frPhrases.put(KEY_ON_NASAL, "Le mouton broute dans le salon.");
+        frPhrases.put(KEY_AN_NASAL, "L'enfant chante sous la pluie de vent.");
         frPhrases.put("eu", "Les deux amis sont heureux ensemble.");
         frPhrases.put("gn", "La montagne est couverte de vigne.");
-        frPhrases.put("liaison", "Les amis ont un ami en avance.");
+        frPhrases.put(KEY_LIAISON, "Les amis ont un ami en avance.");
         frPhrases.put("ch", "Le chat cherche le chocolat chaud.");
         frPhrases.put("j", "Je joue dans le jardin chaque jour.");
         frPhrases.put("ou", "La roue de la voiture tourne sous la pluie.");
@@ -151,13 +151,13 @@ public class LevelTestAgent {
         enPhrases.put("th", "I think the weather is getting better.");
         enPhrases.put("r", "The river runs through the rainy road.");
         enPhrases.put("ae", "The cat sat on the black hat.");
-        enPhrases.put("short_i", "The fish swam in the big ship.");
+        enPhrases.put(KEY_SHORT_I, "The fish swam in the big ship.");
         enPhrases.put("ng", "She is running and singing a song.");
         enPhrases.put("w", "The warm water flows by the window.");
         enPhrases.put("v", "The voice of the village is very calm.");
-        enPhrases.put("schwa", "The teacher helped the doctor with the problem.");
-        enPhrases.put("diphthong", "The day is high and the time flies away.");
-        enPhrases.put("dark_l", "The ball fell on the tall wall.");
+        enPhrases.put(KEY_SCHWA, "The teacher helped the doctor with the problem.");
+        enPhrases.put(KEY_DIPHTHONG, "The day is high and the time flies away.");
+        enPhrases.put(KEY_DARK_L, "The ball fell on the tall wall.");
         FALLBACK_PHRASES.put("en", enPhrases);
 
         // Fallback Tips FR
@@ -367,7 +367,6 @@ public class LevelTestAgent {
 
             stateCache.put(sessionId, result);
 
-            String lang = result.<String>value("lang").orElse("fr");
             return buildStepResponse(result, sessionId);
         } catch (Exception e) {
             log.error("fetchNextPhrase() failed for session {}: {}", sessionId, e.getMessage());

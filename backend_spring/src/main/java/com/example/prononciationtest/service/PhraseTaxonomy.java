@@ -417,16 +417,21 @@ public class PhraseTaxonomy {
      * Detects Ollama hallucinations: wrong language, non-target Unicode, meta-commentary,
      * markdown/JSON bleed-through, or content that is too short to be a real phrase.
      */
-    public boolean isHallucination(String text, String expectedLang) {
+        public boolean isHallucination(String text, String expectedLang) {
         if (text == null || text.isBlank() || text.length() < 6) return true;
-
-        // Non-Latin scripts: CJK, Arabic, Cyrillic, Hebrew, Thai
-        if (text.matches(".*[\\u4E00-\\u9FFF\\u0600-\\u06FF\\u0400-\\u04FF\\u0590-\\u05FF\\u0E00-\\u0E7F]+.*"))
-            return true;
+        if (hasNonLatinCharacters(text)) return true;
 
         String lower = text.toLowerCase(Locale.ROOT);
+        if (containsMetaCommentary(lower)) return true;
+        if (containsTechnicalJargon(lower)) return true;
+        return isWrongLanguageStarter(lower, expectedLang);
+    }
 
-        // Meta-comment patterns — model is narrating instead of generating
+    private boolean hasNonLatinCharacters(String text) {
+        return text.matches(".*[\u4E00-\u9FFF\u0600-\u06FF\u0400-\u04FF\u0590-\u05FF\u0E00-\u0E7F]+.*");
+    }
+
+    private boolean containsMetaCommentary(String lower) {
         for (String pat : List.of(
                 "language model", "i am an ai", "je suis une ia",
                 "voici une phrase", "here is a sentence", "here's a sentence",
@@ -434,8 +439,10 @@ public class PhraseTaxonomy {
                 "```", "json", "provide", "context for", "based on", "note:")) {
             if (lower.contains(pat)) return true;
         }
+        return false;
+    }
 
-        // Technical / jargon words that should not appear in spoken practice phrases
+    private boolean containsTechnicalJargon(String lower) {
         for (String tech : List.of(
                 "algorithme", "intelligence artificielle", "digitalisation", "numérisation",
                 "pandémie", "épistémologie", "rhétorique", "hégémonie", "décarbonation",
@@ -447,18 +454,18 @@ public class PhraseTaxonomy {
                 "phenomenolog", "dialectic", "deconstruct")) {
             if (lower.contains(tech)) return true;
         }
+        return false;
+    }
 
-        // Wrong language starters
+    private boolean isWrongLanguageStarter(String lower, String expectedLang) {
         if ("fr".equals(expectedLang)) {
-            if (lower.startsWith("the ") || lower.startsWith("i ") || lower.startsWith("we ")
-                    || lower.startsWith("she ") || lower.startsWith("he ") || lower.startsWith("they "))
-                return true;
+            return lower.startsWith("the ") || lower.startsWith("i ") || lower.startsWith("we ")
+                    || lower.startsWith("she ") || lower.startsWith("he ") || lower.startsWith("they ");
         }
         if ("en".equals(expectedLang)) {
-            if (lower.startsWith("le ") || lower.startsWith("la ") || lower.startsWith("les ")
+            return lower.startsWith("le ") || lower.startsWith("la ") || lower.startsWith("les ")
                     || lower.startsWith("je ") || lower.startsWith("nous ") || lower.startsWith("elle ")
-                    || lower.startsWith("il ") || lower.startsWith("ils "))
-                return true;
+                    || lower.startsWith("il ") || lower.startsWith("ils ");
         }
         return false;
     }

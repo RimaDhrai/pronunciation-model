@@ -29,6 +29,7 @@ import java.util.Comparator;
 public class LevelTestAgentController {
 
     private static final Logger log = LoggerFactory.getLogger(LevelTestAgentController.class);
+    private static final String KEY_SCORE = "score";
 
     private final LevelTestAgent               levelTestAgent;
     private final UserRepository               userRepo;
@@ -255,7 +256,7 @@ public class LevelTestAgentController {
             List<Map<String, Object>> data = sessions.stream().map(s -> {
                 Map<String, Object> m = new LinkedHashMap<>();
                 m.put("date",        s.getStartedAt().toLocalDate().toString());
-                m.put("score",       s.getAvgScore());
+                m.put(KEY_SCORE,       s.getAvgScore());
                 m.put("level",       s.getFinalLevel());
                 m.put("lang",        s.getLang());
                 return m;
@@ -263,9 +264,9 @@ public class LevelTestAgentController {
 
             // Stats
             int count = data.size();
-            int firstScore = count > 0 ? (int) ((Map<?,?>)data.get(0)).get("score") : 0;
-            int lastScore  = count > 0 ? (int) ((Map<?,?>)data.get(count-1)).get("score") : 0;
-            int bestScore  = data.stream().mapToInt(m -> (int) m.get("score")).max().orElse(0);
+            int firstScore = count > 0 ? (int) ((Map<?,?>)data.get(0)).get(KEY_SCORE) : 0;
+            int lastScore  = count > 0 ? (int) ((Map<?,?>)data.get(count-1)).get(KEY_SCORE) : 0;
+            int bestScore  = data.stream().mapToInt(m -> (int) m.get(KEY_SCORE)).max().orElse(0);
             int improvement = count > 1 ? lastScore - firstScore : 0;
 
             Map<String, Object> resp = new LinkedHashMap<>();
@@ -299,7 +300,7 @@ public class LevelTestAgentController {
                         m.put("step",         s.getStepNumber());
                         m.put("sound_label",  s.getTargetSound());
                         m.put("phrase",       s.getPhrase());
-                        m.put("score",        s.getScore());
+                        m.put(KEY_SCORE,        s.getScore());
                         m.put("progressed",   s.getProgressed());
                         m.put("attempted_at", s.getAttemptedAt() != null ? s.getAttemptedAt().toString() : null);
                         return m;

@@ -42,6 +42,7 @@ public class ChatbotController {
     private static final Logger log = LoggerFactory.getLogger(ChatbotController.class);
     private static final String KEY_ERROR = "error";
     private static final String MSG_SESSION_EXPIRED = "Session expirée";
+    private static final String MSG_SESSION_NOT_FOUND = MSG_SESSION_NOT_FOUND;
     private static final String MSG_SERVER_ERROR = "Server error";
 
     private final ChatbotAgent          chatbotAgent;
@@ -137,14 +138,14 @@ public class ChatbotController {
         try {
             if (!chatbotAgent.sessionExists(sessionId)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of(KEY_ERROR, "Session introuvable ou expirée", "retry", false));
+                        .body(Map.of(KEY_ERROR, MSG_SESSION_NOT_FOUND, "retry", false));
             }
 
             // 1 ── STT via FastAPI (Whisper)
             ChatSttResponse stt = chatbotClient.chatStt(audio, nativeLang);
             if (stt.hasError()) {
                 return ResponseEntity.ok(Map.of(
-                        "error", stt.getError() != null ? stt.getError() : "STT failed",
+                        KEY_ERROR, stt.getError() != null ? stt.getError() : "STT failed",
                         "retry", Boolean.TRUE.equals(stt.getRetry())
                 ));
             }
@@ -282,7 +283,7 @@ public class ChatbotController {
         try {
             if (!chatbotAgent.sessionExists(sessionId)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of(KEY_ERROR, "Session introuvable ou expirée"));
+                        .body(Map.of(KEY_ERROR, MSG_SESSION_NOT_FOUND));
             }
 
             String coachReply = chatbotAgent.chat(sessionId, message, List.of(), null);
@@ -427,7 +428,7 @@ public class ChatbotController {
                     }
                 }).exceptionally(ex -> {
                     Throwable cause = ex instanceof java.util.concurrent.CompletionException ? ex.getCause() : ex;
-                    String errMsg = cause instanceof java.util.concurrent.TimeoutException ? "TIMEOUT" : "Server error";
+                    String errMsg = cause instanceof java.util.concurrent.TimeoutException ? "TIMEOUT" : MSG_SERVER_ERROR;
                     sseError(emitter, errMsg);
                     return null;
                 });
@@ -487,7 +488,7 @@ public class ChatbotController {
                     }
                 }).exceptionally(ex -> {
                     Throwable cause = ex instanceof java.util.concurrent.CompletionException ? ex.getCause() : ex;
-                    String errMsg = cause instanceof java.util.concurrent.TimeoutException ? "TIMEOUT" : "Server error";
+                    String errMsg = cause instanceof java.util.concurrent.TimeoutException ? "TIMEOUT" : MSG_SERVER_ERROR;
                     sseError(emitter, errMsg);
                     return null;
                 });
@@ -509,7 +510,7 @@ public class ChatbotController {
     public ResponseEntity<?> getHistory(@RequestParam("session_id") String sessionId) {
         if (!chatbotAgent.sessionExists(sessionId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of(KEY_ERROR, "Session introuvable ou expirée"));
+                    .body(Map.of(KEY_ERROR, MSG_SESSION_NOT_FOUND));
         }
         List<Map<String, String>> history = chatbotAgent.getHistory(sessionId);
         Map<String, Object> resp = new LinkedHashMap<>();

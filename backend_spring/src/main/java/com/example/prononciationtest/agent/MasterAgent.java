@@ -34,7 +34,7 @@ public class MasterAgent {
      * Creates a master session: starts the chatbot sub-session and registers memory.
      * Returns the chatbot opening greeting.
      */
-    public Map<String, Object> createSession(String sessionId, String lang, String level, String scenario) throws Exception {
+    public Map<String, Object> createSession(String sessionId, String lang, String level, String scenario) {
         sessionMemory.getOrCreate(sessionId, lang, level);
 
         String greeting = chatbotAgent.startSession(sessionId, lang, level, scenario);
@@ -55,7 +55,7 @@ public class MasterAgent {
     public Map<String, Object> turn(String sessionId, String mode, String lang,
                                     String input, List<String> weakWords, Double pronScore,
                                     String scenario, Integer scoreInput, String phrase,
-                                    List<String> phonemeErrors) throws Exception {
+                                    List<String> phonemeErrors) {
 
         if (!sessionMemory.exists(sessionId)) {
             return Map.of("error", "SESSION_NOT_FOUND", "session_id", sessionId);
@@ -121,7 +121,7 @@ public class MasterAgent {
     // ── Mode handlers ─────────────────────────────────────────────────────────
 
     private Map<String, Object> handleChat(String sessionId, String input,
-                                           List<String> weakWords, Double pronScore) throws Exception {
+                                           List<String> weakWords, Double pronScore) {
         if (weakWords != null && !weakWords.isEmpty()) {
             sessionMemory.addWeakWords(sessionId, weakWords);
         }

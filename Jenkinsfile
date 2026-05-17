@@ -160,7 +160,10 @@ pipeline {
         // ── 9. DÉPLOIEMENT AUTO ───────────────────────────────────────────────
         stage('Deploy') {
             when {
-                branch 'main'
+                anyOf {
+                    branch 'main'
+                    expression { env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main' }
+                }
             }
             steps {
                 echo "Déploiement du build #${env.BUILD_NUMBER} sur ${DEPLOY_DIR}"

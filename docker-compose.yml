@@ -77,6 +77,8 @@ services:
     container_name: speakcoach-fastapi
     restart: unless-stopped
     environment:
+      WHISPER_MODEL: small
+      CHATBOT_WHISPER_MODEL: small
       WHISPER_DEVICE: cpu
       WHISPER_COMPUTE_TYPE: int8
     ports:

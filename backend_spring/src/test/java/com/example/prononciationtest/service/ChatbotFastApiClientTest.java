@@ -38,7 +38,7 @@ class ChatbotFastApiClientTest {
     }
 
     @Test
-    void chatStt_success_withNonNullFilename() throws IOException {
+    void chatStt_success_withNonNullFilename() {
         MockMultipartFile file = new MockMultipartFile("audio", "test.webm", "audio/webm", "mock audio data".getBytes());
         ChatSttResponse mockResponse = new ChatSttResponse();
         mockResponse.setCleanText("Decoded transcription text");
@@ -56,7 +56,7 @@ class ChatbotFastApiClientTest {
     }
 
     @Test
-    void chatStt_success_withNullFilename() throws IOException {
+    void chatStt_success_withNullFilename() {
         MockMultipartFile file = new MockMultipartFile("audio", null, "audio/webm", "mock audio data".getBytes());
         ChatSttResponse mockResponse = new ChatSttResponse();
         mockResponse.setCleanText("Decoded text without file name");
@@ -74,7 +74,7 @@ class ChatbotFastApiClientTest {
     }
 
     @Test
-    void chatStt_nullResponseBody_throwsRuntimeException() throws IOException {
+    void chatStt_nullResponseBody_throwsRuntimeException() {
         MockMultipartFile file = new MockMultipartFile("audio", "a.webm", "audio/webm", "mock".getBytes());
 
         when(restTemplate.exchange(

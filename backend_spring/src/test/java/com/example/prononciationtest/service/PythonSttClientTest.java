@@ -130,7 +130,7 @@ class PythonSttClientTest {
     @Test
     void isHealthy_healthy_returnsTrue() {
         ResponseEntity<String> response = new ResponseEntity<>("ok", HttpStatus.OK);
-        when(restTemplate.getForEntity(eq("http://localhost:8000/health"), eq(String.class)))
+        when(restTemplate.getForEntity("http://localhost:8000/health", String.class))
             .thenReturn(response);
 
         assertThat(client.isHealthy()).isTrue();
@@ -138,7 +138,7 @@ class PythonSttClientTest {
 
     @Test
     void isHealthy_unhealthy_returnsFalse() {
-        when(restTemplate.getForEntity(eq("http://localhost:8000/health"), eq(String.class)))
+        when(restTemplate.getForEntity("http://localhost:8000/health", String.class))
             .thenThrow(new RuntimeException("Down"));
 
         assertThat(client.isHealthy()).isFalse();

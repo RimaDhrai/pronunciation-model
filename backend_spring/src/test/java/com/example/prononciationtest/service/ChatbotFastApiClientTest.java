@@ -40,7 +40,8 @@ class ChatbotFastApiClientTest {
     @Test
     void chatStt_success_withNonNullFilename() throws IOException {
         MockMultipartFile file = new MockMultipartFile("audio", "test.webm", "audio/webm", "mock audio data".getBytes());
-        ChatSttResponse mockResponse = new ChatSttResponse("Decoded transcription text");
+        ChatSttResponse mockResponse = new ChatSttResponse();
+        mockResponse.setCleanText("Decoded transcription text");
 
         when(restTemplate.exchange(
             eq("http://localhost:8000/api/chat/stt"),
@@ -51,13 +52,14 @@ class ChatbotFastApiClientTest {
 
         ChatSttResponse result = client.chatStt(file, "en");
 
-        assertThat(result.text()).isEqualTo("Decoded transcription text");
+        assertThat(result.getCleanText()).isEqualTo("Decoded transcription text");
     }
 
     @Test
     void chatStt_success_withNullFilename() throws IOException {
         MockMultipartFile file = new MockMultipartFile("audio", null, "audio/webm", "mock audio data".getBytes());
-        ChatSttResponse mockResponse = new ChatSttResponse("Decoded text without file name");
+        ChatSttResponse mockResponse = new ChatSttResponse();
+        mockResponse.setCleanText("Decoded text without file name");
 
         when(restTemplate.exchange(
             eq("http://localhost:8000/api/chat/stt"),
@@ -68,7 +70,7 @@ class ChatbotFastApiClientTest {
 
         ChatSttResponse result = client.chatStt(file, null);
 
-        assertThat(result.text()).isEqualTo("Decoded text without file name");
+        assertThat(result.getCleanText()).isEqualTo("Decoded text without file name");
     }
 
     @Test

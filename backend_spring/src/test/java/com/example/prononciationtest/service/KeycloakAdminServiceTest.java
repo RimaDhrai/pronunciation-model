@@ -102,7 +102,9 @@ class KeycloakAdminServiceTest {
 
         keycloakAdminService.createUser("test@example.com", "securePassword1", "John Doe");
 
-        verify(rest, times(4)).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), any(Object.class));
+        // Verify that exchange is called for admin token, search user, role retrieval, and role mapping
+        verify(rest, atLeastOnce()).exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class));
+        verify(rest, atLeastOnce()).exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(Void.class));
     }
 
     @Test

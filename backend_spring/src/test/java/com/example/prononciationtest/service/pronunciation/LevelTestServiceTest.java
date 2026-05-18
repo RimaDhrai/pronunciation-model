@@ -44,6 +44,7 @@ class LevelTestServiceTest {
     void generateLevelTestPhrase_english_returnsFallbackOnHallucination() {
         when(ollamaClientService.callOllama(anyString(), anyString(), anyInt(), anyDouble()))
                 .thenReturn("import React from 'react';");
+        when(taxonomy.isHallucination("import React from 'react';", "en")).thenReturn(true);
         when(taxonomy.getFallback("en", "B2", "general")).thenReturn("Fallback English phrase");
 
         String result = levelTestService.generateLevelTestPhrase("en", "beach, peach", "B2");

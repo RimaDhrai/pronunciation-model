@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,13 +33,38 @@ class ExerciseServiceTest {
     }
 
     @Test
-    void testGeneratePhrase_SuccessfulNoHallucination() {
+    void testGeneratePhrase_SuccessfulNoHallucination_AllLevelsAndLangs() {
         when(ollamaClientService.callOllama(anyString(), anyString(), anyInt(), anyDouble()))
                 .thenReturn("Une jolie phrase.");
         when(taxonomy.isHallucination(anyString(), anyString())).thenReturn(false);
 
-        String result = exerciseService.generatePhrase("fr", "A2");
-        assertEquals("Une jolie phrase", result);
+        // A1 French
+        assertEquals("Une jolie phrase", exerciseService.generatePhrase("fr", "A1"));
+        // A2 French
+        assertEquals("Une jolie phrase", exerciseService.generatePhrase("fr", "A2"));
+        // B1 French
+        assertEquals("Une jolie phrase", exerciseService.generatePhrase("fr", "B1"));
+        // B2 French
+        assertEquals("Une jolie phrase", exerciseService.generatePhrase("fr", "B2"));
+        // C1 French
+        assertEquals("Une jolie phrase", exerciseService.generatePhrase("fr", "C1"));
+        // Default French
+        assertEquals("Une jolie phrase", exerciseService.generatePhrase("fr", "C2"));
+
+        // A1 English
+        when(ollamaClientService.callOllama(anyString(), anyString(), anyInt(), anyDouble()))
+                .thenReturn("A nice phrase.");
+        assertEquals("A nice phrase", exerciseService.generatePhrase("en", "A1"));
+        // A2 English
+        assertEquals("A nice phrase", exerciseService.generatePhrase("en", "A2"));
+        // B1 English
+        assertEquals("A nice phrase", exerciseService.generatePhrase("en", "B1"));
+        // B2 English
+        assertEquals("A nice phrase", exerciseService.generatePhrase("en", "B2"));
+        // C1 English
+        assertEquals("A nice phrase", exerciseService.generatePhrase("en", "C1"));
+        // Default English
+        assertEquals("A nice phrase", exerciseService.generatePhrase("en", "C2"));
     }
 
     @Test
@@ -53,32 +79,64 @@ class ExerciseServiceTest {
     }
 
     @Test
-    void testGenerateExercises() {
+    void testGenerateExercises_AllTypesAndLangs() {
         String expectedJson = "[{\"question\":\"...\"}]";
         when(ollamaClientService.callOllama(anyString(), anyString(), anyInt(), anyDouble()))
                 .thenReturn(expectedJson);
 
-        String result = exerciseService.generateExercises("fr", "B1", "grammar", 3);
-        assertEquals(expectedJson, result);
+        // French types
+        assertEquals(expectedJson, exerciseService.generateExercises("fr", "B1", "grammar", 3));
+        assertEquals(expectedJson, exerciseService.generateExercises("fr", "B1", "vocabulary", 3));
+        assertEquals(expectedJson, exerciseService.generateExercises("fr", "B1", "pronunciation", 3));
+        assertEquals(expectedJson, exerciseService.generateExercises("fr", "B1", "listening", 3));
+        assertEquals(expectedJson, exerciseService.generateExercises("fr", "B1", "other", 3));
+
+        // English types
+        assertEquals(expectedJson, exerciseService.generateExercises("en", "B1", "grammar", 3));
+        assertEquals(expectedJson, exerciseService.generateExercises("en", "B1", "other", 3));
     }
 
     @Test
-    void testAdaptNextStep() {
+    void testGenerateExercisePhrases_FrenchAndEnglish() {
+        String expectedJson = "[\"phrase1\"]";
+        when(ollamaClientService.callOllama(anyString(), anyString(), anyInt(), anyDouble()))
+                .thenReturn(expectedJson);
+
+        assertEquals(expectedJson, exerciseService.generateExercisePhrases("fr", "A2", 2));
+        assertEquals(expectedJson, exerciseService.generateExercisePhrases("en", "A2", 2));
+    }
+
+    @Test
+    void testAdaptNextStep_LangsAndWeakSounds() {
         String expectedResponse = "{\"phrase\":\"...\"}";
         when(ollamaClientService.callOllama(anyString(), anyString(), anyInt(), anyDouble()))
                 .thenReturn(expectedResponse);
 
-        String result = exerciseService.adaptNextStep("fr", "B1", "R", 80, "Precedent", List.of("S"));
-        assertEquals(expectedResponse, result);
+        // French with weak sounds
+        assertEquals(expectedResponse, exerciseService.adaptNextStep("fr", "B1", "R", 80, "Precedent", List.of("S")));
+        // French with empty weak sounds
+        assertEquals(expectedResponse, exerciseService.adaptNextStep("fr", "B1", "R", 80, "Precedent", Collections.emptyList()));
+        // French with null weak sounds
+        assertEquals(expectedResponse, exerciseService.adaptNextStep("fr", "B1", "R", 80, "Precedent", null));
+
+        // English with weak sounds
+        assertEquals(expectedResponse, exerciseService.adaptNextStep("en", "B1", "R", 80, "Precedent", List.of("S")));
+        // English with empty weak sounds
+        assertEquals(expectedResponse, exerciseService.adaptNextStep("en", "B1", "R", 80, "Precedent", Collections.emptyList()));
     }
 
     @Test
-    void testGeneratePlannerSummary() {
+    void testGeneratePlannerSummary_LangsAndSoundKeys() {
         String expectedResponse = "{\"mastered\":[]}";
         when(ollamaClientService.callOllama(anyString(), anyString(), anyInt(), anyDouble()))
                 .thenReturn(expectedResponse);
 
-        String result = exerciseService.generatePlannerSummary("en", "A1", List.of(Map.of("targetSound", "R", "score", 90)));
-        assertEquals(expectedResponse, result);
+        // English with targetSound key
+        assertEquals(expectedResponse, exerciseService.generatePlannerSummary("en", "A1", List.of(Map.of("targetSound", "R", "score", 90))));
+        // English with target_sound fallback key
+        assertEquals(expectedResponse, exerciseService.generatePlannerSummary("en", "A1", List.of(Map.of("target_sound", "R", "score", 90))));
+
+        // French
+        assertEquals(expectedResponse, exerciseService.generatePlannerSummary("fr", "A1", List.of(Map.of("targetSound", "R", "score", 90))));
     }
 }

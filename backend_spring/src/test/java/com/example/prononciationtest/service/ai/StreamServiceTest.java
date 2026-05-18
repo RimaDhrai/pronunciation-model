@@ -17,11 +17,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -93,7 +90,7 @@ class StreamServiceTest {
         String response = streamService.streamChatbotResponse(messages, resultTokens::append);
 
         assertThat(response).isEqualTo("Hello Ollama!");
-        assertThat(resultTokens.toString()).isEqualTo("Hello Ollama!");
+        assertThat(resultTokens).hasToString("Hello Ollama!");
     }
 
     @Test

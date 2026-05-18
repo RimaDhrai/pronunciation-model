@@ -20,7 +20,6 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +43,7 @@ class PracticeServiceTest {
         // low confidence, raw=0 but avgConf>0 → floor of 5
         assertThat(PracticeService.computeScore(0, 0.0, 0.10)).isEqualTo(5);
         // zero confidence, zero scores → 0
-        assertThat(PracticeService.computeScore(0, 0.0, 0.0)).isEqualTo(0);
+        assertThat(PracticeService.computeScore(0, 0.0, 0.0)).isZero();
         // capped at 100
         assertThat(PracticeService.computeScore(100, 100.0, 1.0)).isEqualTo(100);
     }
@@ -70,9 +69,9 @@ class PracticeServiceTest {
     @Test
     void computePhoneticPenalty_combinations() {
         // null list
-        assertThat(PracticeService.computePhoneticPenalty(null)).isEqualTo(0);
+        assertThat(PracticeService.computePhoneticPenalty(null)).isZero();
         // empty list
-        assertThat(PracticeService.computePhoneticPenalty(List.of())).isEqualTo(0);
+        assertThat(PracticeService.computePhoneticPenalty(List.of())).isZero();
 
         // list with weak words (probability < 0.45)
         Map<String, Object> w1 = Map.of("word", "hello", "probability", 0.30);
@@ -184,7 +183,7 @@ class PracticeServiceTest {
         EvaluationResponse response = practiceService.evaluate(file, "bonjour", "fr", "A1", "alice");
 
         assertThat(response.isSttError()).isFalse();
-        assertThat(response.getScore()).isGreaterThan(0);
+        assertThat(response.getScore()).isPositive();
         assertThat(response.getFeedback()).isEqualTo("Superbe travail !");
         assertThat(response.getNMatch()).isEqualTo(1);
 

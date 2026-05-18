@@ -126,7 +126,7 @@ public class PracticeService implements IPracticeService {
                     case "SUB"   -> nSub++;
                     case "DEL"   -> nDel++;
                     case "INS"   -> nIns++;
-                    default      -> {}
+                    default      -> log.trace("Unknown op: {}", op.getOp());
                 }
             }
             r.setDiffOps(ops);

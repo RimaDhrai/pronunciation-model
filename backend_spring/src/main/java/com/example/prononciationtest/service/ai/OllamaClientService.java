@@ -22,7 +22,6 @@ public class OllamaClientService {
 
     private static final Logger log = LoggerFactory.getLogger(OllamaClientService.class);
 
-    private static final String KEY_SCORE = "score";
     private static final String KEY_STREAM = "stream";
     private static final String KEY_TEMPERATURE = "temperature";
     private static final String KEY_MESSAGES = "messages";
@@ -77,7 +76,7 @@ public class OllamaClientService {
         List<Map<String, Object>> messages = system.isBlank()
                 ? List.of(Map.of("role", "user", KEY_CONTENT, userPrompt))
                 : List.of(
-                        Map.of("role", "system", "content", system),
+                        Map.of("role", "system", KEY_CONTENT, system),
                         Map.of("role", "user", KEY_CONTENT, userPrompt));
         return callOllamaMessages(ollamaModel, messages, maxTokens, temperature);
     }
@@ -108,7 +107,7 @@ public class OllamaClientService {
                     new HttpEntity<>(body, headers),
                     byte[].class);
             
-            if (response == null || response.getBody() == null) {
+            if (response.getBody() == null) {
                 return "Response unavailable";
             }
             

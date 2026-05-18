@@ -181,12 +181,25 @@ public class LevelTestService {
         }
     }
 
+    private boolean isCodeOrInvalidLine(String lower) {
+        if (lower.contains("reactdom.render") || lower.contains("import ") || lower.contains("export ") || lower.contains(";")) {
+            return true;
+        }
+        if (lower.contains("<") && lower.contains(">")) {
+            return true;
+        }
+        if (lower.contains("{") && lower.contains("}")) {
+            return true;
+        }
+        return lower.matches(".*\\b(function\\s+\\w+|class\\s+\\w+).*");
+    }
+
     private String cleanLevelTestPhrase(String raw) {
         if (raw == null || raw.isBlank()) {
             return "";
         }
-        for (String line : raw.strip().split("\n")) {
-            line = line.strip();
+        for (String rawLine : raw.strip().split("\n")) {
+            String line = rawLine.strip();
             if (line.isBlank()) {
                 continue;
             }
@@ -196,19 +209,7 @@ public class LevelTestService {
                 line = line.substring(line.indexOf(':') + 1).strip();
             }
             String lower = line.toLowerCase();
-            if (lower.contains("reactdom.render") || lower.contains("import ") || lower.contains("export ") || lower.contains(";")) {
-                continue;
-            }
-            if (lower.contains("<") && lower.contains(">")) {
-                continue;
-            }
-            if (lower.contains("{") && lower.contains("}")) {
-                continue;
-            }
-            if (lower.matches(".*\\b(function\\s+\\w+|class\\s+\\w+).*")) {
-                continue;
-            }
-            if (line.length() > 10) {
+            if (!isCodeOrInvalidLine(lower) && line.length() > 10) {
                 return line;
             }
         }

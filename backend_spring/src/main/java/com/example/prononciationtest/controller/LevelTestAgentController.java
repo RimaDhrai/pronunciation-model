@@ -368,7 +368,7 @@ public class LevelTestAgentController {
         for (Map<String, Object> h : history) {
             String soundKey   = (String) h.getOrDefault("sound",       "");
             String soundLabel = (String) h.getOrDefault("sound_label", soundKey);
-            int    sc         = h.get("score") instanceof Number n ? n.intValue() : 0;
+            int    sc         = h.get(KEY_SCORE) instanceof Number n ? n.intValue() : 0;
             if (soundKey.isBlank()) continue;
             worstScorePerSound.merge(soundKey, sc, Math::min);
             labelPerSound.putIfAbsent(soundKey, soundLabel);

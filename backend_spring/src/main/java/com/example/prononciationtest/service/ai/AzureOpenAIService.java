@@ -33,6 +33,12 @@ public class AzureOpenAIService {
     private static final String KEY_CONTENT = "content";
     private static final String KEY_STREAM = "stream";
 
+    @Value("${azure.openai.path-deployments:/openai/deployments/}")
+    private String pathDeployments;
+
+    @Value("${azure.openai.path-completions-version:/chat/completions?api-version=}")
+    private String pathCompletionsVersion;
+
     @Value("${azure.openai.enabled:false}")
     private boolean azureEnabled;
 
@@ -89,12 +95,12 @@ public class AzureOpenAIService {
             ResponseEntity<byte[]> response = restTemplate.exchange(
                     url, HttpMethod.POST, new HttpEntity<>(body, headers), byte[].class);
             
-            if (response == null || response.getBody() == null) {
+            if (response.getBody() == null) {
                 return "Response unavailable";
             }
             
             JsonNode json = objectMapper.readTree(response.getBody());
-            return json.path("choices").path(0).path("message").path("content").asText("").trim();
+            return json.path("choices").path(0).path("message").path(KEY_CONTENT).asText("").trim();
         } catch (Exception e) {
             log.error("Azure API request failed", e);
             return "Response unavailable: " + e.getMessage();
@@ -157,7 +163,7 @@ public class AzureOpenAIService {
 
     private String buildAzureUrl() {
         return azureEndpoint.replaceAll("/$", "")
-                + PATH_DEPLOYMENTS + azureDeployment
-                + PATH_COMPLETIONS_VERSION + AZURE_API_VERSION;
+                + pathDeployments + azureDeployment
+                + pathCompletionsVersion + AZURE_API_VERSION;
     }
 }

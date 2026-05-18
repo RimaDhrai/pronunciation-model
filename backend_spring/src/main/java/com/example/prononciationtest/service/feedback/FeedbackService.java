@@ -40,6 +40,7 @@ public class FeedbackService {
             Map<String, Object> scoreResult,
             String lang,
             String level) {
+        log.debug("Generating feedback for raw: '{}', fillers found: {}", rawTranscription, fillers);
         StringBuilder errors = new StringBuilder();
 
         List<Map<String, Object>> ops = (List<Map<String, Object>>) scoreResult.get("ops");
@@ -82,7 +83,7 @@ public class FeedbackService {
                 ? String.format(
                         "Niveau %s%nPhrase attendue : \"%s\"%nTranscrit : \"%s\"%nScore : %s/100%nDetails:%n%s",
                         level, expectedPhrase, cleanTranscription, scoreResult.get(KEY_SCORE), errors)
-                : String.format("Level %s%nExpected: \"%s\"%nTranscribed: \"%s\"%nScore: %s/100%nDetails:%n%s",
+                : String.format("Level %s%nExpected: \"%s\"%nTranscribed: \"%s%nScore: %s/100%nDetails:%n%s",
                         level, expectedPhrase, cleanTranscription, scoreResult.get(KEY_SCORE), errors);
 
         return stripEmojis(ollamaClientService.callOllama(systemPrompt, userMsg, 160, 0.3));
@@ -95,7 +96,13 @@ public class FeedbackService {
                 ? "Tu es un coach p\u00e9dagogique bienveillant. R\u00e9ponds en 2-3 phrases maximum."
                 : "You are an encouraging pedagogical coach. Reply in 2-3 sentences maximum.";
 
-        String errors = errorsDetail.isBlank() ? (fr ? "aucune" : "none") : errorsDetail;
+        String errors;
+        if (errorsDetail.isBlank()) {
+            errors = fr ? "aucune" : "none";
+        } else {
+            errors = errorsDetail;
+        }
+
         String prompt = fr
                 ? String.format(
                         "Niveau %s \u2014 exercices de %s. Score : %d/100 (%d/%d bonnes r\u00e9ponses). Erreurs : %s. Donne un feedback motivant.",

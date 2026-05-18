@@ -37,13 +37,15 @@ class PracticeServiceTest {
 
     @Test
     void computeScore_combinations() {
-        // perfect case
-        assertThat(PracticeService.computeScore(50, 30.0, 0.70)).isEqualTo(100);
-        // low confidence floor
-        assertThat(PracticeService.computeScore(5, 5.0, 0.10)).isEqualTo(8);
-        // zero confidence floor
+        // 100 wds, 100 f1, conf=0.70 → (100*0.50 + 100*0.30 + 100*0.20) = 100
+        assertThat(PracticeService.computeScore(100, 100.0, 0.70)).isEqualTo(100);
+        // 50 wds, 30 f1, conf=0.70 → (50*0.50 + 30*0.30 + 100*0.20) = 54
+        assertThat(PracticeService.computeScore(50, 30.0, 0.70)).isEqualTo(54);
+        // low confidence, raw=0 but avgConf>0 → floor of 5
+        assertThat(PracticeService.computeScore(0, 0.0, 0.10)).isEqualTo(5);
+        // zero confidence, zero scores → 0
         assertThat(PracticeService.computeScore(0, 0.0, 0.0)).isEqualTo(0);
-        // raw capped to 100
+        // capped at 100
         assertThat(PracticeService.computeScore(100, 100.0, 1.0)).isEqualTo(100);
     }
 

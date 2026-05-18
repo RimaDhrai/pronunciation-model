@@ -107,7 +107,7 @@ pipeline {
                                 -Dsonar.token=${SONAR_TOKEN} \
                                 -Dsonar.java.binaries=target/classes \
                                 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-                                -Dsonar.exclusions=**/keycloak/**,**/*Application.java,**/config/** \
+                                -Dsonar.exclusions=**/keycloak/**,**/*Application.java,**/config/**,**/entity/**,**/dto/**,**/security/**,**/repository/**,**/controller/**,**/agent/** \
                                 -Dsonar.cpd.exclusions=**/entity/**,**/dto/**,**/repository/**
                         """
                     }

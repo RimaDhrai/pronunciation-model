@@ -1,0 +1,669 @@
+\documentclass[12pt,a4paper]{report}
+
+% ===================== PACKAGES =====================
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper, top=3cm, bottom=3cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{tcolorbox} % Modern callouts
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{pdfpages}
+\usepackage{microtype}
+
+% ===================== COULEURS =====================
+\definecolor{talan-blue}{RGB}{0, 83, 156}
+\definecolor{talan-green}{RGB}{133, 168, 30}
+\definecolor{esprit-pink}{RGB}{214, 40, 96}
+\definecolor{section-gray}{RGB}{90, 90, 90}
+\definecolor{code-bg}{RGB}{248, 249, 250}
+\definecolor{code-blue}{RGB}{0, 83, 156}
+\definecolor{code-green}{RGB}{46, 125, 50}
+\definecolor{code-red}{RGB}{198, 40, 40}
+
+% ===================== HYPERLIENS =====================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=talan-blue,
+    citecolor=talan-blue,
+    urlcolor=talan-blue,
+    bookmarks=true,
+    bookmarksopen=true,
+    pdftitle={Rapport PFE - SpeakCoach},
+    pdfauthor={Rima Dhrai},
+    pdfsubject={Solution IA d'amélioration des compétences linguistiques de communication}
+}
+
+% ===================== EN-TÊTES ET PIEDS DE PAGE =====================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{talan-blue}{\textit{Rapport de Fin d'Études}}}
+\fancyhead[R]{\small\textcolor{talan-blue}{\textit{SpeakCoach}}}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\small\textcolor{section-gray}{Rima Dhrai}}
+\fancyfoot[R]{\small\textcolor{section-gray}{ESPRIT -- 2025/2026}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{talan-blue}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{talan-blue}\leaders\hrule height \footrulewidth\hfill}}
+
+% ===================== STYLE DES CHAPITRES =====================
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{talan-blue}}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{40pt}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{talan-blue}}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{section-gray}}
+  {\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{section-gray}}
+  {\thesubsubsection}{1em}{}
+
+% ===================== STYLE DU CODE =====================
+\lstset{
+    backgroundcolor=\color{code-bg},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    captionpos=b,
+    commentstyle=\color{code-green},
+    keywordstyle=\color{code-blue}\bfseries,
+    stringstyle=\color{code-red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=single,
+    rulecolor=\color{talan-blue!30},
+    showstringspaces=false,
+    tabsize=4
+}
+
+% ===================== INFOBOX MODERNES (TCOLORBOX) =====================
+\newtcolorbox{infobox}[1][]{
+  colback=talan-blue!5,
+  colframe=talan-blue,
+  width=\textwidth,
+  arc=3mm,
+  boxrule=1.5pt,
+  left=15pt,
+  right=15pt,
+  top=10pt,
+  bottom=10pt,
+  #1
+}
+
+% ===================== INTERLIGNE =====================
+\onehalfspacing
+
+% ============================================================
+%                        DOCUMENT
+% ============================================================
+\begin{document}
+
+% ===================== PAGE DE GARDE PROFESSIONNELLE =====================
+\begin{titlepage}
+\thispagestyle{empty}
+
+% Bandeau supérieur avec couleurs Talan
+\noindent
+\colorbox{talan-blue}{\makebox[\textwidth][c]{%
+  \color{white}\large\bfseries
+  \hspace{0.5cm}
+  \begin{tabular}{c}
+    École Supérieure Privée d'Ingénierie et de Technologies -- ESPRIT \\
+    \small En partenariat avec TALAN Tunisie
+  \end{tabular}
+  \hspace{0.5cm}
+}}
+
+\vspace{0.8cm}
+
+% Logos ajustables
+\noindent
+\begin{minipage}{0.45\textwidth}
+  \centering
+  % Pour inclure le vrai logo Esprit, décommentez la ligne ci-dessous :
+  % \includegraphics[height=1.8cm]{logo_esprit.png}
+  \begin{tikzpicture}
+    \draw[talan-blue, line width=1.5pt, rounded corners=3pt] (0,0) rectangle (4.2,1.8);
+    \node at (2.1,0.9) {\color{talan-blue}\bfseries ESPRIT};
+  \end{tikzpicture}
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\textwidth}
+  \centering
+  % Pour inclure le vrai logo Talan, décommentez la ligne ci-dessous :
+  % \includegraphics[height=1.8cm]{logo_talan.png}
+  \begin{tikzpicture}
+    \draw[talan-green, line width=1.5pt, rounded corners=3pt] (0,0) rectangle (4.2,1.8);
+    \node at (2.1,0.9) {\color{talan-green}\bfseries TALAN};
+  \end{tikzpicture}
+\end{minipage}
+
+\vspace{1.2cm}
+
+% Filière et Déclarations
+\begin{center}
+  \textcolor{section-gray}{\large\bfseries Département Génie Logiciel}\\[0.3cm]
+  \textcolor{section-gray}{\normalsize Mémoire de Projet de Fin d'Études}\\[0.2cm]
+  \textcolor{section-gray}{\normalsize Présenté pour l'obtention du diplôme d'Ingénieur en Génie Logiciel}
+\end{center}
+
+\vspace{0.6cm}
+
+% Filet décoratif rose (Esprit) et bleu (Talan)
+\noindent\makebox[\textwidth]{%
+  \color{esprit-pink}\rule{0.5\textwidth}{3pt}%
+  \color{talan-blue}\rule{0.5\textwidth}{3pt}%
+}
+
+\vspace{0.8cm}
+
+% Titre principal enrichi
+\begin{center}
+{\huge\bfseries\color{talan-blue}
+Solution IA d'Amélioration\\[0.3cm]
+des Compétences Linguistiques\\[0.3cm]
+de Communication}
+
+\vspace{0.6cm}
+{\huge\bfseries\color{talan-green} SpeakCoach}
+\end{center}
+
+\vspace{0.8cm}
+
+% Filet décoratif double
+\noindent\makebox[\textwidth]{%
+  \color{talan-blue}\rule{0.5\textwidth}{3pt}%
+  \color{esprit-pink}\rule{0.5\textwidth}{3pt}%
+}
+
+\vspace{1.2cm}
+
+% Encadrants et Candidat
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+\textbf{\textcolor{talan-blue}{\large Présentée par :}}\\[0.2cm]
+\textbf{\large Mlle Rima Dhrai}\\[0.1cm]
+\textcolor{section-gray}{\small Élève Ingénieur en Génie Logiciel\\
+3\textsuperscript{ème} année -- GL}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{\textcolor{talan-blue}{\large Encadrants professionnels :}}\\[0.2cm]
+\textbf{M. Amin Milad} \hfill \textcolor{section-gray}{\small (TALAN)}\\
+\textbf{M. Monam Ben Hmed} \hfill \textcolor{section-gray}{\small (TALAN)}\\[0.4cm]
+\textbf{\textcolor{talan-blue}{\large Structure d'accueil :}}\\[0.1cm]
+\textbf{TALAN Tunisie}
+\end{minipage}
+
+\vfill
+
+% Pied de page avec année
+\noindent
+\colorbox{talan-blue!90}{\makebox[\textwidth][c]{%
+  \color{white}\large\bfseries Année Universitaire 2025--2026
+}}
+
+\end{titlepage}
+
+% ===================== DÉDICACE =====================
+\newpage
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+\textit{\Large À ma famille, mes amis et tous ceux\\[0.5cm]
+qui m'ont soutenue tout au long de ce parcours.}
+\end{center}
+\vspace*{\fill}
+
+% ===================== REMERCIEMENTS =====================
+\newpage
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+
+Je tiens à exprimer ma profonde gratitude à toutes les personnes qui ont contribué à la réalisation de ce travail.
+
+Je remercie en premier lieu mes encadrants professionnels, \textbf{M. Amin Milad} et \textbf{M. Monam Ben Hmed}, pour leur disponibilité, leurs précieux conseils et leur accompagnement technique tout au long de ce projet de fin d'études.
+
+Mes sincères remerciements vont également à l'ensemble de l'équipe de \textbf{TALAN Tunisie} pour leur accueil chaleureux et leur partage d'expériences enrichissantes.
+
+Je remercie aussi le corps enseignant de l'\textbf{ESPRIT} pour la formation de qualité dispensée durant ces années d'études.
+
+Enfin, je remercie ma famille pour son soutien indéfectible et ses encouragements constants.
+
+% ===================== RÉSUMÉ =====================
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+Ce rapport présente le projet de fin d'études réalisé au sein de \textbf{TALAN Tunisie}, intitulé \textbf{SpeakCoach} : une solution d'intelligence artificielle d'amélioration des compétences linguistiques de communication.
+
+SpeakCoach permet aux utilisateurs d'améliorer leur prononciation, leur fluidité orale et leurs compétences de communication en langue étrangère grâce à des technologies de reconnaissance vocale automatique (ASR), de grands modèles de langage locaux (LLM) et un feedback correctif précis en temps réel.
+
+La solution a été implémentée avec une architecture découplée robuste : un backend en \textbf{Spring Boot 3} assurant la logique d'orchestration (scénarios, planification adaptative, gestion des duels et évaluations du niveau CECR via \textbf{LangGraph4J}), sécurisé de bout en bout par \textbf{Keycloak} (OAuth2/OIDC) et persistant sur \textbf{PostgreSQL}. Les services d'IA intègrent \textbf{FastAPI} avec des modèles comme \textbf{OpenAI Whisper} et \textbf{Ollama/Azure OpenAI}. L'interface utilisateur est réalisée en \textbf{React}. Le déploiement s'appuie sur \textbf{Docker Compose} et la qualité du code a été validée via un audit strict sous \textbf{SonarQube} avec une suite de tests unitaires sous \textbf{JUnit 5}.
+
+\textbf{Mots-clés :} Intelligence Artificielle, Reconnaissance Vocale, NLP, Ollama, Spring Boot, Keycloak, LangGraph4J, PostgreSQL, Docker, SonarQube, Scrum.
+
+\vspace{1cm}
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+This report presents the graduation project carried out at \textbf{TALAN Tunisia}, entitled \textbf{SpeakCoach}: an artificial intelligence solution for improving linguistic communication skills.
+
+SpeakCoach enables users to improve their pronunciation, oral fluency, and conversational skills in a foreign language using Automatic Speech Recognition (ASR), local Large Language Models (LLM), and real-time detailed feedback.
+
+The application leverages a robust decoupled architecture: a \textbf{Spring Boot 3} backend coordinates the business logic (CEFR level assessment using \textbf{LangGraph4J}, interactive roleplays, dynamic adaptive learning path, and peer battle modes), fully secured by \textbf{Keycloak} (OAuth2/OIDC) and persisted using a \textbf{PostgreSQL} database. The AI logic integrates \textbf{FastAPI} hosting models like \textbf{OpenAI Whisper} and \textbf{Ollama/Azure OpenAI} clients. The frontend is built using \textbf{React}. Containerization is orchestrated via \textbf{Docker Compose}, while code quality is strictly validated via \textbf{SonarQube} audits backed by a high-coverage \textbf{JUnit 5} test suite.
+
+\textbf{Keywords:} Artificial Intelligence, Speech Recognition, NLP, Ollama, Spring Boot, Keycloak, LangGraph4J, PostgreSQL, Docker, SonarQube, Scrum.
+
+% ===================== TABLES =====================
+\tableofcontents
+\addcontentsline{toc}{chapter}{Table des matières}
+
+\listoffigures
+\addcontentsline{toc}{chapter}{Liste des figures}
+
+\listoftables
+\addcontentsline{toc}{chapter}{Liste des tableaux}
+
+% ===================== LISTE DES ABRÉVIATIONS =====================
+\chapter*{Liste des Abréviations}
+\addcontentsline{toc}{chapter}{Liste des Abréviations}
+
+\begin{longtable}{>{\bfseries}p{3cm} p{10cm}}
+\toprule
+\textbf{Abréviation} & \textbf{Signification} \\
+\midrule
+\endhead
+ASR & Automatic Speech Recognition (Reconnaissance Vocale Automatique) \\
+CECR & Cadre Européen Commun de Référence pour les langues \\
+OIDC & OpenID Connect \\
+IAM & Identity and Access Management \\
+LLM & Large Language Model \\
+NLP & Natural Language Processing \\
+REST & Representational State Transfer \\
+UML & Unified Modeling Language \\
+JWT & JSON Web Token \\
+CI/CD & Continuous Integration / Continuous Delivery \\
+PFE & Projet de Fin d'Études \\
+SRP & Single Responsibility Principle \\
+WER & Word Error Rate \\
+\bottomrule
+\end{longtable}
+
+% ============================================================
+%               CHAPITRE 1 : INTRODUCTION GÉNÉRALE
+% ============================================================
+\chapter{Introduction Générale}
+
+\section{Contexte général}
+
+Dans un monde de plus en plus interconnecté, la maîtrise des langues étrangères, et notamment l'aisance à l'oral, constitue un atout majeur aussi bien sur le plan professionnel que personnel. De nombreux apprenants souffrent d'un manque de retour d'information immédiat sur leur prononciation, leur intonation et leur fluidité verbale.
+
+Les avancées récentes en matière d'intelligence artificielle, de reconnaissance vocale et de traitement automatique du langage naturel (TALN) offrent des opportunités inédites pour créer des outils pédagogiques interactifs, personnalisés et accessibles.
+
+C'est dans ce contexte que s'inscrit le projet \textbf{SpeakCoach}, réalisé au sein de \textbf{TALAN Tunisie}, qui vise à développer une solution intelligente d'amélioration des compétences linguistiques de communication.
+
+\section{Problématique}
+
+Les méthodes d'apprentissage des langues traditionnelles présentent plusieurs limitations :
+
+\begin{itemize}[leftmargin=2cm]
+    \item Absence de feedback en temps réel sur la prononciation.
+    \item Coût élevé des cours particuliers avec un locuteur natif.
+    \item Manque de personnalisation selon le niveau et les besoins de l'apprenant.
+    \item Difficultés d'accès géographique aux ressources pédagogiques.
+\end{itemize}
+
+La problématique centrale de ce projet peut se formuler ainsi :
+
+\begin{infobox}
+\textbf{Comment concevoir et développer une solution intelligente, accessible, sécurisée et personnalisée permettant à un apprenant d'améliorer ses compétences de prononciation et de communication orale grâce à l'intelligence artificielle ?}
+\end{infobox}
+
+\section{Objectifs du projet}
+
+Les principaux objectifs de SpeakCoach sont :
+
+\begin{enumerate}[leftmargin=2cm]
+    \item Analyser la prononciation de l'utilisateur grâce à la reconnaissance vocale automatique.
+    \item Fournir un feedback correctif personnalisé en temps réel.
+    \item Proposer des exercices adaptés au niveau et aux progrès de l'apprenant.
+    \item Offrir un tableau de bord de suivi des performances.
+    \item Rendre la solution hautement sécurisée (via Keycloak) et hautement robuste (via Spring Boot 3).
+\end{enumerate}
+
+\section{Plan du rapport}
+
+Ce rapport est structuré en quatre chapitres principaux :
+
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Chapitre 1} : Présentation de l'organisme d'accueil et cadre du projet.
+    \item \textbf{Chapitre 2} : Analyse et spécification des besoins.
+    \item \textbf{Chapitre 3} : Conception et architecture du système.
+    \item \textbf{Chapitre 4} : Réalisation, tests et déploiement.
+\end{itemize}
+
+% ============================================================
+%        CHAPITRE 2 : PRÉSENTATION DE L'ORGANISME D'ACCUEIL
+% ============================================================
+\chapter{Présentation de l'Organisme d'Accueil et Cadre du Projet}
+
+\section{Présentation de TALAN Tunisie}
+
+\subsection{Le Groupe TALAN}
+
+\textbf{TALAN} est un groupe international de conseil en innovation et en transformation numérique fondé en France. Avec la devise \textit{«~Positive Innovation~»}, le groupe accompagne les grandes entreprises et organisations dans leurs transformations digitales en combinant expertise métier et technologies de pointe.
+
+Le groupe TALAN est présent dans plusieurs pays à travers le monde, notamment en Europe, en Afrique du Nord et en Amérique du Nord, avec plus de \textbf{4~000 collaborateurs} répartis sur l'ensemble de ses filiales.
+
+\subsection{TALAN Tunisie}
+
+\textbf{TALAN Tunisie} est une filiale du groupe TALAN, implantée en Tunisie. Elle constitue un centre de compétences offrant des services à haute valeur ajoutée dans les domaines du conseil, du développement logiciel, de l'Intelligence Artificielle et de la Data Science.
+
+\section{Cadre du projet}
+
+\subsection{Contexte du stage}
+
+Ce projet de fin d'études a été réalisé dans le cadre d'un stage de fin d'études au sein du département \textbf{Innovation \& Intelligence Artificielle} de TALAN Tunisie, d'une durée de \textbf{4 mois} (février 2026 -- juin 2026).
+
+L'objectif du stage était de concevoir et développer une solution innovante de coaching vocal basée sur l'intelligence artificielle, en réponse à une problématique métier identifiée par l'entreprise.
+
+\subsection{Méthodologie adoptée : Scrum}
+
+Le projet a été conduit selon la méthodologie agile \textbf{Scrum}. Ce choix s'explique par la nature évolutive des besoins et la nécessité d'un développement itératif et incrémental.
+
+\begin{table}[H]
+\centering
+\caption{Rôles Scrum dans le projet SpeakCoach}
+\label{tab:scrum-roles}
+\begin{tabular}{>{\bfseries}p{4cm} p{8cm}}
+\toprule
+\textbf{Rôle} & \textbf{Responsable} \\
+\midrule
+Product Owner & M. Amin Milad \\
+Scrum Master & M. Monam Ben Hmed \\
+Équipe de développement & Rima Dhrai \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Les sprints ont été organisés sur des cycles de \textbf{2 semaines}, avec des cérémonies régulières.
+
+\subsection{Planning général du projet}
+
+\begin{table}[H]
+\centering
+\caption{Planning des sprints du projet}
+\label{tab:planning}
+\begin{tabular}{>{\bfseries}c p{4cm} p{6cm}}
+\toprule
+\textbf{Sprint} & \textbf{Période} & \textbf{Objectif principal} \\
+\midrule
+Sprint 0 & Fév. 2026 & Initialisation, étude de l'existant \\
+Sprint 1 & Mars 2026 & Authentification et gestion utilisateurs avec Keycloak \\
+Sprint 2 & Mars--Avr. 2026 & Modules ASR Whisper et intégration Ollama/Azure \\
+Sprint 3 & Avril 2026 & Conception de l'agent de niveau CECR LangGraph4J \\
+Sprint 4 & Avr.--Mai 2026 & Évaluation adaptative, PvP Battle Mode et tableau de bord \\
+Sprint 5 & Mai--Juin 2026 & Réfactoring SRP, Tests unitaires JUnit5, validation SonarQube et déploiement Docker \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+%        CHAPITRE 3 : ANALYSE ET SPÉCIFICATION DES BESOINS
+% ============================================================
+\chapter{Analyse et Spécification des Besoins}
+
+\section{Identification des acteurs}
+
+Les acteurs interagissant avec le système SpeakCoach sont :
+
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Apprenant :} utilisateur principal qui réalise les exercices de prononciation.
+    \item \textbf{Administrateur :} gère les utilisateurs, les contenus et les paramètres globaux.
+    \item \textbf{Système IA :} module d'analyse vocale et de génération de feedback.
+\end{itemize}
+
+\section{Besoins fonctionnels}
+
+\subsection{Gestion sécurisée des identités}
+\begin{itemize}[leftmargin=2cm]
+    \item Enregistrement et connexion via un serveur d'identité centralisé (Keycloak).
+    \item Gestion sécurisée du profil utilisateur et des préférences linguistiques.
+\end{itemize}
+
+\subsection{Module d'évaluation et de planification active (LangGraph4J)}
+\begin{itemize}[leftmargin=2cm]
+    \item Évaluation interactive du niveau CECR (A1 à C2) basée sur un graphe d'états d'agent intelligent.
+    \item Planification adaptative d'exercices ciblant les sons jugés faibles.
+\end{itemize}
+
+\subsection{Module d'entraînement vocal et Chatbot IA}
+\begin{itemize}[leftmargin=2cm]
+    \item Enregistrement audio et transcription via ASR.
+    \item Chatbot conversationnel simulant des contextes réels (restaurant, entretien).
+    \item PVP Battle Mode (mode duel) entre étudiants sur des défis de prononciation.
+\end{itemize}
+
+\section{Besoins non fonctionnels}
+
+\begin{table}[H]
+\centering
+\caption{Besoins non fonctionnels de SpeakCoach}
+\label{tab:non-fonctionnel}
+\begin{tabularx}{\textwidth}{>{\bfseries\color{talan-blue}}l X}
+\toprule
+Exigence & Description \\
+\midrule
+Performance & Temps de réponse du feedback IA $\leq$ 3 secondes \\
+\addlinespace
+Sécurité & Authentification OAuth2 / OpenID Connect gérée par Keycloak \\
+\addlinespace
+Disponibilité & Taux de disponibilité $\geq$ 99.5\% \\
+\addlinespace
+Qualité de code & Code sans vulnérabilités, complexité cognitive maîtrisée et validée par SonarQube \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Diagrammes UML}
+
+\subsection{Diagramme des cas d'utilisation global}
+\begin{infobox}
+\centering\textit{[Diagramme Use Case : Acteurs Apprenant/Admin interagissant avec Keycloak et le backend Spring Boot]}
+\end{infobox}
+
+\subsection{Diagramme de classes}
+\begin{infobox}
+\centering\textit{[Diagramme de classes modélisant User, CEFRSession, PlannerStepResult, SpacedRepetitionItem]}
+\end{infobox}
+
+% ============================================================
+%        CHAPITRE 4 : CONCEPTION ET ARCHITECTURE
+% ============================================================
+\chapter{Conception et Architecture du Système}
+
+\section{Architecture globale}
+
+SpeakCoach repose sur une architecture découplée performante.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=2cm, font=\small]
+    \tikzstyle{block} = [rect, draw, fill=blue!10, text width=3.5cm, text centered, rounded corners, minimum height=1.2cm]
+    \tikzstyle{cloud} = [draw, ellipse, fill=green!10, text centered, minimum height=1cm]
+    \tikzstyle{db} = [draw, cylinder, cylinder points=20, cylinder to opponent, fill=yellow!10, shape border rotate=90, text centered, minimum height=1.2cm, text width=2cm]
+    
+    \node (front) [block] {Frontend (React)};
+    \node (kc) [block, right of=front, xshift=3cm] {IAM (Keycloak)};
+    \node (spring) [block, below of=front, yshift=-1cm] {Backend (Spring Boot 3)};
+    \node (fastapi) [block, below of=spring, yshift=-1cm] {AI Service (FastAPI)};
+    \node (db) [db, right of=spring, xshift=3cm] {PostgreSQL};
+    
+    \draw[<->, >=stealth, line width=1pt] (front) -- (kc) node[midway, above] {Auth};
+    \draw[<->, >=stealth, line width=1pt] (front) -- (spring) node[midway, left] {API REST};
+    \draw[<->, >=stealth, line width=1pt] (spring) -- (fastapi) node[midway, left] {Whisper / LLM};
+    \draw[<->, >=stealth, line width=1pt] (spring) -- (db);
+  \end{tikzpicture}
+  \caption{Schéma de l'architecture microservices découplée}
+  \label{fig:arch-global}
+\end{figure}
+
+\section{Découpage en Services (SRP)}
+
+Pour garantir la conformité avec le principe de responsabilité unique (Single Responsibility Principle) préconisé par SonarQube, le backend a été découpé comme suit :
+
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{OllamaClientService} : Gère la communication brute avec Ollama et Azure OpenAI.
+    \item \textbf{ChatbotService} : Gère le chatbot interactif et les simulations de scénarios.
+    \item \textbf{FeedbackService} : Évalue la prononciation et formule des retours ciblés sans emojis.
+    \item \textbf{ExerciseService} : Génère et adapte dynamiquement les exercices pédagogiques.
+    \item \textbf{ReportService} : Synthétise les statistiques globales d'activité des utilisateurs.
+    \item \textbf{LevelTestService} : Gère le graphe d'états d'évaluation et extrait les phrases cibles.
+    \item \textbf{BattleService} : Gère le mode duel (Battle Mode) multijoueur.
+\end{itemize}
+
+% ============================================================
+%        CHAPITRE 5 : RÉALISATION, TESTS ET DÉPLOIEMENT
+% ============================================================
+\chapter{Réalisation, Tests et Déploiement}
+
+\section{Stack technique validée}
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Backend :} Java 17, Spring Boot 3, Spring Security OAuth2 / OIDC, Hibernate.
+    \item \textbf{Base de données :} PostgreSQL (données applicatives et sessions).
+    \item \textbf{Gestion des identités :} Keycloak 24.
+    \item \textbf{Intelligence Artificielle :} FastAPI, OpenAI Whisper, Ollama (modèle local Qwen2.5-3B).
+    \item \textbf{Frontend :} React.js.
+\end{itemize}
+
+\section{Extraits de code significatifs}
+
+\subsection{Service Client IA Robuste (SRP)}
+Voici l'implémentation de la méthode d'appel à l'IA intégrant la détection d'hallucinations :
+
+\begin{lstlisting}[language=Java, caption={Extrait de la classe OllamaClientService}]
+public String callRaw(String system, String userPrompt, int maxTokens, double temperature, String expectedLang) {
+    String raw = callOllama(system, userPrompt, maxTokens, temperature);
+    String cleaned = raw.split("\n")[0].trim()
+            .replaceAll("^[\\\"'\\u00AB\\u00BB\\-*#\\u2022\\d.)+\\s]+", "")
+            .replaceAll("[\\\"'\\u00AB\\u00BB]+$", "")
+            .trim();
+    return taxonomy.isHallucination(cleaned, expectedLang) ? null : cleaned;
+}
+\end{lstlisting}
+
+\subsection{Configuration DevOps Docker Compose}
+Voici l'orchestration des conteneurs pour faire tourner l'intégralité du projet localement :
+
+\begin{lstlisting}[language=bash, caption={Fichier docker-compose.yml de SpeakCoach}]
+version: '3.8'
+services:
+  speakcoach-postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: speakcoach
+      POSTGRES_USER: speakcoach
+      POSTGRES_PASSWORD: password
+
+  speakcoach-keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+  speakcoach-spring:
+    build: ./backend_spring
+    depends_on:
+      - speakcoach-postgres
+      - speakcoach-keycloak
+    ports:
+      - "8080:8080"
+\end{lstlisting}
+
+\section{Validation Qualité et Tests Unitaires}
+
+\subsection{Stratégie de test avec JUnit 5 et Mockito}
+Une couverture complète des tests unitaires a été déployée sur l'ensemble de la couche service. Chaque composant métier a fait l'objet de tests isolés avec mock des dépendances de base de données et des appels API externes :
+
+\begin{lstlisting}[language=Java, caption={Classe de test pour LevelTestService}]
+@Test
+void testGenerateLevelTestPhrase_NoHallucination() {
+    when(ollamaClientService.callOllama(anyString(), anyString(), anyInt(), anyDouble()))
+            .thenReturn("Voici une phrase de test.");
+    when(taxonomy.isHallucination(anyString(), anyString())).thenReturn(false);
+
+    String result = levelTestService.generateLevelTestPhrase("fr", "chat, chien", "A2");
+    assertEquals("Voici une phrase de test.", result);
+}
+\end{lstlisting}
+
+\subsection{Audit de code SonarQube}
+L'application a été entièrement soumise à l'analyseur statique \textbf{SonarQube}. Les corrections majeures apportées incluent :
+\begin{itemize}[leftmargin=2cm]
+    \item Réfactoring de la classe monolithique de service pour réduire sa complexité cognitive.
+    \item Résolution de toutes les anomalies d'URI en dur et d'imbrications ternaires complexes.
+    \item Atteinte d'un taux de couverture globale sur le package des services supérieur aux exigences standards.
+\end{itemize}
+
+% ============================================================
+%                  CONCLUSION GÉNÉRALE
+% ============================================================
+\chapter*{Conclusion Générale et Perspectives}
+\addcontentsline{toc}{chapter}{Conclusion Générale et Perspectives}
+
+\section*{Bilan du projet}
+
+Le projet \textbf{SpeakCoach} a permis de concevoir une application de coaching linguistique innovante, combinant la puissance de l'IA générative et une architecture logicielle robuste de niveau entreprise. Les résultats confirment l'adéquation de la solution avec les attentes : analyse phonétique précise, personnalisation des parcours pédagogiques (LangGraph4J), haute sécurité (Keycloak) et haute conformité qualité (SonarQube).
+
+\section*{Perspectives}
+
+Les évolutions prioritaires pour SpeakCoach résident dans :
+\begin{itemize}[leftmargin=2cm]
+    \item L'intégration d'un avatar conversationnel 3D interactif.
+    \item L'optimisation des modèles d'analyse vocale locale pour un déploiement embarqué sur mobile.
+    \item L'interfaçage avec des Learning Management Systems (LMS) standards.
+\end{itemize}
+
+% ============================================================
+%                  BIBLIOGRAPHIE
+% ============================================================
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{Bibliographie et Webographie}
+
+\bibitem{whisper} Radford, A. et al. (2022). \textit{Robust Speech Recognition via Large-Scale Weak Supervision}. OpenAI.
+
+\bibitem{spring} Spring Framework Team (2026). \textit{Spring Boot Reference Guide v3.x}.
+
+\bibitem{keycloak} Keycloak community (2026). \textit{Keycloak Identity and Access Management Integration}.
+
+\bibitem{sonar} SonarSource (2026). \textit{SonarQube Code Quality and Cognitive Complexity Rules}.
+
+\end{thebibliography}
+
+\end{document}

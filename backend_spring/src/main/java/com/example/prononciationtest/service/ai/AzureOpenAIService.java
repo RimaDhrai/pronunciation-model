@@ -22,8 +22,6 @@ public class AzureOpenAIService {
 
     private static final Logger log = LoggerFactory.getLogger(AzureOpenAIService.class);
 
-    private static final String PATH_DEPLOYMENTS = "/openai/deployments/";
-    private static final String PATH_COMPLETIONS_VERSION = "/chat/completions?api-version=";
     private static final String HEADER_API_KEY = "api-key";
     private static final String AZURE_API_VERSION = "2025-01-01-preview";
     

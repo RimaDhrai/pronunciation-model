@@ -17,7 +17,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
@@ -32,7 +31,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, @Value("${app.frontend.url}") String frontendUrl) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, @Value("${app.frontend.url:http://localhost:8081}") String frontendUrl) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource(frontendUrl)))
             .csrf(csrf -> csrf.disable())

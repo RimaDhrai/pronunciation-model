@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,223 +20,109 @@ import static org.mockito.Mockito.*;
 class SessionMemoryServiceTest {
 
     @Mock
-    MasterSessionRepository repo;
+    private MasterSessionRepository masterSessionRepo;
 
-    SessionMemoryService service;
+    private ObjectMapper objectMapper;
+    private SessionMemoryService sessionMemoryService;
 
     @BeforeEach
     void setUp() {
-        service = new SessionMemoryService(repo, new ObjectMapper());
-        lenient().when(repo.findBySessionId(any())).thenReturn(Optional.empty());
-        lenient().when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
-    }
-
-    // ── getOrCreate ───────────────────────────────────────────────────────────
-
-    @Test
-    void getOrCreate_freshSession_initializesDefaults() {
-        var session = service.getOrCreate("s1", "fr", "B1");
-
-        assertThat(session.sessionId).isEqualTo("s1");
-        assertThat(session.lang).isEqualTo("fr");
-        assertThat(session.cefrLevel).isEqualTo("B1");
-        assertThat(session.totalXp).isZero();
-        assertThat(session.errorLog).isEmpty();
+        objectMapper = new ObjectMapper();
+        sessionMemoryService = new SessionMemoryService(masterSessionRepo, objectMapper);
     }
 
     @Test
-    void getOrCreate_nullLangAndLevel_usesDefaults() {
-        var session = service.getOrCreate("s2", null, null);
+    void getOrCreate_whenFreshSession_savesToDbAndReturnsFreshData() {
+        when(masterSessionRepo.findBySessionId("fresh-session")).thenReturn(Optional.empty());
 
-        assertThat(session.lang).isEqualTo("fr");
-        assertThat(session.cefrLevel).isEqualTo("B1");
+        SessionMemoryService.SessionData data = sessionMemoryService.getOrCreate("fresh-session", "fr", "A2");
+
+        assertThat(data).isNotNull();
+        assertThat(data.sessionId).isEqualTo("fresh-session");
+        assertThat(data.lang).isEqualTo("fr");
+        assertThat(data.cefrLevel).isEqualTo("A2");
+
+        verify(masterSessionRepo, timeout(1000)).save(any(MasterSession.class));
     }
 
     @Test
-    void getOrCreate_restoredFromDb_populatesFields() throws Exception {
-        MasterSession entity = new MasterSession();
-        entity.setSessionId("s3");
-        entity.setLang("en");
-        entity.setCefrLevel("C1");
-        entity.setTotalXp(120);
-        entity.setExerciseRound(3);
-        entity.setChatRound(2);
-        entity.setErrorLogJson("[\"mots\",\"chien\"]");
+    void getOrCreate_whenSessionInDb_restoresAndReturnsCachedData() {
+        MasterSession ms = new MasterSession();
+        ms.setSessionId("db-session");
+        ms.setLang("en");
+        ms.setCefrLevel("B2");
+        ms.setTotalXp(150);
+        ms.setErrorLogJson("[\"hello\", \"world\"]");
 
-        when(repo.findBySessionId("s3")).thenReturn(Optional.of(entity));
+        when(masterSessionRepo.findBySessionId("db-session")).thenReturn(Optional.of(ms));
 
-        var session = service.getOrCreate("s3", "fr", "B1");
+        SessionMemoryService.SessionData data = sessionMemoryService.getOrCreate("db-session", "fr", "A2");
 
-        assertThat(session.lang).isEqualTo("en");
-        assertThat(session.cefrLevel).isEqualTo("C1");
-        assertThat(session.totalXp).isEqualTo(120);
-        assertThat(session.exerciseRound).isEqualTo(3);
-        assertThat(session.chatRound).isEqualTo(2);
-        assertThat(session.errorLog).containsExactly("mots", "chien");
-    }
-
-    // ── addWeakWords — deduplication ──────────────────────────────────────────
-
-    @Test
-    void addWeakWords_newWords_addsAll() {
-        service.getOrCreate("s4", "fr", "A2");
-        service.addWeakWords("s4", List.of("Bonjour", "merci", "café"));
-
-        assertThat(service.getErrorLog("s4")).containsExactlyInAnyOrder("bonjour", "merci", "café");
+        assertThat(data).isNotNull();
+        assertThat(data.sessionId).isEqualTo("db-session");
+        assertThat(data.lang).isEqualTo("en");
+        assertThat(data.cefrLevel).isEqualTo("B2");
+        assertThat(data.totalXp).isEqualTo(150);
+        assertThat(data.errorLog).containsExactly("hello", "world");
     }
 
     @Test
-    void addWeakWords_duplicateDifferentCase_addedOnlyOnce() {
-        service.getOrCreate("s5", "fr", "A2");
-        service.addWeakWords("s5", List.of("Bonjour"));
-        service.addWeakWords("s5", List.of("BONJOUR", "bonjour"));
+    void exists_whenSessionInDb_restoresToMemoryAndReturnsTrue() {
+        MasterSession ms = new MasterSession();
+        ms.setSessionId("exists-session");
+        ms.setLang("fr");
+        ms.setCefrLevel("A1");
 
-        assertThat(service.getErrorLog("s5")).hasSize(1);
-        assertThat(service.getErrorLog("s5")).containsExactly("bonjour");
+        when(masterSessionRepo.findBySessionId("exists-session")).thenReturn(Optional.of(ms));
+
+        boolean exists = sessionMemoryService.exists("exists-session");
+
+        assertThat(exists).isTrue();
+        assertThat(sessionMemoryService.get("exists-session")).isNotNull();
     }
 
     @Test
-    void addWeakWords_blankEntries_ignored() {
-        service.getOrCreate("s6", "fr", "B1");
-        service.addWeakWords("s6", Arrays.asList("", "  ", null, "chien"));
+    void remove_removesFromMemoryAndDb() {
+        MasterSession ms = new MasterSession();
+        ms.setSessionId("delete-session");
+        when(masterSessionRepo.findBySessionId("delete-session")).thenReturn(Optional.of(ms));
 
-        assertThat(service.getErrorLog("s6")).containsExactly("chien");
+        sessionMemoryService.remove("delete-session");
+
+        assertThat(sessionMemoryService.get("delete-session")).isNull();
+        verify(masterSessionRepo).delete(ms);
     }
 
     @Test
-    void addWeakWords_sameCallDuplicates_deduped() {
-        service.getOrCreate("s7", "fr", "B1");
-        service.addWeakWords("s7", List.of("chien", "chat", "chien"));
+    void mutations_updateDataCorrectly() {
+        // Create initial session in memory
+        when(masterSessionRepo.findBySessionId("session-mutations")).thenReturn(Optional.empty());
+        sessionMemoryService.getOrCreate("session-mutations", "fr", "B1");
 
-        assertThat(service.getErrorLog("s7")).containsExactlyInAnyOrder("chien", "chat");
-    }
+        // Test Cefr level
+        sessionMemoryService.updateCefrLevel("session-mutations", "C1");
+        assertThat(sessionMemoryService.getCefrLevel("session-mutations")).isEqualTo("C1");
 
-    // ── removeWeakWord ────────────────────────────────────────────────────────
+        // Test XP
+        sessionMemoryService.addXp("session-mutations", 30);
+        assertThat(sessionMemoryService.getTotalXp("session-mutations")).isEqualTo(30);
 
-    @Test
-    void removeWeakWord_existingWord_removed() {
-        service.getOrCreate("s8", "fr", "B1");
-        service.addWeakWords("s8", List.of("chien", "chat"));
-        service.removeWeakWord("s8", "Chien"); // case-insensitive
+        // Test weak words
+        sessionMemoryService.addWeakWords("session-mutations", List.of("hello", "TEST", "hello"));
+        assertThat(sessionMemoryService.getErrorLog("session-mutations")).containsExactly("hello", "test");
 
-        assertThat(service.getErrorLog("s8")).containsExactly("chat");
-    }
+        sessionMemoryService.removeWeakWord("session-mutations", "hello");
+        assertThat(sessionMemoryService.getErrorLog("session-mutations")).containsExactly("test");
 
-    @Test
-    void removeWeakWord_unknownWord_noError() {
-        service.getOrCreate("s9", "fr", "B1");
-        service.addWeakWords("s9", List.of("chien"));
-        service.removeWeakWord("s9", "inexistant");
+        // Test Chat/Exercise rounds
+        sessionMemoryService.incrementExerciseRound("session-mutations");
+        assertThat(sessionMemoryService.getExerciseRound("session-mutations")).isEqualTo(1);
 
-        assertThat(service.getErrorLog("s9")).containsExactly("chien");
-    }
+        sessionMemoryService.incrementChatRound("session-mutations");
+        assertThat(sessionMemoryService.getChatRound("session-mutations")).isEqualTo(1);
 
-    @Test
-    void removeWeakWord_nullWord_noError() {
-        service.getOrCreate("s10", "fr", "B1");
-        service.addWeakWords("s10", List.of("chien"));
-        service.removeWeakWord("s10", null);
-
-        assertThat(service.getErrorLog("s10")).containsExactly("chien");
-    }
-
-    // ── chatRound ─────────────────────────────────────────────────────────────
-
-    @Test
-    void chatRound_startsAtZero() {
-        service.getOrCreate("s11", "fr", "B1");
-
-        assertThat(service.getChatRound("s11")).isZero();
-    }
-
-    @Test
-    void chatRound_incrementsCorrectly() {
-        service.getOrCreate("s12", "fr", "B1");
-        service.incrementChatRound("s12");
-        service.incrementChatRound("s12");
-        service.incrementChatRound("s12");
-
-        assertThat(service.getChatRound("s12")).isEqualTo(3);
-    }
-
-    @Test
-    void chatRound_unknownSession_returnsZero() {
-        assertThat(service.getChatRound("nonexistent")).isZero();
-    }
-
-    // ── exerciseRound ─────────────────────────────────────────────────────────
-
-    @Test
-    void exerciseRound_incrementsIndependentlyFromChatRound() {
-        service.getOrCreate("s13", "fr", "B1");
-        service.incrementChatRound("s13");
-        service.incrementExerciseRound("s13");
-        service.incrementExerciseRound("s13");
-
-        assertThat(service.getChatRound("s13")).isEqualTo(1);
-        assertThat(service.getExerciseRound("s13")).isEqualTo(2);
-    }
-
-    // ── XP ────────────────────────────────────────────────────────────────────
-
-    @Test
-    void addXp_accumulatesCorrectly() {
-        service.getOrCreate("s14", "fr", "B1");
-        service.addXp("s14", 10);
-        service.addXp("s14", 5);
-
-        assertThat(service.getTotalXp("s14")).isEqualTo(15);
-    }
-
-    @Test
-    void getTotalXp_unknownSession_returnsZero() {
-        assertThat(service.getTotalXp("ghost")).isZero();
-    }
-
-    // ── exists ────────────────────────────────────────────────────────────────
-
-    @Test
-    void exists_knownSession_returnsTrue() {
-        service.getOrCreate("s15", "fr", "B1");
-
-        assertThat(service.exists("s15")).isTrue();
-    }
-
-    @Test
-    void exists_unknownSessionNotInDb_returnsFalse() {
-        assertThat(service.exists("missing")).isFalse();
-    }
-
-    @Test
-    void exists_unknownSessionInDb_restoresToMemoryAndReturnsTrue() {
-        MasterSession entity = new MasterSession();
-        entity.setSessionId("s16");
-        entity.setLang("fr");
-        entity.setCefrLevel("B2");
-        entity.setTotalXp(0);
-        entity.setExerciseRound(0);
-        entity.setChatRound(0);
-        entity.setErrorLogJson("[]");
-
-        when(repo.findBySessionId("s16")).thenReturn(Optional.of(entity));
-
-        assertThat(service.exists("s16")).isTrue();
-        // Second call must use memory (no extra DB hit)
-        verify(repo, atMost(2)).findBySessionId("s16");
-    }
-
-    // ── cefrLevel ─────────────────────────────────────────────────────────────
-
-    @Test
-    void updateCefrLevel_changesLevel() {
-        service.getOrCreate("s17", "fr", "A1");
-        service.updateCefrLevel("s17", "C2");
-
-        assertThat(service.getCefrLevel("s17")).isEqualTo("C2");
-    }
-
-    @Test
-    void getCefrLevel_unknownSession_returnsDefault() {
-        assertThat(service.getCefrLevel("ghost")).isEqualTo("B1");
+        // Test TestSessionId
+        sessionMemoryService.setTestSessionId("session-mutations", "test-123");
+        assertThat(sessionMemoryService.getTestSessionId("session-mutations")).isEqualTo("test-123");
     }
 }

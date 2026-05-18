@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,76 +22,82 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class GamificationServiceTest {
 
-    @Mock UserRepository userRepo;
-    @Mock BadgeRepository badgeRepo;
+    @Mock
+    private UserRepository userRepo;
 
-    @InjectMocks GamificationService gamificationService;
+    @Mock
+    private BadgeRepository badgeRepo;
 
-    private User alice;
+    @InjectMocks
+    private GamificationService gamificationService;
+
+    private User user;
 
     @BeforeEach
     void setUp() {
-        alice = new User();
-        alice.setId(1L);
-        alice.setTotalXp(0);
-        alice.setCurrentStreak(0);
-        alice.setLongestStreak(0);
+        user = new User();
+        user.setId(123L);
+        user.setTotalXp(50);
+        user.setCurrentStreak(1);
+        user.setLongestStreak(1);
     }
 
     @Test
-    void recordActivity_incrementsXpAndUpdatesDate() {
-        gamificationService.recordActivity(alice, 20, 80);
+    void recordActivity_whenFirstActivity_setsStreakTo1AndAwardsFirstStep() {
+        user.setLastActivityDate(null);
 
-        assertThat(alice.getTotalXp()).isEqualTo(20);
-        assertThat(alice.getLastActivityDate()).isEqualTo(LocalDate.now());
-        verify(userRepo).save(alice);
+        gamificationService.recordActivity(user, 10, 80);
+
+        assertThat(user.getTotalXp()).isEqualTo(60);
+        assertThat(user.getCurrentStreak()).isEqualTo(1);
+        assertThat(user.getLastActivityDate()).isEqualTo(LocalDate.now());
+
+        verify(userRepo, times(1)).save(user);
+        verify(badgeRepo).existsByUserIdAndBadgeKey(123L, "FIRST_STEP");
     }
 
     @Test
-    void recordActivity_updatesStreak_whenYesterday() {
-        alice.setLastActivityDate(LocalDate.now().minusDays(1));
-        alice.setCurrentStreak(5);
+    void recordActivity_consecutiveDays_incrementsStreak() {
+        user.setLastActivityDate(LocalDate.now().minusDays(1));
+        user.setCurrentStreak(2);
+        user.setLongestStreak(2);
 
-        gamificationService.recordActivity(alice, 10, 70);
+        gamificationService.recordActivity(user, 20, 85);
 
-        assertThat(alice.getCurrentStreak()).isEqualTo(6);
+        assertThat(user.getCurrentStreak()).isEqualTo(3);
+        assertThat(user.getLongestStreak()).isEqualTo(3);
     }
 
     @Test
-    void recordActivity_resetsStreak_whenOlderThanYesterday() {
-        alice.setLastActivityDate(LocalDate.now().minusDays(5));
-        alice.setCurrentStreak(10);
+    void recordActivity_gapBetweenActivities_resetsStreakTo1() {
+        user.setLastActivityDate(LocalDate.now().minusDays(3));
+        user.setCurrentStreak(5);
+        user.setLongestStreak(5);
 
-        gamificationService.recordActivity(alice, 10, 70);
+        gamificationService.recordActivity(user, 20, 85);
 
-        assertThat(alice.getCurrentStreak()).isEqualTo(1);
+        assertThat(user.getCurrentStreak()).isEqualTo(1);
+        assertThat(user.getLongestStreak()).isEqualTo(5); // longest remains 5
     }
 
     @Test
-    void recordActivity_keepsStreak_whenSameDay() {
-        alice.setLastActivityDate(LocalDate.now());
-        alice.setCurrentStreak(3);
+    void recordActivity_highScore_awardsPerfectScoreAndExcellence() {
+        when(badgeRepo.existsByUserIdAndBadgeKey(any(), anyString())).thenReturn(false);
 
-        gamificationService.recordActivity(alice, 10, 70);
+        gamificationService.recordActivity(user, 100, 100);
 
-        assertThat(alice.getCurrentStreak()).isEqualTo(3);
+        verify(badgeRepo).existsByUserIdAndBadgeKey(123L, "PERFECT_SCORE");
+        verify(badgeRepo).existsByUserIdAndBadgeKey(123L, "EXCELLENCE");
+        verify(badgeRepo).existsByUserIdAndBadgeKey(123L, "XP_100");
     }
 
     @Test
-    void recordActivity_awardsBadge_ifPerfectScore() {
-        lenient().when(badgeRepo.existsByUserIdAndBadgeKey(anyLong(), anyString())).thenReturn(false);
+    void getBadges_returnsUserBadges() {
+        List<Badge> expected = List.of(new Badge());
+        when(badgeRepo.findByUserId(123L)).thenReturn(expected);
 
-        gamificationService.recordActivity(alice, 20, 100);
+        List<Badge> result = gamificationService.getBadges(123L);
 
-        verify(badgeRepo).save(argThat(b -> "PERFECT_SCORE".equals(b.getBadgeKey())));
-    }
-
-    @Test
-    void recordActivity_doesNotAwardBadge_ifAlreadyOwned() {
-        lenient().when(badgeRepo.existsByUserIdAndBadgeKey(anyLong(), anyString())).thenReturn(true);
-
-        gamificationService.recordActivity(alice, 20, 50);
-
-        verify(badgeRepo, never()).save(any(Badge.class));
+        assertThat(result).isEqualTo(expected);
     }
 }

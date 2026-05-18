@@ -1,0 +1,239 @@
+package com.example.prononciationtest.service.pronunciation;
+
+import com.example.prononciationtest.service.PhraseTaxonomy;
+import com.example.prononciationtest.service.ai.OllamaClientService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Service
+public class LevelTestService {
+
+    private static final String KEY_SCORE = "score";
+    private static final String SUFFIX_SCORE_100 = "/100)";
+
+    private final OllamaClientService ollamaClientService;
+    private final PhraseTaxonomy taxonomy;
+    private final ConcurrentHashMap<String, String> feedbackCache = new ConcurrentHashMap<>();
+
+    public LevelTestService(OllamaClientService ollamaClientService, PhraseTaxonomy taxonomy) {
+        this.ollamaClientService = ollamaClientService;
+        this.taxonomy = taxonomy;
+    }
+
+    public String generateLevelTestPhrase(String lang, String soundContext, String level) {
+        String[] words = soundContext.split(",");
+        String w0 = words[0].strip();
+        String w1 = words.length > 1 ? words[1].strip() : w0;
+        String w2 = words.length > 2 ? words[2].strip() : w0;
+
+        String cefrSpec = "fr".equals(lang) ? switch (level) {
+            case "A1" -> "niveau CECR A1 : phrase de 4-6 mots, present simple, vocabulaire de base (maison, famille, couleurs). Exemple de structure : \"Le [nom] est [adjectif].\"";
+            case "A2" -> "niveau CECR A2 : phrase de 6-9 mots, verbes courants, lieux et activités du quotidien. Exemple : \"Je vais [lieu] avec [personne] chaque [moment]\"";
+            case "B1" -> "niveau CECR B1 : phrase de 9-13 mots, proposition subordonnee simple, vocabulaire thematique (voyage, travail, loisirs)";
+            case "B2" -> "niveau CECR B2 : phrase de 12-16 mots, structures complexes, vocabulaire varie et precis, connecteurs logiques";
+            case "C1" -> "niveau CECR C1 : phrase de 15-19 mots, subjonctif ou conditionnel, vocabulaire soutenu, idiotismes naturels";
+            case "C2" -> "niveau CECR C2 : phrase de 18-22 mots, registre soutenu, structures syntaxiques elaborees, vocabulaire riche";
+            default -> "niveau CECR B1 : phrase naturelle de 9-13 mots";
+        } : switch (level) {
+            case "A1" -> "CEFR A1: 4-6 words, present simple, basic vocabulary (home, family, colors). Example: \"The [noun] is [adjective].\"";
+            case "A2" -> "CEFR A2: 6-9 words, common verbs, daily places and activities";
+            case "B1" -> "CEFR B1: 9-13 words, simple subordinate clause, thematic vocabulary (travel, work, leisure)";
+            case "B2" -> "CEFR B2: 12-16 words, complex structures, precise varied vocabulary, logical connectors";
+            case "C1" -> "CEFR C1: 15-19 words, sophisticated grammar, natural idioms, formal vocabulary";
+            case "C2" -> "CEFR C2: 18-22 words, elevated register, elaborate syntax, rich vocabulary";
+            default -> "CEFR B1: natural sentence of 9-13 words";
+        };
+
+        String system = "fr".equals(lang)
+                ? "Tu génères UNE phrase française orale, " + cefrSpec + ". La phrase doit contenir au moins 2 des mots cibles. INTERDIT : introduction, guillemets, explication. Reponds UNIQUEMENT avec la phrase."
+                : "Generate ONE spoken English sentence, " + cefrSpec + ". The sentence must contain at least 2 target words. FORBIDDEN: introduction, quotes, explanation. Reply with the sentence ONLY.";
+        String prompt = "fr".equals(lang)
+                ? "Mots cibles : " + w0 + ", " + w1 + ", " + w2 + ". Phrase :"
+                : "Target words: " + w0 + ", " + w1 + ", " + w2 + ". Sentence:";
+
+        String cleaned = cleanLevelTestPhrase(ollamaClientService.callOllama(system, prompt, 45, 0.7));
+        if (cleaned.length() < 8 || taxonomy.isHallucination(cleaned, lang) || cleaned.contains("indisponible")) {
+            return taxonomy.getFallback(lang, level, "general");
+        }
+        return cleaned;
+    }
+
+    public String generateLevelTestTip(String lang, String soundLabel) {
+        String system = "fr".equals(lang)
+                ? "Coach prononciation. Réponds avec UNE phrase de conseil pratique, max 15 mots, sans tiret ni numéro."
+                : "Pronunciation coach. Reply with ONE practical tip, max 15 words, no dash or number.";
+        String prompt = "fr".equals(lang)
+                ? "Conseil articulatoire pour " + soundLabel + ":"
+                : "Articulation tip for " + soundLabel + ":";
+        String raw = ollamaClientService.callOllama(system, prompt, 35, 0.35);
+        return raw.length() > 10 ? raw : "";
+    }
+
+    public String generateLevelTestFeedback(String lang, String soundLabel,
+            String contextWords, String phrase, int score, String userName) {
+        String cacheKey = lang + "_" + soundLabel + "_" + (score / 10);
+        String cached = feedbackCache.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+
+        String learner = (userName != null && !userName.isBlank()) ? userName : "apprenant";
+        String perf = getPerformanceLabel(lang, score);
+
+        String prompt = "fr".equals(lang)
+                ? "Tu es un coach de prononciation bienveillant. L'apprenant s'appelle " + learner
+                        + " et vient de prononcer : « " + phrase + "».\n"
+                        + "Son ciblé : " + soundLabel + " (exemples : " + contextWords + ").\nPerformance : " + perf
+                        + ".\n"
+                        + "Donne un retour personnalisé en 2-3 phrases courtes : mentionne le son « " + soundLabel
+                        + "», donne un conseil pratique, encourage. Pas de tirets ni numéros."
+                : "You are a supportive pronunciation coach. The learner's name is " + learner
+                        + " and they just pronounced: \"" + phrase + "\".\n"
+                        + "Target sound: " + soundLabel + " (examples: " + contextWords + ").\nPerformance: " + perf
+                        + ".\n"
+                        + "Give personalized feedback in 2-3 short sentences: mention the sound \"" + soundLabel
+                        + "\", give a practical tip, encourage. No dashes or numbers.";
+
+        String system = "fr".equals(lang)
+                ? "Tu es un coach de prononciation. INTERDIT d'utiliser le nom Alex. Appelle l'apprenant uniquement par son prenom: "
+                        + learner + ". Reponds en 2-3 phrases courtes. Pas de tirets."
+                : "You are a pronunciation coach. FORBIDDEN to use the name Alex. Address the learner only by their name: "
+                        + learner + ". Reply in 2-3 short sentences. No dashes.";
+        
+        String raw = ollamaClientService.callOllama(system, prompt, 55, 0.4);
+        raw = raw.replaceAll("(?i)\\bAlex\\b", learner);
+        String result = raw.length() > 20 ? raw : buildLevelTestFeedbackFallback(lang, soundLabel, contextWords, score);
+        if (feedbackCache.size() < 200) {
+            feedbackCache.put(cacheKey, result);
+        }
+        return result;
+    }
+
+    public String generateLevelTestSynthesis(String lang,
+            List<Map<String, Object>> history,
+            String finalLevel) {
+        StringBuilder lines = new StringBuilder();
+        int total = 0;
+        int count = 0;
+        for (Map<String, Object> h : history) {
+            int sc = h.get(KEY_SCORE) instanceof Number n ? n.intValue() : 0;
+            total += sc;
+            count++;
+            lines.append("- ").append(h.getOrDefault("sound_label", "?"))
+                    .append(": ").append(sc).append("/100\n");
+        }
+        int avg = count > 0 ? total / count : 0;
+
+        String prompt = "fr".equals(lang)
+                ? "Tu es un coach de prononciation. Niveau final : " + finalLevel + ".\nR\u00e9sultats :\n" + lines
+                        + "\u00e9cris un bilan encourageant en 3-4 phrases. Cite les points forts et ce qui peut \u00eatre am\u00e9lior\u00e9. Pas de tirets ni num\u00e9ros."
+                : "You are a pronunciation coach. Final level: " + finalLevel + ".\nResults:\n" + lines
+                        + "Write an encouraging summary in 3-4 sentences. Mention strengths and areas to improve. No dashes or numbers.";
+
+        String raw = ollamaClientService.callOllama("", prompt, 150, 0.4);
+        if (raw.length() > 20) {
+            return raw;
+        }
+
+        return getLevelTestSynthesisFallback(lang, finalLevel, avg);
+    }
+
+    private String getPerformanceLabel(String lang, int score) {
+        if ("fr".equals(lang)) {
+            if (score >= 75) {
+                return "très bonne (score " + score + SUFFIX_SCORE_100;
+            } else if (score >= 55) {
+                return "correcte (score " + score + SUFFIX_SCORE_100;
+            } else {
+                return "à améliorer (score " + score + SUFFIX_SCORE_100;
+            }
+        } else {
+            if (score >= 75) {
+                return "very good (score " + score + SUFFIX_SCORE_100;
+            } else if (score >= 55) {
+                return "decent (score " + score + SUFFIX_SCORE_100;
+            } else {
+                return "needs work (score " + score + SUFFIX_SCORE_100;
+            }
+        }
+    }
+
+    private String getLevelTestSynthesisFallback(String lang, String finalLevel, int avg) {
+        if ("fr".equals(lang)) {
+            if (avg >= 75) {
+                return "Tr\u00e9s bon niveau (" + finalLevel + ") ! Tu es sur la bonne voie.";
+            }
+            if (avg >= 55) {
+                return "Bon niveau g\u00e9n\u00e9ral (" + finalLevel + "). Quelques sons m\u00e9ritent plus de pratique.";
+            }
+            return "Des bases solides \u00e0 renforcer. Pratique r\u00e9guli\u00e8rement les sons cibl\u00e9s pour progresser.";
+        } else {
+            if (avg >= 75) {
+                return "Very good pronunciation (" + finalLevel + ")! Keep up the great work.";
+            }
+            if (avg >= 55) {
+                return "Good overall level (" + finalLevel + "). A few sounds need more practice.";
+            }
+            return "Solid foundations at " + finalLevel + ". Keep practicing the target sounds regularly.";
+        }
+    }
+
+    private String cleanLevelTestPhrase(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "";
+        }
+        for (String line : raw.strip().split("\n")) {
+            line = line.strip();
+            if (line.isBlank()) {
+                continue;
+            }
+            line = line.replaceAll("^[\\-\\*\\d\\.\\)]+\\s*", "");
+            line = line.replaceAll("(^[\\\"'\\u00AB\\u00BB\\u201C\\u201D\\u201E]+)|([\\\"'\\u00AB\\u00BB\\u201C\\u201D\\u201E]+$)", "");
+            if (line.contains(":") && line.indexOf(':') < 20) {
+                line = line.substring(line.indexOf(':') + 1).strip();
+            }
+            String lower = line.toLowerCase();
+            if (lower.contains("reactdom.render") || lower.contains("import ") || lower.contains("export ") || lower.contains(";")) {
+                continue;
+            }
+            if (lower.contains("<") && lower.contains(">")) {
+                continue;
+            }
+            if (lower.contains("{") && lower.contains("}")) {
+                continue;
+            }
+            if (lower.matches(".*\\b(function\\s+\\w+|class\\s+\\w+).*")) {
+                continue;
+            }
+            if (line.length() > 10) {
+                return line;
+            }
+        }
+        return raw.strip();
+    }
+
+    private String buildLevelTestFeedbackFallback(String lang, String soundLabel,
+            String contextWords, int score) {
+        String w0 = contextWords.split(",")[0].trim();
+        if ("fr".equals(lang)) {
+            if (score >= 75) {
+                return "Excellent ! Tu prononces tr\u00e8s bien le son " + soundLabel + ". Continue ! \ud83c\udf89";
+            }
+            if (score >= 55) {
+                return "Bien jou\u00e9 ! Le son " + soundLabel + " est presque parfait. R\u00e9p\u00e8te : " + w0 + " \ud83d\udc4d";
+            }
+            return "Le son " + soundLabel + " est difficile. Entra\u00eene-toi avec : " + w0 + ". \u00c7a viendra ! \ud83d\udcaa";
+        } else {
+            if (score >= 75) {
+                return "Excellent! You nailed the " + soundLabel + " sound. Keep it up! \ud83c\udf89";
+            }
+            if (score >= 55) {
+                return "Well done! The " + soundLabel + " is almost perfect. Practice: " + w0 + " \ud83d\udc4d";
+            }
+            return "The " + soundLabel + " is challenging. Practice: " + w0 + ". You'll get there! \ud83d\udcaa";
+        }
+    }
+}

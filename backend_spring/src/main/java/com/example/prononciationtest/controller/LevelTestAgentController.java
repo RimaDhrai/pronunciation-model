@@ -347,7 +347,7 @@ public class LevelTestAgentController {
 
         // 2. Save each step
         for (Map<String, Object> h : history) {
-            int stepScore = h.get("score") instanceof Number n ? n.intValue() : 0;
+            int stepScore = h.get(KEY_SCORE) instanceof Number n ? n.intValue() : 0;
             PlannerStepResult step = new PlannerStepResult();
             step.setSessionId(sessionId);
             step.setUserId(user.getId());

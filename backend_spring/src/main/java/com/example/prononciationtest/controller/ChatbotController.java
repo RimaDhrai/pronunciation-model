@@ -341,64 +341,51 @@ public class ChatbotController {
             String masterSessionId,
             boolean sendStatusEvents
     ) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                if (!chatbotAgent.sessionExists(sessionId)) {
-                    sseError(emitter, MSG_SESSION_EXPIRED);
-                    return;
-                }
+        CompletableFuture.runAsync(() -> doHandleVoiceStream(emitter, sessionId, audio, nativeLang, masterSessionId, sendStatusEvents));
+    }
 
-                if (sendStatusEvents) {
-                    emitter.send(SseEmitter.event().name("status").data(Map.of("step", "stt", "message", "Transcription en cours...")));
-                }
-
-                ChatSttResponse stt = chatbotClient.chatStt(audio, nativeLang);
-                if (stt.hasError()) {
-                    sseError(emitter, stt.getError() != null ? stt.getError() : "STT error");
-                    return;
-                }
-
-                String userText = stt.getCleanText() != null ? stt.getCleanText() : "";
-                List<String> weakWords = stt.getWeakWords() != null ? stt.getWeakWords() : List.of();
-                double avgConf = stt.getAvgConfidence() != null ? stt.getAvgConfidence() : 1.0;
-
-                emitter.send(SseEmitter.event().name("transcript").data(json(Map.of(
-                        "text", userText,
-                        "weak_words", weakWords,
-                        "confidence", avgConf
-                ))));
-
-                if (sendStatusEvents) {
-                    emitter.send(SseEmitter.event().name("status").data(Map.of("step", "llm", "message", "Génération de la réponse...")));
-                }
-
-                chatbotAgent.chatStreaming(sessionId, userText, weakWords, avgConf, token -> {
-                    try {
-                        emitter.send(SseEmitter.event().name("token").data(json(Map.of("text", token))));
-                    } catch (IOException ex) {
-                        log.debug("SSE write failed: {}", ex.getMessage());
-                    }
-                }).thenAccept(response -> {
-                    try {
-                        if (sendStatusEvents) {
-                            emitter.send(SseEmitter.event().name("status").data(Map.of("step", "tts", "message", "Synthèse vocale...")));
-                        }
-                        String audioB64 = synthesizeTts(response, nativeLang);
-                        sendVoiceComplete(emitter, response, audioB64, stt, masterSessionId, weakWords);
-                    } catch (Exception ex) {
-                        sseError(emitter, MSG_SERVER_ERROR);
-                    }
-                }).exceptionally(ex -> {
-                    Throwable cause = ex instanceof java.util.concurrent.CompletionException ? ex.getCause() : ex;
-                    String errMsg = cause instanceof java.util.concurrent.TimeoutException ? "TIMEOUT" : MSG_SERVER_ERROR;
-                    sseError(emitter, errMsg);
-                    return null;
-                });
-
-            } catch (Exception e) {
-                sseError(emitter, e.getMessage());
+    private void doHandleVoiceStream(
+            SseEmitter emitter,
+            String sessionId,
+            MultipartFile audio,
+            String nativeLang,
+            String masterSessionId,
+            boolean sendStatusEvents
+    ) {
+        try {
+            if (!chatbotAgent.sessionExists(sessionId)) {
+                sseError(emitter, MSG_SESSION_EXPIRED);
+                return;
             }
-        });
+
+            if (sendStatusEvents) {
+                sendStepStatus(emitter, "stt", "Transcription en cours...");
+            }
+
+            ChatSttResponse stt = chatbotClient.chatStt(audio, nativeLang);
+            if (stt.hasError()) {
+                String sttError = stt.getError() != null ? stt.getError() : "STT error";
+                sseError(emitter, sttError);
+                return;
+            }
+
+            String userText = stt.getCleanText() != null ? stt.getCleanText() : "";
+            List<String> weakWords = stt.getWeakWords() != null ? stt.getWeakWords() : List.of();
+            double avgConf = stt.getAvgConfidence() != null ? stt.getAvgConfidence() : 1.0;
+
+            sendTranscript(emitter, userText, weakWords, avgConf);
+
+            if (sendStatusEvents) {
+                sendStepStatus(emitter, "llm", "Génération de la réponse...");
+            }
+
+            chatbotAgent.chatStreaming(sessionId, userText, weakWords, avgConf, token -> sendToken(emitter, token))
+                .thenAccept(response -> handleVoiceStreamingSuccess(emitter, response, nativeLang, stt, masterSessionId, weakWords, sendStatusEvents))
+                .exceptionally(ex -> handleStreamingException(emitter, ex));
+
+        } catch (Exception e) {
+            sseError(emitter, e.getMessage());
+        }
     }
 
     private void sendTextComplete(SseEmitter emitter, String response, String audioB64, String masterSessionId) throws IOException {
@@ -423,41 +410,92 @@ public class ChatbotController {
             String masterSessionId,
             boolean sendStatusEvents
     ) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                if (!chatbotAgent.sessionExists(sessionId)) {
-                    sseError(emitter, MSG_SESSION_EXPIRED);
-                    return;
-                }
+        CompletableFuture.runAsync(() -> doHandleTextStream(emitter, sessionId, message, lang, masterSessionId, sendStatusEvents));
+    }
 
-                if (sendStatusEvents) {
-                    emitter.send(SseEmitter.event().name("status").data(Map.of("step", "llm", "message", "Génération de la réponse...")));
-                }
-
-                chatbotAgent.chatStreaming(sessionId, message, List.of(), null, token -> {
-                    try {
-                        emitter.send(SseEmitter.event().name("token").data(json(Map.of("text", token))));
-                    } catch (IOException e) {
-                        log.error("Stream error: {}", e.getMessage());
-                    }
-                }).thenAccept(response -> {
-                    try {
-                        String audioB64 = synthesizeTts(response, lang);
-                        sendTextComplete(emitter, response, audioB64, masterSessionId);
-                    } catch (Exception ex) {
-                        sseError(emitter, MSG_SERVER_ERROR);
-                    }
-                }).exceptionally(ex -> {
-                    Throwable cause = ex instanceof java.util.concurrent.CompletionException ? ex.getCause() : ex;
-                    String errMsg = cause instanceof java.util.concurrent.TimeoutException ? "TIMEOUT" : MSG_SERVER_ERROR;
-                    sseError(emitter, errMsg);
-                    return null;
-                });
-
-            } catch (Exception e) {
-                sseError(emitter, e.getMessage());
+    private void doHandleTextStream(
+            SseEmitter emitter,
+            String sessionId,
+            String message,
+            String lang,
+            String masterSessionId,
+            boolean sendStatusEvents
+    ) {
+        try {
+            if (!chatbotAgent.sessionExists(sessionId)) {
+                sseError(emitter, MSG_SESSION_EXPIRED);
+                return;
             }
-        });
+
+            if (sendStatusEvents) {
+                sendStepStatus(emitter, "llm", "Génération de la réponse...");
+            }
+
+            chatbotAgent.chatStreaming(sessionId, message, List.of(), null, token -> sendToken(emitter, token))
+                .thenAccept(response -> handleTextStreamingSuccess(emitter, response, lang, masterSessionId))
+                .exceptionally(ex -> handleStreamingException(emitter, ex));
+
+        } catch (Exception e) {
+            sseError(emitter, e.getMessage());
+        }
+    }
+
+    // ── Helper Methods to Reduce Cognitive Complexity ────────────────────────
+
+    private void sendStepStatus(SseEmitter emitter, String step, String message) throws IOException {
+        emitter.send(SseEmitter.event().name("status").data(Map.of("step", step, "message", message)));
+    }
+
+    private void sendToken(SseEmitter emitter, String token) {
+        try {
+            emitter.send(SseEmitter.event().name("token").data(json(Map.of("text", token))));
+        } catch (IOException ex) {
+            log.debug("SSE write failed: {}", ex.getMessage());
+        }
+    }
+
+    private void sendTranscript(SseEmitter emitter, String text, List<String> weakWords, double confidence) throws IOException {
+        emitter.send(SseEmitter.event().name("transcript").data(json(Map.of(
+                "text", text,
+                "weak_words", weakWords,
+                "confidence", confidence
+        ))));
+    }
+
+    private void handleVoiceStreamingSuccess(
+            SseEmitter emitter,
+            String response,
+            String nativeLang,
+            ChatSttResponse stt,
+            String masterSessionId,
+            List<String> weakWords,
+            boolean sendStatusEvents
+    ) {
+        try {
+            if (sendStatusEvents) {
+                sendStepStatus(emitter, "tts", "Synthèse vocale...");
+            }
+            String audioB64 = synthesizeTts(response, nativeLang);
+            sendVoiceComplete(emitter, response, audioB64, stt, masterSessionId, weakWords);
+        } catch (Exception ex) {
+            sseError(emitter, MSG_SERVER_ERROR);
+        }
+    }
+
+    private void handleTextStreamingSuccess(SseEmitter emitter, String response, String lang, String masterSessionId) {
+        try {
+            String audioB64 = synthesizeTts(response, lang);
+            sendTextComplete(emitter, response, audioB64, masterSessionId);
+        } catch (Exception ex) {
+            sseError(emitter, MSG_SERVER_ERROR);
+        }
+    }
+
+    private Void handleStreamingException(SseEmitter emitter, Throwable ex) {
+        Throwable cause = ex instanceof java.util.concurrent.CompletionException ? ex.getCause() : ex;
+        String errMsg = cause instanceof java.util.concurrent.TimeoutException ? "TIMEOUT" : MSG_SERVER_ERROR;
+        sseError(emitter, errMsg);
+        return null;
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -487,7 +525,7 @@ public class ChatbotController {
     @Operation(summary = "Ultra-fast answer (cache only, no LLM)")
     public ResponseEntity<?> quickAnswer(@RequestParam String message) {
         String response = chatbotAgent.chatFast(null, message);
-        return ResponseEntity.ok(Map.of("response", response));
+        return ResponseEntity.ok(Map.of(KEY_RESPONSE, response));
     }
 
     // ═════════════════════════════════════════════════════════════════════════

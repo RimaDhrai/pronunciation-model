@@ -35,8 +35,9 @@ class FileStorageServiceTest {
 
         String path = fileStorageService.saveVideo(file, 100L);
 
-        assertThat(path).startsWith("/storage/videos/course_100/");
-        assertThat(path).endsWith(".mp4");
+        assertThat(path)
+                .startsWith("/storage/videos/course_100/")
+                .endsWith(".mp4");
         
         Path physicalFile = tempDir.resolve("videos").resolve("course_100").resolve(path.substring(path.lastIndexOf('/') + 1));
         assertThat(Files.exists(physicalFile)).isTrue();
@@ -48,8 +49,9 @@ class FileStorageServiceTest {
 
         String path = fileStorageService.saveLessonAudio(file, 200L);
 
-        assertThat(path).startsWith("/storage/audio/course_200/");
-        assertThat(path).endsWith(".mp3");
+        assertThat(path)
+                .startsWith("/storage/audio/course_200/")
+                .endsWith(".mp3");
     }
 
     @Test
@@ -58,8 +60,9 @@ class FileStorageServiceTest {
 
         String path = fileStorageService.saveAudio(file, 300L);
 
-        assertThat(path).startsWith("/storage/audio/user_300/");
-        assertThat(path).endsWith(".wav");
+        assertThat(path)
+                .startsWith("/storage/audio/user_300/")
+                .endsWith(".wav");
     }
 
     @Test
@@ -68,8 +71,9 @@ class FileStorageServiceTest {
 
         String path = fileStorageService.saveImage(file, 400L);
 
-        assertThat(path).startsWith("/storage/images/course_400/");
-        assertThat(path).endsWith(".png");
+        assertThat(path)
+                .startsWith("/storage/images/course_400/")
+                .endsWith(".png");
     }
 
     @Test
@@ -79,7 +83,7 @@ class FileStorageServiceTest {
         
         // deleteFile adds a dot in front of relativePath: Paths.get("." + relativePath)
         // Since we cannot easily hijack Paths.get("."), we just verify no exception is thrown
-        fileStorageService.deleteFile("/not/exist/file");
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> fileStorageService.deleteFile("/not/exist/file"));
     }
 
     @Test

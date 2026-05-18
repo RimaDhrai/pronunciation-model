@@ -2,7 +2,6 @@ package com.example.prononciationtest.service.pronunciation;
 
 import com.example.prononciationtest.service.PhraseTaxonomy;
 import com.example.prononciationtest.service.ai.OllamaClientService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

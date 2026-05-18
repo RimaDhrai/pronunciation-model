@@ -59,8 +59,10 @@ class LevelTestServiceTest {
 
         String[] levels = {"A1", "A2", "B1", "B2", "C1", "C2", "UNKNOWN"};
         for (String lvl : levels) {
-            levelTestService.generateLevelTestPhrase("en", "word", lvl);
-            levelTestService.generateLevelTestPhrase("fr", "mot", lvl);
+            String enPhrase = levelTestService.generateLevelTestPhrase("en", "word", lvl);
+            String frPhrase = levelTestService.generateLevelTestPhrase("fr", "mot", lvl);
+            assertThat(enPhrase).isNotBlank();
+            assertThat(frPhrase).isNotBlank();
         }
     }
 

@@ -172,7 +172,7 @@ class PracticeServiceTest {
 
         User mockUser = new User();
         mockUser.setId(10L);
-        mockUser.setUsername("alice");
+        mockUser.setEmail("alice");
 
         when(pythonAnalyzeClient.analyze(any(), anyString(), anyString(), anyString())).thenReturn(mockPy);
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(mockUser));
@@ -202,7 +202,7 @@ class PracticeServiceTest {
 
         User mockUser = new User();
         mockUser.setId(10L);
-        mockUser.setUsername("alice");
+        mockUser.setEmail("alice");
 
         when(pythonAnalyzeClient.analyze(any(), anyString(), anyString(), anyString())).thenReturn(mockPy);
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(mockUser));

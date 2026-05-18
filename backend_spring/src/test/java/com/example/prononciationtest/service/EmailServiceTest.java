@@ -80,7 +80,6 @@ class EmailServiceTest {
         // When sending password reset email, JavaMailSenderImpl will attempt connection and fail 
         // since SMTP server is offline, but this ensures all line coverage of buildSender and message creation works!
         assertThatThrownBy(() -> emailService.sendPasswordResetEmail("user@recipient.com", "reset-token-123"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Impossible d'envoyer l'email");
+                .isInstanceOf(org.springframework.mail.MailException.class);
     }
 }

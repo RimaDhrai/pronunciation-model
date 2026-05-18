@@ -25,16 +25,16 @@ import org.springframework.beans.factory.annotation.Value;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private AdminKeyAuthFilter adminKeyAuthFilter;
+    private final AdminKeyAuthFilter adminKeyAuthFilter;
 
-    @Value("${app.frontend.url:http://localhost:8081}")
-    private String frontendUrl;
+    public SecurityConfig(AdminKeyAuthFilter adminKeyAuthFilter) {
+        this.adminKeyAuthFilter = adminKeyAuthFilter;
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, @Value("${app.frontend.url}") String frontendUrl) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource(frontendUrl)))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(adminKeyAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -66,8 +66,7 @@ public class SecurityConfig {
         return converter;
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    private CorsConfigurationSource corsConfigurationSource(String frontendUrl) {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
             frontendUrl,

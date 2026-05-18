@@ -27,7 +27,7 @@ class PhraseTaxonomyTest {
 
         // Technical jargon / complex sentences should be treated as hallucination (for fallback replacement)
         assertThat(phraseTaxonomy.isHallucination("L'intersubjectivité constitue le fondement", "fr")).isTrue();
-        assertThat(phraseTaxonomy.isHallucination("Artificial intelligence raises fundamental questions", "en")).isTrue();
+        assertThat(phraseTaxonomy.isHallucination("Epistemology examines the conditions of validity", "en")).isTrue();
 
         // Wrong language starting words
         assertThat(phraseTaxonomy.isHallucination("The cat sleeps on the table.", "fr")).isTrue();

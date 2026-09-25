@@ -1,0 +1,93 @@
+@startuml SpeakCoach_Agent_Loop_Cycle
+!define BLUE #6C9FFF
+!define PURPLE #A78BFA
+!define CYAN #67E8F9
+!define GREEN #6EE7B7
+
+skinparam backgroundColor #0a0a1a
+skinparam defaultFontColor #f0f0f8
+skinparam defaultFontName Inter
+skinparam linetype ortho
+skinparam roundcorner 10
+skinparam ArrowColor #6C9FFF
+skinparam BorderColor #6C9FFF
+
+title SpeakCoach - Agent Loop (Cycle Autonome)
+' La boucle perception → raisonnement → action → feedback
+
+start
+
+:👁️ **PERCEPTION**
+Requête utilisateur;
+note right
+    - Load user context
+    - Récupère mémoire (session + DB)
+    - Enrichit profil/historique
+end note
+
+:🧠 **RAISONNEMENT**
+LLM analyse contexte;
+note right
+    - LLM décide action(s)
+    - Détermine outils nécessaires
+    - Valide pertinence requête
+end note
+
+if (Quel type d'action ?) then (Tool Call)
+    :⚙️ **OUTIL EXTERNE**
+    Appel service;
+    note right
+        - FastAPI (voice eval)
+        - PostgreSQL (historique)
+        - ML scoring
+        - Génération contenu
+    end note
+    :Reçoit résultat de l'outil;
+else (Direct Response)
+    :💬 **RÉPONSE DIRECTE**
+    LLM génère réponse;
+end if
+
+:⚡ **ACTION**
+Exécute décision;
+note right
+    - Sauvegarde état
+    - Met à jour session
+    - Persiste en DB
+end note
+
+:📊 **FEEDBACK**
+Observe résultat;
+note right
+    - Vérifie succès/échec
+    - Logs + traces
+    - Met à jour métriques
+end note
+
+if (Besoin de continuer?) then (Oui - Boucle)
+    :↩️ **BOUCLE INTERNE**
+    Itération suivante;
+    note right
+        Ex: 20 sons à tester
+        Chaque son = une boucle
+    end note
+    :👁️ **PERCEPTION** (itération suivante);
+    note right
+        - Contexte enrichi avec résultat précédent
+        - Son suivant sélectionné
+    end note
+else (Non - Termine)
+    :✅ **SYNTHÈSE FINALE**
+    Génère feedback complet;
+    note right
+        - Résumé performance
+        - Conseils personnalisés
+        - Mise à jour progression
+    end note
+    :📤 **RÉPONSE AU FRONTEND**
+    Utilisateur voit résultat;
+end if
+
+stop
+
+caption <b>Cycle complet</b> : Perception → Raisonnement → Action → Feedback → Boucle/Synthèse

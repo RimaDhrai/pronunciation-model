@@ -1,0 +1,63 @@
+@startuml
+actor ":Apprenant" as User
+participant ":Frontend" as FE
+participant "agent:LevelTestAgent" as Agent
+participant "memory:MemorySaver" as Mem
+participant "llm:OllamaService" as LLM
+
+User -> FE : demarrer test
+activate FE
+FE -> Agent : start(sessionId, lang)
+activate Agent
+Agent -> Mem : load(sessionId)
+Agent -> Agent : pickSoundNode()
+Agent -> LLM : generatePhrase(son, lang)
+activate LLM
+LLM --> Agent : phrase + conseil
+deactivate LLM
+Agent -> Mem : save(agentState)
+Agent --> FE : {phrase, conseil, etape=1}
+deactivate Agent
+FE --> User : afficher exercice
+deactivate FE
+
+loop pour chaque son [etape 1 a 20]
+  User -> FE : prononcer la phrase
+  activate FE
+  FE -> FE : transcription STT + score
+  FE -> Agent : next(sessionId, score)
+  activate Agent
+  Agent -> Mem : load(sessionId)
+  Agent -> LLM : generateFeedback(son, score)
+  activate LLM
+  LLM --> Agent : feedback
+  deactivate LLM
+  Agent -> Agent : conditionalEdge()\ndecision : son suivant
+  Agent -> LLM : generatePhrase(sonSuivant, lang)
+  activate LLM
+  LLM --> Agent : phrase + conseil
+  deactivate LLM
+  Agent -> Mem : save(agentState)
+  Agent --> FE : {feedback, phrase, etape}
+  deactivate Agent
+  FE --> User : afficher feedback + exercice
+  deactivate FE
+end
+
+User -> FE : fin du test
+activate FE
+FE -> Agent : finish(sessionId)
+activate Agent
+Agent -> Mem : load(sessionId)
+Agent -> LLM : generateSynthesis(historique)
+activate LLM
+LLM --> Agent : synthese
+deactivate LLM
+Agent -> Agent : computeCefr()
+Agent -> Mem : clear(sessionId)
+Agent --> FE : {niveauCEFR, synthese}
+deactivate Agent
+FE --> User : afficher bilan final
+deactivate FE
+
+@enduml

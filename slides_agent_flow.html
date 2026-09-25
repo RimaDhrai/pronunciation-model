@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeakCoach — Déroulement Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --glass: rgba(255,255,255,0.06);
+            --border: rgba(255,255,255,0.1);
+            --text: #f0f0f8;
+            --muted: rgba(240,240,248,0.55);
+            --blue: #6C9FFF;
+            --purple: #A78BFA;
+            --green: #6EE7B7;
+            --orange: #FDBA74;
+            --pink: #F9A8D4;
+            --cyan: #67E8F9;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 48px 32px;
+            background-image:
+                linear-gradient(rgba(108,159,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(108,159,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .slide {
+            width: 1200px;
+            max-width: 100%;
+            margin: 0 auto 80px;
+            page-break-after: always;
+        }
+        .tag {
+            font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+            text-transform: uppercase; color: var(--blue); margin-bottom: 10px;
+        }
+        h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+        .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+
+        /* ── SLIDE 1: Master Agent routing ── */
+        .routing-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .master-box {
+            border: 2px solid var(--blue);
+            border-radius: 16px;
+            padding: 20px 28px;
+            background: rgba(108,159,255,0.1);
+            text-align: center;
+        }
+        .master-box .title { font-size: 18px; font-weight: 800; color: var(--blue); }
+        .master-box .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+        .mode-chips {
+            display: flex; justify-content: center; gap: 10px; margin-top: 12px; flex-wrap: wrap;
+        }
+        .chip {
+            padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 700;
+            background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+        }
+        .arrow-down {
+            text-align: center; color: var(--blue); font-size: 24px; line-height: 1;
+        }
+        .agents-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+        }
+        .agent-card {
+            border-radius: 14px; padding: 18px; border: 1px solid var(--border);
+            background: var(--glass); position: relative;
+        }
+        .agent-card .icon { font-size: 28px; margin-bottom: 8px; }
+        .agent-card .name { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+        .agent-card .desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+        .agent-card .nodes {
+            margin-top: 10px; font-size: 10px; font-family: monospace;
+            color: var(--cyan); background: rgba(0,0,0,0.3);
+            padding: 8px; border-radius: 8px; line-height: 1.6;
+        }
+        .agent-chat { border-top: 3px solid var(--green); }
+        .agent-test { border-top: 3px solid var(--purple); }
+        .agent-exercise { border-top: 3px solid var(--orange); }
+        .agent-chat .name { color: var(--green); }
+        .agent-test .name { color: var(--purple); }
+        .agent-exercise .name { color: var(--orange); }
+        .shared-bar {
+            margin-top: 20px; padding: 14px 20px; border-radius: 12px;
+            border: 1px dashed rgba(108,159,255,0.3);
+            background: rgba(108,159,255,0.05);
+            font-size: 12px; color: var(--muted); text-align: center;
+        }
+        .shared-bar strong { color: var(--text); }
+
+        /* ── SLIDE 2: Sequence flow ── */
+        .flow-container {
+            border: 1px solid var(--border); border-radius: 16px;
+            background: var(--glass); padding: 28px 24px; overflow-x: auto;
+        }
+        .flow-steps {
+            display: flex; align-items: stretch; gap: 0; min-width: 1100px;
+        }
+        .step {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            position: relative; min-width: 0;
+        }
+        .step-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: var(--blue); color: #0a0a1a;
+            font-size: 12px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 10px; flex-shrink: 0;
+        }
+        .step-box {
+            width: 100%; padding: 12px 10px; border-radius: 12px;
+            border: 1px solid var(--border); background: rgba(0,0,0,0.25);
+            text-align: center; min-height: 100px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .step-box .s-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+        .step-box .s-detail { font-size: 10px; color: var(--muted); line-height: 1.4; }
+        .step-arrow {
+            position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+            color: var(--blue); font-size: 18px; z-index: 2;
+        }
+        .step:last-child .step-arrow { display: none; }
+        .step-1 .step-box { border-color: rgba(249,168,212,0.4); }
+        .step-2 .step-box { border-color: rgba(103,232,249,0.4); }
+        .step-3 .step-box { border-color: rgba(108,159,255,0.5); }
+        .step-4 .step-box { border-color: rgba(167,139,250,0.4); }
+        .step-5 .step-box { border-color: rgba(110,231,183,0.4); }
+        .step-6 .step-box { border-color: rgba(253,186,116,0.4); }
+        .step-7 .step-box { border-color: rgba(252,165,165,0.4); }
+        .step-8 .step-box { border-color: rgba(110,231,183,0.5); background: rgba(16,185,129,0.08); }
+
+        .legend-row {
+            display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11px; color: var(--muted);
+        }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        .bridge-box {
+            margin-top: 24px; padding: 16px 24px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(108,159,255,0.12), rgba(167,139,250,0.08));
+            border: 1px solid rgba(108,159,255,0.25);
+            text-align: center; font-size: 13px; line-height: 1.6;
+        }
+        .bridge-box strong { color: var(--blue); }
+
+        @media print {
+            body { padding: 0; }
+            .slide { margin-bottom: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE A — Master Agent → 3 agents
+     ═══════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-master">
+    <div class="tag">Routage</div>
+    <h1>Master Agent — Routage vers 3 agents spécialisés</h1>
+    <p class="subtitle">
+        Point d'entrée unique (REST/SSE). Le routage est <strong style="color:#f0f0f8">explicite par mode</strong> — pas de LLM pour router.
+    </p>
+
+    <div class="routing-layout">
+        <div class="master-box">
+            <div class="title">🧠 MasterAgent</div>
+            <div class="sub">Spring Boot · SessionMemoryService · switch(mode)</div>
+            <div class="mode-chips">
+                <span class="chip">CHAT</span>
+                <span class="chip">TEST</span>
+                <span class="chip">TEST_FINISH</span>
+                <span class="chip">EXERCISE</span>
+            </div>
+        </div>
+
+        <div class="arrow-down">▼</div>
+
+        <div class="agents-row">
+            <div class="agent-card agent-chat">
+                <div class="icon">💬</div>
+                <div class="name">ChatbotAgent</div>
+                <div class="desc">
+                    Conversation guidée · streaming SSE · salutations rapides · historique 20 msgs
+                </div>
+                <div class="nodes">
+                    LangGraph4J :<br>
+                    prepare_context → generate_response
+                </div>
+            </div>
+            <div class="agent-card agent-test">
+                <div class="icon">📊</div>
+                <div class="name">LevelTestAgent</div>
+                <div class="desc">
+                    Diagnostic CECRL · 20 phonèmes · feedback adaptatif · attribution niveau A1→C2
+                </div>
+                <div class="nodes">
+                    LangGraph4J :<br>
+                    pick_sound → gen_content → gen_feedback → synthesize
+                </div>
+            </div>
+            <div class="agent-card agent-exercise">
+                <div class="icon">💪</div>
+                <div class="name">ExerciseAgent</div>
+                <div class="desc">
+                    Exercices ciblés · génération de phrases · XP · mots faibles du profil
+                </div>
+                <div class="nodes">
+                    OllamaService :<br>
+                    generatePhrase(level) + score XP
+                </div>
+            </div>
+        </div>
+
+        <div class="shared-bar">
+            <strong>Partagé par les 3 agents :</strong> SessionMemory · PostgreSQL · Ollama/Azure LLM · FastAPI (Whisper + éval. phonétique)
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE B — Déroulement 1 tour complet
+     ═══════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-flow">
+    <div class="tag">Déroulement</div>
+    <h1>Exemple — 1 tour agent (mode CHAT)</h1>
+    <p class="subtitle">
+        Du micro de l'apprenant au feedback corrigé. Pattern Think-Plan-Act-Observe = <strong style="color:#f0f0f8">conceptuel</strong>,
+        implémenté via les nœuds StateGraph.
+    </p>
+
+    <div class="flow-container">
+        <div class="flow-steps">
+            <div class="step step-1">
+                <div class="step-num">1</div>
+                <div class="step-box">
+                    <div class="s-title">🎤 Apprenant</div>
+                    <div class="s-detail">Envoie audio<br>requête vocale</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step step-2">
+                <div class="step-num">2</div>
+                <div class="step-box">
+                    <div class="s-title">🔊 Whisper STT</div>
+                    <div class="s-detail">FastAPI<br>audio → texte</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step step-3">
+                <div class="step-num">3</div>
+                <div class="step-box">
+                    <div class="s-title">🧠 MasterAgent</div>
+                    <div class="s-detail">mode=CHAT<br>route → ChatbotAgent</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step step-4">
+                <div class="step-num">4</div>
+                <div class="step-box">
+                    <div class="s-title">📋 Prepare Context</div>
+                    <div class="s-detail">Think+Plan<br>profil · historique · mots faibles</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step step-5">
+                <div class="step-num">5</div>
+                <div class="step-box">
+                    <div class="s-title">⚡ Generate Response</div>
+                    <div class="s-detail">Act<br>appel Ollama / Azure LLM</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step step-6">
+                <div class="step-num">6</div>
+                <div class="step-box">
+                    <div class="s-title">💾 Observe</div>
+                    <div class="s-detail">MemorySaver<br>MAJ historique + état</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step step-7">
+                <div class="step-num">7</div>
+                <div class="step-box">
+                    <div class="s-title">🛡️ Safety</div>
+                    <div class="s-detail">Quick responses · fallbacks · regex</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step step-8">
+                <div class="step-num">8</div>
+                <div class="step-box">
+                    <div class="s-title">✅ Feedback</div>
+                    <div class="s-detail">SSE streaming<br>→ apprenant</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:var(--pink)"></span> Utilisateur</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--cyan)"></span> Tool (FastAPI)</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span> Orchestration</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--purple)"></span> StateGraph</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> LLM + Mémoire</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--orange)"></span> Safety</div>
+        </div>
+    </div>
+
+    <div class="bridge-box">
+        <strong>→ Transition vers le benchmark LLM :</strong>
+        LangGraph4J orchestre le cycle — le goulot d'étranglement reste le <strong>modèle LLM</strong> (latence + coût).
+        D'où le choix Qwen 2.5 (dev) / GPT-4o-mini (prod).
+    </div>
+</section>
+
+</body>
+</html>

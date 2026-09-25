@@ -1,0 +1,20 @@
+# Configuration Grafana — Datasource Prometheus
+# Fichier lu automatiquement au démarrage de Grafana (provisionning)
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    uid: speakcoach-prometheus
+    jsonData:
+      httpMethod: GET
+      timeInterval: "15s"
+      queryTimeout: "60s"
+      exemplarTraceIdDestinations:
+        - name: traceID
+          datasourceUid: speakcoach-prometheus

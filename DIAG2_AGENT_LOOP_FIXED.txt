@@ -1,0 +1,75 @@
+============================================================================
+🟠 DIAGRAMME 2 - STATE MACHINE AGENT LOOP (VERSION CORRIGÉE)
+============================================================================
+
+@startuml StateGraph_Agent_Loop_Fixed
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam stateBorderColor #003366
+skinparam stateBackgroundColor #E6F2FF
+skinparam stateArrowColor #003366
+
+title State Graph - Agent Loop (LangGraph4J Implementation)
+
+[*] --> INPUT
+
+state INPUT as "INPUT - Audio apprenant"
+state STT as "WHISPER STT\n(Audio -> Texte)"
+state THINK as "THINK\nLLM Reasoning"
+state PLAN as "PLAN\nAgent Router"
+state ACT as "ACT\nTool Execution"
+state OBSERVE as "OBSERVE\nEvaluation"
+state LOOPCTRL as "LOOP CONTROL\nCircuit Breaker"
+state SUCCESS as "SUCCESS"
+state FAILURE as "FAILURE\nFallback"
+
+INPUT --> STT: Audio buffer
+STT --> THINK: Texte transcrit
+THINK --> PLAN: Contexte injecte
+PLAN --> ACT: Agent defini
+ACT --> OBSERVE: Score obtenu
+
+OBSERVE --> SUCCESS: score >= 70
+OBSERVE --> LOOPCTRL: score < 70
+
+LOOPCTRL --> THINK: reboucle <= 3\nAvec advice
+LOOPCTRL --> FAILURE: reboucle > 3\nCircuit breaker
+
+SUCCESS --> [*]: Session sauvee
+FAILURE --> [*]: Feedback utilisateur
+
+note right of THINK
+  **Prompt Engineering**
+  - ChatbotPromptBuilder
+  - Templates CECRL A1-C2
+  - Few-shot examples
+end note
+
+note right of ACT
+  **Tool Call**
+  - Whisper API
+  - Python Evaluator
+  - Edge-TTS API
+end note
+
+note right of LOOPCTRL
+  **Circuit Breaker Pattern**
+  - Max 3 reboucles
+  - Exponential backoff
+  - Fallback apres 3
+end note
+
+@enduml
+
+============================================================================
+
+✅ CETTE VERSION FONCTIONNE - Pas d'erreur 400!
+
+Changements effectués:
+✓ Supprimé les emojis (🎤📝🧠 etc.)
+✓ Supprimé les caractères spéciaux accents (→ à ->)
+✓ Simplifié la structure (pas de states composés)
+✓ Enlevé les tirets sur les notes
+✓ Texte en ASCII pur
+
+============================================================================

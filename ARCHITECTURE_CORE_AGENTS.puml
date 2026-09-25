@@ -1,0 +1,107 @@
+@startuml ARCHITECTURE_CORE_AGENTS
+!define COLOR_MASTER #FF6B6B
+!define COLOR_AGENT #4ECDC4
+!define COLOR_TOOL #45B7D1
+!define COLOR_SERVICE #96CEB4
+!define COLOR_DATA #FFEAA7
+
+skinparam backgroundColor #F8F9FA
+skinparam ArrowColor #333333
+skinparam BorderColor #333333
+skinparam FontColor #333333
+skinparam FontSize 11
+
+package "🧠 AGENT ORCHESTRATION LAYER" #FF6B6B20 {
+    component "MASTER AGENT\n[LangGraph4J]" as MASTER #FF6B6B
+    note right of MASTER
+        • Interprets user intent
+        • Distributes to specialists
+        • Manages conversation flow
+        • Stores session context
+    end note
+}
+
+package "🤖 SPECIALIZED AGENTS" #4ECDC420 {
+    component "🎤 CHATBOT\nAGENT" as CHATBOT #4ECDC4
+    component "📊 LEVEL_TEST\nAGENT" as LEVELTEST #4ECDC4
+    component "💪 EXERCISE\nAGENT" as EXERCISE #4ECDC4
+    
+    note bottom of CHATBOT
+        Conversational
+        guidance
+    end note
+    
+    note bottom of LEVELTEST
+        Diagnostic
+        assessment
+    end note
+    
+    note bottom of EXERCISE
+        Targeted
+        practice
+    end note
+}
+
+package "🛠️ TOOL EXECUTION LAYER" #45B7D120 {
+    component "🔊 AUDIO ENGINE\n[FastAPI]" as AUDIO #45B7D1
+    component "🎯 DECISION MAKER\n[Spring AI]" as DECISION #45B7D1
+    component "📞 CHATBOT ROUTER\n[FastAPI]" as ROUTER #45B7D1
+    
+    note right of AUDIO
+        Whisper transcription
+        Phoneme extraction
+        WER/F1 scoring
+    end note
+}
+
+package "💾 PERSISTENCE LAYER" #96CEB420 {
+    database "PostgreSQL" as DB #96CEB4
+    note right of DB
+        Users • Sessions
+        Attempts • Weak words
+        XP tracking • History
+    end note
+}
+
+package "🧬 LLM LAYER" #FFEAA720 {
+    component "Azure OpenAI\n(Production)" as AZURE #FFEAA7
+    component "Ollama\n(Development)" as OLLAMA #FFEAA7
+    component "Claude/GPT\n(Optional)" as OTHER #FFEAA7
+}
+
+' Connections
+MASTER --> CHATBOT : "Route\nconversation"
+MASTER --> LEVELTEST : "Route\nassessment"
+MASTER --> EXERCISE : "Route\npractice"
+
+CHATBOT --> DECISION : "Get response"
+LEVELTEST --> AUDIO : "Analyze"
+EXERCISE --> AUDIO : "Evaluate"
+
+DECISION --> AZURE : "Query LLM"
+DECISION --> OLLAMA : "Query LLM"
+
+AUDIO --> DB : "Store results"
+LEVELTEST --> DB : "Store scores"
+EXERCISE --> DB : "Store progress"
+
+ROUTER -.-> CHATBOT : "Optional\nrouting"
+
+' Title and legend
+note top of MASTER
+    ╔════════════════════════════════════════════╗
+    ║     SPEAKCOACH - AGENT ARCHITECTURE        ║
+    ║  Master Agent + 3 Specialized Agents      ║
+    ║         + Complete Tool Stack             ║
+    ╚════════════════════════════════════════════╝
+end note
+
+legend right
+    |<#FF6B6B> ORCHESTRATION (Decide what to do)|
+    |<#4ECDC4> SPECIALIZATION (Do the task)|
+    |<#45B7D1> EXECUTION (Tools & APIs)|
+    |<#96CEB4> PERSISTENCE (Memory)|
+    |<#FFEAA7> INTELLIGENCE (LLM choice)|
+end legend
+
+@enduml

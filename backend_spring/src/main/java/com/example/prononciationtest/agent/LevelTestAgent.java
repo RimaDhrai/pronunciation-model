@@ -79,18 +79,18 @@ public class LevelTestAgent {
 
     static {
         // FR Context
-        SOUND_CONTEXT_FR.put("r", "rouge, renard, bruit, Paris, partir, crier, brosse");
-        SOUND_CONTEXT_FR.put("u", "rue, vu, bu, tu, sur, lune, bureau, futur");
-        SOUND_CONTEXT_FR.put(KEY_IN_NASAL, "main, vin, pain, lapin, cousin, matin, dessin");
-        SOUND_CONTEXT_FR.put(KEY_ON_NASAL, "bon, pont, balcon, mouton, chanson, salon");
-        SOUND_CONTEXT_FR.put(KEY_AN_NASAL, "grand, enfant, temps, vent, chanter, devant");
-        SOUND_CONTEXT_FR.put("eu", "deux, feu, heureux, beurre, sœur, bleu");
-        SOUND_CONTEXT_FR.put("gn", "montagne, vigne, gagner, signe, campagne");
-        SOUND_CONTEXT_FR.put(KEY_LIAISON, "les enfants, vous avez, ils ont, un ami, en avant");
-        SOUND_CONTEXT_FR.put("ch", "chat, chose, chercher, chocolat, perche");
-        SOUND_CONTEXT_FR.put("j", "je, jour, jeu, jardin, plage, image");
-        SOUND_CONTEXT_FR.put("ou", "roue, bouche, tout, sous, nous, jour, cou");
-        SOUND_CONTEXT_FR.put("oi", "voiture, poisson, roi, choix, moi, toi");
+        SOUND_CONTEXT_FR.put("r", "réunion, rentabilité, reporting, projet, partenariat, recrutement, restructuration");
+        SOUND_CONTEXT_FR.put("u", "bureau, budget, futur, structure, usine, unanime, flux");
+        SOUND_CONTEXT_FR.put(KEY_IN_NASAL, "investissement, ingénieur, entretien, point, syndicat, matin, instinct");
+        SOUND_CONTEXT_FR.put(KEY_ON_NASAL, "réunion, fondation, consultation, fonction, gestion, subvention");
+        SOUND_CONTEXT_FR.put(KEY_AN_NASAL, "management, plan, consultant, rentabilité, finances, stratégie");
+        SOUND_CONTEXT_FR.put("eu", "directeur, ingénieur, enjeux, secteur, développeur, milieu");
+        SOUND_CONTEXT_FR.put("gn", "gagner, ligne, alignement, campagne, signataire");
+        SOUND_CONTEXT_FR.put(KEY_LIAISON, "les objectifs, nous avons, vous êtes, un accord, en avance");
+        SOUND_CONTEXT_FR.put("ch", "marché, chiffre, charge, chef, chiffrage");
+        SOUND_CONTEXT_FR.put("j", "projet, budget, gestion, objectif, management, digital");
+        SOUND_CONTEXT_FR.put("ou", "outil, ressource, atout, recrutement, ouverture, bourse");
+        SOUND_CONTEXT_FR.put("oi", "emploi, choix, croissance, droit, exploitation");
 
         // FR Labels
         SOUND_LABELS_FR.put("r", "Le R grasseyé [ʁ]");
@@ -107,16 +107,16 @@ public class LevelTestAgent {
         SOUND_LABELS_FR.put("oi", "Le OI [wa]");
 
         // EN Context
-        SOUND_CONTEXT_EN.put("th", "think, the, three, that, both, through, weather");
-        SOUND_CONTEXT_EN.put("r", "river, road, rain, run, arrive, current, worry");
-        SOUND_CONTEXT_EN.put("ae", "cat, hat, bag, man, black, hand, stand, plan");
-        SOUND_CONTEXT_EN.put(KEY_SHORT_I, "sit, him, big, fish, ring, win, ship, bit");
-        SOUND_CONTEXT_EN.put("ng", "running, singing, ring, king, bring, thing, wrong");
-        SOUND_CONTEXT_EN.put("w", "water, walk, wind, world, wave, warm, window");
-        SOUND_CONTEXT_EN.put("v", "voice, very, visit, village, love, live, above");
-        SOUND_CONTEXT_EN.put(KEY_SCHWA, "the, a, about, teacher, doctor, problem, system");
-        SOUND_CONTEXT_EN.put(KEY_DIPHTHONG, "day, time, boy, go, now, own, say, high");
-        SOUND_CONTEXT_EN.put(KEY_DARK_L, "ball, full, milk, fall, tall, call, felt");
+        SOUND_CONTEXT_EN.put("th", "think, gather, growth, authorize, methods, smooth, breakthrough");
+        SOUND_CONTEXT_EN.put("r", "report, revenue, review, market, corporate, strategy, restructure");
+        SOUND_CONTEXT_EN.put("ae", "management, strategy, plan, analysis, asset, brand, expand");
+        SOUND_CONTEXT_EN.put(KEY_SHORT_I, "business, system, profit, issue, building, limit, digital");
+        SOUND_CONTEXT_EN.put("ng", "meeting, marketing, planning, training, working, sourcing");
+        SOUND_CONTEXT_EN.put("w", "work, workflow, wealth, worldwide, software, forward, hardware");
+        SOUND_CONTEXT_EN.put("v", "value, investment, review, revenue, service, provide, developer");
+        SOUND_CONTEXT_EN.put(KEY_SCHWA, "company, focus, consultant, analysis, problem, system, data");
+        SOUND_CONTEXT_EN.put(KEY_DIPHTHONG, "scale, ROI, stakeholder, timeline, milestone, client, scope");
+        SOUND_CONTEXT_EN.put(KEY_DARK_L, "capital, global, scale, goal, email, skill, model");
 
         // EN Labels
         SOUND_LABELS_EN.put("th", "The TH sound [θ/ð]");
@@ -132,60 +132,60 @@ public class LevelTestAgent {
 
         // Fallback Phrases FR
         Map<String, String> frPhrases = new HashMap<>();
-        frPhrases.put("r", "Le renard rouge court dans la forêt.");
-        frPhrases.put("u", "La lune est visible dans le ciel bleu.");
-        frPhrases.put(KEY_IN_NASAL, "Le lapin mange du pain le matin.");
-        frPhrases.put(KEY_ON_NASAL, "Le mouton broute dans le salon.");
-        frPhrases.put(KEY_AN_NASAL, "L'enfant chante sous la pluie de vent.");
-        frPhrases.put("eu", "Les deux amis sont heureux ensemble.");
-        frPhrases.put("gn", "La montagne est couverte de vigne.");
-        frPhrases.put(KEY_LIAISON, "Les amis ont un ami en avance.");
-        frPhrases.put("ch", "Le chat cherche le chocolat chaud.");
-        frPhrases.put("j", "Je joue dans le jardin chaque jour.");
-        frPhrases.put("ou", "La roue de la voiture tourne sous la pluie.");
-        frPhrases.put("oi", "La voiture du roi fait un choix difficile.");
+        frPhrases.put("r", "La réunion sur la rentabilité a permis de définir un nouveau partenariat.");
+        frPhrases.put("u", "Le budget futur de notre structure a été approuvé à l'unanimité.");
+        frPhrases.put(KEY_IN_NASAL, "L'investissement de ce matin est un point clé pour l'ingénieur.");
+        frPhrases.put(KEY_ON_NASAL, "La gestion de la consultation a mené à une excellente fondation.");
+        frPhrases.put(KEY_AN_NASAL, "Le consultant a présenté un plan de management de la rentabilité.");
+        frPhrases.put("eu", "Le directeur du secteur a félicité chaque développeur pour les enjeux relevés.");
+        frPhrases.put("gn", "Nous devons gagner en alignement pour notre nouvelle campagne marketing.");
+        frPhrases.put(KEY_LIAISON, "Nous avons des objectifs clairs et vous êtes en avance sur le planning.");
+        frPhrases.put("ch", "Le chef de projet a validé le chiffrage pour conquérir le marché.");
+        frPhrases.put("j", "La gestion du budget digital reste notre objectif majeur pour ce projet.");
+        frPhrases.put("ou", "Cet outil de recrutement est un atout majeur pour notre ouverture internationale.");
+        frPhrases.put("oi", "Notre choix d'exploitation garantit le droit à une croissance de l'emploi.");
         FALLBACK_PHRASES.put("fr", frPhrases);
 
         // Fallback Phrases EN
         Map<String, String> enPhrases = new HashMap<>();
-        enPhrases.put("th", "I think the weather is getting better.");
-        enPhrases.put("r", "The river runs through the rainy road.");
-        enPhrases.put("ae", "The cat sat on the black hat.");
-        enPhrases.put(KEY_SHORT_I, "The fish swam in the big ship.");
-        enPhrases.put("ng", "She is running and singing a song.");
-        enPhrases.put("w", "The warm water flows by the window.");
-        enPhrases.put("v", "The voice of the village is very calm.");
-        enPhrases.put(KEY_SCHWA, "The teacher helped the doctor with the problem.");
-        enPhrases.put(KEY_DIPHTHONG, "The day is high and the time flies away.");
-        enPhrases.put(KEY_DARK_L, "The ball fell on the tall wall.");
+        enPhrases.put("th", "We must think about the methods to authorize smooth corporate growth.");
+        enPhrases.put("r", "The corporate strategy review aims to restructure our market approach.");
+        enPhrases.put("ae", "Our management plan includes a deep analysis of brand expansion strategies.");
+        enPhrases.put(KEY_SHORT_I, "The digital business system will limit our current operational issues.");
+        enPhrases.put("ng", "The training and planning meeting focused on improving our sourcing workflow.");
+        enPhrases.put("w", "Worldwide software updates are pushing our hardware workflow forward.");
+        enPhrases.put("v", "We provide valuable services that increase our investment revenue.");
+        enPhrases.put(KEY_SCHWA, "The consultant presented an analysis of the company's data problem.");
+        enPhrases.put(KEY_DIPHTHONG, "We need to scale our timeline to reach every stakeholder milestone.");
+        enPhrases.put(KEY_DARK_L, "Our global capital model requires advanced skills and clear goals.");
         FALLBACK_PHRASES.put("en", enPhrases);
 
         // Fallback Tips FR
         Map<String, String> frTips = new HashMap<>();
-        frTips.put("r", "Pour le R français, faites vibrer le fond de la gorge.");
-        frTips.put("u", "Arrondissez les lèvres comme pour siffler et dites 'i'.");
-        frTips.put(KEY_IN_NASAL, "Laissez l'air passer par le nez.");
-        frTips.put(KEY_ON_NASAL, "Arrondissez les lèvres, air par le nez.");
-        frTips.put(KEY_AN_NASAL, "Ouvrez la bouche, langue vers le bas.");
-        frTips.put("eu", "Arrondissez les lèvres comme pour 'o' et dites 'é'.");
-        frTips.put("gn", "Collez la langue au palais.");
-        frTips.put(KEY_LIAISON, "Enchaînez les mots naturellement.");
-        frTips.put("ch", "Avancez les lèvres, soufflez doucement.");
-        frTips.put("j", "Faites vibrer les cordes vocales.");
+        frTips.put("r", "Pour le R français, faites vibrer le fond de la gorge avec assurance.");
+        frTips.put("u", "Arrondissez les lèvres comme pour siffler et dites 'i' pour un 'u' net.");
+        frTips.put(KEY_IN_NASAL, "Laissez l'air passer par le nez de manière fluide et professionnelle.");
+        frTips.put(KEY_ON_NASAL, "Arrondissez les lèvres et laissez l'air sortir par le nez avec clarté.");
+        frTips.put(KEY_AN_NASAL, "Ouvrez la bouche, la langue vers le bas, pour une prononciation distincte.");
+        frTips.put("eu", "Arrondissez les lèvres comme pour 'o' et dites 'é' avec précision.");
+        frTips.put("gn", "Collez la langue au palais pour articuler clairement le son GN.");
+        frTips.put(KEY_LIAISON, "Enchaînez les mots naturellement pour un discours fluide en réunion.");
+        frTips.put("ch", "Avancez les lèvres et soufflez doucement pour une articulation maîtrisée.");
+        frTips.put("j", "Faites vibrer les cordes vocales avec assurance lors des présentations.");
         FALLBACK_TIPS.put("fr", frTips);
 
         // Fallback Tips EN
         Map<String, String> enTips = new HashMap<>();
-        enTips.put("th", "Place your tongue lightly between your teeth and blow.");
-        enTips.put("r", "Curl your tongue back slightly.");
-        enTips.put("ae", "Open your mouth wide, push your tongue forward.");
-        enTips.put(KEY_SHORT_I, "Relax your tongue, shorter than long 'ee'.");
-        enTips.put("ng", "Close the back of your throat like humming.");
-        enTips.put("w", "Round your lips tightly first, then release.");
-        enTips.put("v", "Touch your upper teeth to your lower lip.");
-        enTips.put(KEY_SCHWA, "Most relaxed vowel, mouth almost closed.");
-        enTips.put(KEY_DIPHTHONG, "Start on one vowel and glide smoothly.");
-        enTips.put(KEY_DARK_L, "Raise the back of your tongue toward the soft palate.");
+        enTips.put("th", "Place your tongue lightly between your teeth to articulate clearly during presentations.");
+        enTips.put("r", "Curl your tongue back slightly for a confident American R.");
+        enTips.put("ae", "Open your mouth wide and push your tongue forward for a clear vowel.");
+        enTips.put(KEY_SHORT_I, "Relax your tongue, making the vowel shorter than a long 'ee' for crisp business English.");
+        enTips.put("ng", "Close the back of your throat like humming to perfect your gerunds.");
+        enTips.put("w", "Round your lips tightly first, then release smoothly into the next vowel.");
+        enTips.put("v", "Touch your upper teeth to your lower lip for a professional sounding 'v'.");
+        enTips.put(KEY_SCHWA, "Use the relaxed schwa sound to maintain a natural rhythm in corporate speech.");
+        enTips.put(KEY_DIPHTHONG, "Start on one vowel and glide smoothly to the other for fluent delivery.");
+        enTips.put(KEY_DARK_L, "Raise the back of your tongue toward the soft palate for a clear dark L.");
         FALLBACK_TIPS.put("en", enTips);
     }
 

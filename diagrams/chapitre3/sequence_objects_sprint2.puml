@@ -1,0 +1,73 @@
+@startuml
+skinparam maxMessageSize 150
+actor ":Apprenant" as User
+participant "FE: Frontend" as FE
+participant "ctrl: LevelTestAgentController" as Ctrl
+participant "agent: LevelTestAgent" as Agent
+participant "ollamaService: OllamaService" as Ollama
+participant "sessionRepo: CEFRSessionRepository" as SessionRepo
+participant "stepRepo: PlannerStepResultRepository" as StepRepo
+
+User -> FE: Démarre le test CEFR (lang="fr")
+activate FE
+
+FE -> Ctrl: POST /api/level-test/start?lang=fr
+activate Ctrl
+Ctrl -> SessionRepo: save(new CEFRSession("IN_PROGRESS"))
+activate SessionRepo
+SessionRepo --> Ctrl: CEFRSession
+deactivate SessionRepo
+
+Ctrl -> Agent: start(sessionId, lang, userName)
+activate Agent
+Agent -> Agent: pickSoundNode()
+Agent -> Ollama: generateLevelTestPhrase(lang, context, level)
+activate Ollama
+Ollama --> Agent: String (phrase)
+deactivate Ollama
+Agent --> Ctrl: Map (AgentState)
+deactivate Agent
+
+Ctrl --> FE: 200 OK (phrase, conseil)
+deactivate Ctrl
+FE --> User: Affiche la phrase cible
+
+User -> FE: Lit la phrase (Microphone)
+FE -> FE: STT Transcription & Scoring
+FE -> Ctrl: POST /api/level-test/next (score, phrase)
+activate Ctrl
+
+Ctrl -> Agent: next(sessionId, score, phrase)
+activate Agent
+Agent -> Ollama: generateLevelTestFeedback(lang, soundLabel, phrase, score, ...)
+activate Ollama
+Ollama --> Agent: String (feedback)
+deactivate Ollama
+
+alt Étape < 20 (done = false)
+    Agent -> Agent: pickSoundNode()
+    Agent --> Ctrl: Map (AgentState)
+    Ctrl --> FE: 200 OK (prochaine phrase, feedback)
+else 20 étapes atteintes (done = true)
+    Agent -> Ollama: generateLevelTestSynthesis(...)
+    activate Ollama
+    Ollama --> Agent: String (synthesis)
+    deactivate Ollama
+    Agent -> Agent: computeCefr(history)
+    Agent --> Ctrl: Map (AgentState + finalLevel)
+    deactivate Agent
+    
+    Ctrl -> Ctrl: persistResults(sessionId, result)
+    activate Ctrl
+    Ctrl -> SessionRepo: save(CEFRSession "COMPLETED")
+    Ctrl -> StepRepo: saveAll(PlannerStepResult)
+    deactivate Ctrl
+    
+    Ctrl --> FE: 200 OK (synthesis, finalLevel)
+end
+deactivate Ctrl
+
+FE --> User: Affiche feedback ou Résultat final
+deactivate FE
+
+@enduml

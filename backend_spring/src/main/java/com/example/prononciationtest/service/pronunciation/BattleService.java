@@ -17,13 +17,13 @@ public class BattleService {
 
     public String generateBattlePhrase(String lang, String level) {
         String system = "fr".equals(lang)
-                ? "G\u00e9n\u00e8re UNE seule phrase fran\u00e7aise pour un exercice de prononciation comp\u00e9titif. " +
-                        "Niveau " + level + ". Pas de guillemets. Pas d'explication. Uniquement la phrase."
-                : "Generate ONE English phrase for a competitive pronunciation drill. " +
-                        "Level " + level + ". No quotes. No explanation. Just the phrase.";
+                ? "Génère UN paragraphe court et professionnel en français pour un exercice de prononciation compétitif chez Talan. " +
+                        "Niveau " + level + ". Contexte : entreprise, IT, conseil. Pas de guillemets. Pas d'explication. Uniquement le texte."
+                : "Generate ONE short professional paragraph in English for a competitive pronunciation drill at Talan. " +
+                        "Level " + level + ". Context: corporate, IT, consulting. No quotes. No explanation. Just the text.";
         String prompt = "fr".equals(lang)
-                ? "Une phrase originale, vivante, de 8-12 mots, niveau " + level + "."
-                : "An original, lively phrase, 8-12 words, level " + level + ".";
+                ? "Un texte original, dynamique, de 15-25 mots, niveau " + level + "."
+                : "An original, dynamic text, 15-25 words, level " + level + ".";
         
         String raw = ollamaClientService.callOllama(system, prompt, 60, 0.7);
         String cleaned = raw == null ? "" : raw.replaceAll("(^[\\\"'\\u00AB\\u00BB\\s]+)|([\\\"'\\u00AB\\u00BB\\s]+$)", "").trim();

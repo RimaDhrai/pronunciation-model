@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+
+actor "Apprenant" as A
+actor "Administrateur" as Adm
+
+rectangle "SpeakCoach -- Sprint 2" {
+  usecase "Passer le test CEFR" as UC1
+  usecase "Consulter son niveau" as UC2
+  usecase "Consulter l'historique" as UC3
+  usecase "Suivre un cours" as UC4
+  usecase "Suivre sa progression" as UC5
+  usecase "Gerer les cours" as UC6
+  usecase "Gerer les lecons" as UC7
+}
+
+A -- UC1
+A -- UC2
+A -- UC3
+A -- UC4
+A -- UC5
+
+Adm -- UC6
+Adm -- UC7
+
+UC6 ..> UC7 : <<include>>
+
+@enduml

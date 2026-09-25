@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeakCoach — Méthodologie Scrum Agile</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  body {
+    font-family: 'Poppins', 'Segoe UI', Calibri, sans-serif;
+    background: #f0f2f5;
+    color: #2c3e50;
+    line-height: 1.4;
+    padding-top: 70px; /* Espace pour la barre d'outils */
+    transition: background 0.3s;
+  }
+
+  /* ══════════════ BARRE D'OUTILS (ÉCRAN UNIQUEMENT) ══════════════ */
+  .presentation-toolbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 50px;
+    background: #1a2332;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  }
+  .presentation-toolbar .toolbar-brand {
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+  .presentation-toolbar .toolbar-brand span {
+    color: #e74c6f;
+    font-weight: 400;
+  }
+  .presentation-toolbar .toolbar-actions {
+    display: flex;
+    gap: 12px;
+  }
+  .presentation-toolbar button {
+    background: #2c3e50;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+  }
+  .presentation-toolbar button:hover {
+    background: #e74c6f;
+  }
+
+  /* ══════════════ CONTENEUR DE DIAPOSITIVE ══════════════ */
+  .slide {
+    width: 1123px;  /* Largeur A4 Paysage */
+    height: 794px; /* Hauteur A4 Paysage */
+    padding: 40px 50px;
+    background: #ffffff;
+    position: relative;
+    margin: 30px auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+  /* ══════════════ EN-TÊTE TALAN ══════════════ */
+  .slide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    height: 60px;
+  }
+  .header-left {
+    display: flex;
+    flex-direction: column;
+  }
+  .slide-category {
+    font-size: 13px;
+    font-weight: 800;
+    color: #e74c6f;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .capsules {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .capsules span {
+    width: 16px;
+    height: 5px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .talan-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .talan-logo .brand {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: #1b2a47;
+    line-height: 1;
+  }
+  .talan-logo .tagline {
+    font-size: 8px;
+    font-weight: 700;
+    color: #7f8c8d;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ══════════════ BARRE DE TITRE ══════════════ */
+  .slide-title-bar {
+    border-left: 6px solid #e74c6f;
+    padding-left: 15px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+  }
+  .slide-title-bar h2 {
+    color: #e74c6f;
+    font-size: 22px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+
+  .slide-title-blue {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    padding-left: 0;
+  }
+  .slide-title-blue h2 {
+    color: #1b2a47; /* Bleu marine TALAN */
+    font-size: 22px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+
+  /* ══════════════ TABLEAUX DU RAPPORT (MATCHING COPIE SCREENSHOT) ══════════════ */
+  .talan-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 3px solid #8e44ad; /* Bordure violette */
+    font-size: 11px;
+    margin: 10px 0;
+  }
+  .talan-table th {
+    background: #6facd5; /* En-tête bleu ciel */
+    color: #ffffff;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    border: 2px solid #8e44ad;
+    text-align: left;
+    letter-spacing: 0.5px;
+  }
+  .talan-table td {
+    padding: 9px 14px;
+    border: 1px solid #e2e8f0;
+    color: #2c3e50;
+    vertical-align: middle;
+  }
+  .talan-table tr:nth-child(even) {
+    background: #f8fafc;
+  }
+  .talan-table td.merged-release {
+    background: #ebf5fb;
+    font-weight: 800;
+    text-align: center;
+    color: #2980b9;
+    border-right: 2px solid #8e44ad;
+    font-size: 15px;
+  }
+  .talan-table td.merged-sprint {
+    background: #ffffff;
+    font-weight: 700;
+    text-align: center;
+    color: #2c3e50;
+    border-right: 1px solid #e2e8f0;
+    font-size: 12px;
+  }
+  .talan-table td.prio-high {
+    color: #27ae60;
+    font-weight: 700;
+  }
+  .talan-table td.prio-medium {
+    color: #e67e22;
+    font-weight: 700;
+  }
+  .talan-table td.feature-title {
+    font-weight: 700;
+    color: #1a2332;
+  }
+
+  /* ══════════════ BADGES DE STATUT ══════════════ */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .badge-done { background: #e8f8f5; color: #27ae60; }
+  .badge-high { background: #fde8ee; color: #e74c6f; }
+  .badge-medium { background: #fef5e7; color: #e67e22; }
+
+  /* ══════════════ BAS DE PAGE (FOOTER) ══════════════ */
+  .slide-footer {
+    width: 100%;
+    margin-top: auto;
+    padding-top: 15px;
+  }
+  .slide-footer .footer-line {
+    height: 6px;
+    background: #e74c6f;
+    border-radius: 3px;
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  .slide-footer .footer-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: #7f8c8d;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .slide-footer .footer-meta span:first-child {
+    margin: 0 auto;
+    transform: translateX(12px); /* Offsets page number to remain centered */
+  }
+  .slide-footer .footer-meta .page-num {
+    margin-left: auto;
+    color: #2c3e50;
+    font-weight: 700;
+  }
+
+  /* ══════════════ COVER DIAPO ══════════════ */
+  .cover {
+    background: linear-gradient(135deg, #1a2332 0%, #0c1017 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+  }
+  .cover-glow-1 {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(231,76,111,0.06) 0%, rgba(0,0,0,0) 70%);
+    top: -50px;
+    left: -50px;
+    pointer-events: none;
+  }
+  .cover-glow-2 {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(52,152,219,0.04) 0%, rgba(0,0,0,0) 70%);
+    bottom: -100px;
+    right: -100px;
+    pointer-events: none;
+  }
+  .cover h1 {
+    font-size: 52px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  .cover h1 span { color: #e74c6f; }
+  .cover .cover-sub {
+    font-size: 18px;
+    color: #bdc3c7;
+    margin-bottom: 35px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+  .cover .cover-badge {
+    background: rgba(231,76,111,0.12);
+    border: 1px solid rgba(231,76,111,0.25);
+    padding: 10px 30px;
+    border-radius: 30px;
+    font-size: 13px;
+    color: #e74c6f;
+    font-weight: 600;
+    margin-bottom: 50px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .cover .cover-info {
+    font-size: 12px;
+    color: #95a5a6;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 20px;
+    width: 320px;
+  }
+
+  /* ══════════════ SPRINT INFOBAR (METRICS OVERVIEW) ══════════════ */
+  .sprint-summary-bar {
+    display: flex;
+    background: #f8f9fb;
+    border-radius: 8px;
+    padding: 10px 20px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border-left: 4px solid #e74c6f;
+    font-size: 11.5px;
+  }
+  .sprint-summary-bar .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sprint-summary-bar .summary-item strong {
+    color: #1a2332;
+  }
+
+  /* ══════════════ SCRUM FLOW (SLIDE 2) ══════════════ */
+  .scrum-flow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 25px 0;
+    width: 100%;
+  }
+  .flow-step {
+    flex: 1;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 15px 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    border: 1px solid #e2e8f0;
+    text-align: center;
+    position: relative;
+    transition: transform 0.2s;
+  }
+  .flow-step:hover {
+    transform: translateY(-2px);
+  }
+  .flow-step .step-num {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c3e50;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .flow-step .step-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+  .flow-step .step-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a2332;
+    margin-bottom: 4px;
+  }
+  .flow-step .step-desc {
+    font-size: 9px;
+    color: #7f8c8d;
+  }
+  .flow-arrow {
+    font-size: 18px;
+    color: #bdc3c7;
+    padding: 0 8px;
+    font-weight: bold;
+  }
+  .step-pink { border-top: 4px solid #e74c6f; }
+  .step-blue { border-top: 4px solid #3498db; }
+  .step-purple { border-top: 4px solid #9b59b6; }
+  .step-green { border-top: 4px solid #2ecc71; }
+  .step-orange { border-top: 4px solid #f39c12; }
+
+  .ceremonies-grid {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    margin-top: 15px;
+  }
+  .ceremony-card {
+    flex: 1;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    border-top: 4px solid;
+    text-align: center;
+  }
+  .ceremony-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #1a2332;
+  }
+  .ceremony-card p {
+    font-size: 10px;
+    color: #7f8c8d;
+    line-height: 1.4;
+  }
+
+  /* ══════════════ STRUCTURE D'ÉQUIPE (SLIDE 3 - EXACT MATCH) ══════════════ */
+  .team-container {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 20px;
+    width: 100%;
+  }
+  .team-card {
+    flex: 1;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 25px 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .team-card.white-card {
+    border-top: 6px solid #e74c6f;
+    border-left: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .team-card.dark-card {
+    background: #203754;
+    color: white;
+    box-shadow: 0 10px 30px rgba(32,55,84,0.15);
+  }
+  .team-card.blue-card {
+    border-top: 6px solid #3498db;
+    border-left: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .team-card-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 3px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    font-size: 34px;
+  }
+  .team-card.white-card .team-card-icon {
+    background: #fde8ee;
+    border-color: #e74c6f;
+    color: #e74c6f;
+  }
+  .team-card.blue-card .team-card-icon {
+    background: #ebf5fb;
+    border-color: #3498db;
+    color: #3498db;
+  }
+  .team-card.dark-card .team-card-icon {
+    background: #2b4566;
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+  .team-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .team-card.dark-card h3 { color: white; }
+  .team-card.white-card h3 { color: #1b2a47; }
+  .team-card.blue-card h3 { color: #1b2a47; }
+
+  .team-card .role-title {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .team-card.white-card .role-title { color: #e74c6f; }
+  .team-card.blue-card .role-title { color: #3498db; }
+  .team-card.dark-card .role-title { color: #85c1e9; }
+
+  .team-card .divider {
+    width: 80%;
+    height: 1px;
+    background: #e2e8f0;
+    margin-bottom: 15px;
+  }
+  .team-card.dark-card .divider {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .team-card ul.team-bullets {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    text-align: left;
+  }
+  .team-card ul.team-bullets li {
+    font-size: 10.5px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+  }
+  .team-card ul.team-bullets li .bullet-badge {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .team-card.white-card ul.team-bullets li .bullet-badge {
+    background: #fde8ee;
+    color: #e74c6f;
+  }
+  .team-card.blue-card ul.team-bullets li .bullet-badge {
+    background: #ebf5fb;
+    color: #3498db;
+  }
+  .team-card.dark-card ul.team-bullets li .bullet-badge {
+    background: #2b4566;
+    color: #ffffff;
+  }
+
+  /* ══════════════ INFOBAR DE VÉLOCITÉ (SLIDE 4) ══════════════ */
+  .velocity-info-box {
+    background: #f8f9fb;
+    border-left: 4px solid #3498db;
+    padding: 12px 18px;
+    margin-top: 10px;
+    border-radius: 0 8px 8px 0;
+    font-size: 11.5px;
+  }
+  .velocity-info-box strong { color: #1a2332; }
+
+  /* ══════════════ DEUX BLOCS POUR RELEASES ══════════════ */
+  .releases-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* ══════════════ MODE PRÉSENTATION INTERACTIF ══════════════ */
+  .slideshow-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #090d16;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    overflow: hidden;
+  }
+  .slideshow-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+  }
+  .slideshow-controls {
+    height: 55px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    background: rgba(26, 35, 50, 0.96);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    z-index: 10000;
+  }
+  .slideshow-controls .control-btn {
+    background: #2c3e50;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .slideshow-controls .control-btn:hover {
+    background: #e74c6f;
+  }
+  .slideshow-controls .close-btn {
+    background: #c0392b;
+  }
+  .slideshow-controls .close-btn:hover {
+    background: #e74c3c;
+  }
+  .slideshow-counter {
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 90px;
+    text-align: center;
+  }
+
+  .dark-workspace {
+    background: #111827 !important;
+  }
+
+  /* ══════════════ IMPRESSION ══════════════ */
+  @media print {
+    body {
+      background: white !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .no-print {
+      display: none !important;
+    }
+    .slide {
+      margin: 0 !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      page-break-after: always !important;
+      width: 100% !important;
+      height: 100vh !important;
+      min-height: 100vh !important;
+      border: none !important;
+      padding: 30px 40px !important;
+    }
+    .talan-table {
+      page-break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Barre d'outils supérieure (Masquée à l'impression) -->
+<div class="presentation-toolbar no-print">
+  <div class="toolbar-brand">SpeakCoach <span>| Scrum Agile</span></div>
+  <div class="toolbar-actions">
+    <button onclick="toggleSlideshow()"><span class="btn-icon">🖥️</span> Mode Diaporama</button>
+    <button onclick="window.print()"><span class="btn-icon">🖨️</span> Exporter en PDF</button>
+    <button onclick="toggleWorkspaceTheme()"><span class="btn-icon">🌓</span> Fond Sombre/Clair</button>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║                      SLIDE 1 : PAGE DE GARDE                          ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide cover">
+  <div class="cover-glow-1"></div>
+  <div class="cover-glow-2"></div>
+  <div class="talan-logo" style="position: absolute; top: 40px; right: 50px;">
+    <span class="brand" style="color: #ffffff;">TALAN</span>
+    <span class="tagline" style="color: #e74c6f;">Positive innovation</span>
+  </div>
+
+  <h1>Speak<span>Coach</span></h1>
+  <div class="cover-sub">Plateforme IA d'Entraînement à la Prononciation</div>
+  <div class="cover-badge">📋 Méthodologie Scrum Agile — Backlogs & Sprints</div>
+  
+  <div class="cover-info">
+    <p style="font-weight: 700; color: #ffffff; margin-bottom: 2px;">Projet de Fin d'Études 2026</p>
+    <p>TALAN Tunisie · Département Innovation</p>
+  </div>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Présentation Backlog</span>
+      <span class="page-num">1</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║                  SLIDE 2 : PROCESSUS SCRUM                            ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Scrum Agile</span>
+      <div class="capsules">
+        <span style="background: #5dade2;"></span>
+        <span style="background: #e74c6f;"></span>
+        <span style="background: #2ecc71;"></span>
+        <span style="background: #f39c12;"></span>
+        <span style="background: #9b59b6;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-blue">
+    <h2>LE PROCESSUS SCRUM ITÉRATIF & INCRÉMENTAL</h2>
+  </div>
+
+  <div class="scrum-flow">
+    <div class="flow-step step-pink">
+      <div class="step-num">1</div>
+      <div class="step-icon">📋</div>
+      <div class="step-title">Product Backlog</div>
+      <div class="step-desc">Besoins priorisés (User Stories)</div>
+    </div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-step step-blue">
+      <div class="step-num">2</div>
+      <div class="step-icon">📝</div>
+      <div class="step-title">Sprint Planning</div>
+      <div class="step-desc">Objectif & engagement</div>
+    </div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-step step-purple">
+      <div class="step-num">3</div>
+      <div class="step-icon">🔄</div>
+      <div class="step-title">Sprint (2-3 sem)</div>
+      <div class="step-desc">Développement & Tests</div>
+    </div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-step step-green">
+      <div class="step-num">4</div>
+      <div class="step-icon">📦</div>
+      <div class="step-title">Livrable (Incrément)</div>
+      <div class="step-desc">Code testé & déployable</div>
+    </div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-step step-orange">
+      <div class="step-num">5</div>
+      <div class="step-icon">🔍</div>
+      <div class="step-title">Review & Rétro</div>
+      <div class="step-desc">Validation & amélioration</div>
+    </div>
+  </div>
+
+  <div class="ceremonies-grid">
+    <div class="ceremony-card" style="border-top-color: #3498db;">
+      <h3>Sprint Planning</h3>
+      <p>Sélection du Backlog, estimation de l'effort et définition du Sprint Goal (2h).</p>
+    </div>
+    <div class="ceremony-card" style="border-top-color: #e74c6f;">
+      <h3>Daily Standup</h3>
+      <p>Point quotidien de 15 minutes sur l'avancement et les éventuels bloqueurs.</p>
+    </div>
+    <div class="ceremony-card" style="border-top-color: #2ecc71;">
+      <h3>Sprint Review</h3>
+      <p>Démonstration de l'incrément de produit et validation finale par le PO (1h).</p>
+    </div>
+    <div class="ceremony-card" style="border-top-color: #f39c12;">
+      <h3>Rétrospective</h3>
+      <p>Bilan interne sur le plan humain et technique pour l'amélioration continue (1h).</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Scrum Agile</span>
+      <span class="page-num">2</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║                  SLIDE 3 : ÉQUIPE SCRUM                               ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Membres & Rôles</span>
+      <div class="capsules">
+        <span style="background: #5dade2;"></span>
+        <span style="background: #e74c6f;"></span>
+        <span style="background: #2ecc71;"></span>
+        <span style="background: #f39c12;"></span>
+        <span style="background: #9b59b6;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-blue">
+    <h2>Organisation de l'Équipe Scrum</h2>
+  </div>
+
+  <div class="team-container">
+    <!-- Product Owner -->
+    <div class="team-card white-card">
+      <div class="team-card-icon">👔</div>
+      <h3>Product Owner</h3>
+      <div class="role-title">Encadrant Entreprise (Talan)</div>
+      <div class="divider"></div>
+      <ul class="team-bullets">
+        <li><span class="bullet-badge">📋</span> Priorise et affine le Product Backlog</li>
+        <li><span class="bullet-badge">🎯</span> Exprime clairement les besoins métier</li>
+        <li><span class="bullet-badge">✅</span> Valide ou rejette les critères d'acceptation</li>
+        <li><span class="bullet-badge">🤝</span> Assure l'alignement avec la vision Talan</li>
+      </ul>
+    </div>
+
+    <!-- Development Team -->
+    <div class="team-card dark-card">
+      <div class="team-card-icon">💻</div>
+      <h3>Dev Team</h3>
+      <div class="role-title">Étudiante PFE (Conceptrice-Développeuse)</div>
+      <div class="divider"></div>
+      <ul class="team-bullets">
+        <li><span class="bullet-badge">⚙️</span> Architecture technique et modélisation UML</li>
+        <li><span class="bullet-badge">🔧</span> Code Backend (Spring Boot 3.3) & microservice IA</li>
+        <li><span class="bullet-badge">🎨</span> Intégration UX/UI et Frontend React (TS)</li>
+        <li><span class="bullet-badge">🚀</span> Pipelines CI/CD Jenkins et déploiement Docker</li>
+      </ul>
+    </div>
+
+    <!-- Scrum Master -->
+    <div class="team-card blue-card">
+      <div class="team-card-icon">🎓</div>
+      <h3>Scrum Master</h3>
+      <div class="role-title">Encadrant Académique</div>
+      <div class="divider"></div>
+      <ul class="team-bullets">
+        <li><span class="bullet-badge">🔄</span> Garantit le respect des pratiques Scrum</li>
+        <li><span class="bullet-badge">🚧</span> Aide à éliminer les bloqueurs de sprint</li>
+        <li><span class="bullet-badge">⚖️</span> Protège l'équipe des perturbations externes</li>
+        <li><span class="bullet-badge">📊</span> Facilite la planification et les rétrospectives</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Équipe Projet</span>
+      <span class="page-num">3</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║                SLIDE 4 : BACKLOG GÉNÉRAL                              ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Product Backlog</span>
+      <div class="capsules">
+        <span style="background: #5dade2;"></span>
+        <span style="background: #e74c6f;"></span>
+        <span style="background: #2ecc71;"></span>
+        <span style="background: #f39c12;"></span>
+        <span style="background: #9b59b6;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-blue">
+    <h2>Backlog Produit Général & Epics</h2>
+  </div>
+
+  <table class="talan-table">
+    <thead>
+      <tr>
+        <th style="width: 6%;">ID</th>
+        <th style="width: 24%;">Epic</th>
+        <th style="width: 42%;">Description</th>
+        <th style="width: 8%;">Priorité</th>
+        <th style="width: 6%;">Sprint</th>
+        <th style="width: 7%;">Effort</th>
+        <th style="width: 7%;">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>E01</strong></td>
+        <td class="feature-title">📋 Analyse & Planification</td>
+        <td>Cahier des charges, identification des acteurs, spécifications fonctionnelles et maquettes UI/UX</td>
+        <td><span class="badge badge-high">Must</span></td>
+        <td style="text-align: center;">S1</td>
+        <td style="text-align: center; font-weight: bold;">13 pts</td>
+        <td style="text-align: center;"><span class="badge badge-done">✅ Fait</span></td>
+      </tr>
+      <tr>
+        <td><strong>E02</strong></td>
+        <td class="feature-title">🎨 Conception UML</td>
+        <td>Diagrammes de cas d'utilisation, de classes, de séquences, et choix d'architecture microservices</td>
+        <td><span class="badge badge-high">Must</span></td>
+        <td style="text-align: center;">S2</td>
+        <td style="text-align: center; font-weight: bold;">13 pts</td>
+        <td style="text-align: center;"><span class="badge badge-done">✅ Fait</span></td>
+      </tr>
+      <tr>
+        <td><strong>E03</strong></td>
+        <td class="feature-title">⚙️ Backend & Sécurité</td>
+        <td>Spring Boot 3, Base PostgreSQL 16, Keycloak 24 OAuth2 / validation JWT, API REST sécurisée</td>
+        <td><span class="badge badge-high">Must</span></td>
+        <td style="text-align: center;">S3</td>
+        <td style="text-align: center; font-weight: bold;">21 pts</td>
+        <td style="text-align: center;"><span class="badge badge-done">✅ Fait</span></td>
+      </tr>
+      <tr>
+        <td><strong>E04</strong></td>
+        <td class="feature-title">👤 Admin & Cours</td>
+        <td>Dashboard d'administration, CRUD cours/leçons, gestion utilisateurs, rapports d'activité et configuration mail</td>
+        <td><span class="badge badge-high">Must</span></td>
+        <td style="text-align: center;">S4</td>
+        <td style="text-align: center; font-weight: bold;">21 pts</td>
+        <td style="text-align: center;"><span class="badge badge-done">✅ Fait</span></td>
+      </tr>
+      <tr>
+        <td><strong>E05</strong></td>
+        <td class="feature-title">🎙️ Traitement Audio STT/TTS</td>
+        <td>Microservice FastAPI Python, Whisper STT (faster-whisper), edge-TTS, calcul WER/F1 et analyse phonétique</td>
+        <td><span class="badge badge-high">Must</span></td>
+        <td style="text-align: center;">S5</td>
+        <td style="text-align: center; font-weight: bold;">21 pts</td>
+        <td style="text-align: center;"><span class="badge badge-done">✅ Fait</span></td>
+      </tr>
+      <tr>
+        <td><strong>E06</strong></td>
+        <td class="feature-title">🤖 Agents IA Générative</td>
+        <td>Ollama Qwen 2.5 local, Fallback Azure OpenAI GPT-4.1-mini, architecture multi-agents (MasterAgent, ChatbotAgent, LevelTestAgent)</td>
+        <td><span class="badge badge-high">Must</span></td>
+        <td style="text-align: center;">S6</td>
+        <td style="text-align: center; font-weight: bold;">21 pts</td>
+        <td style="text-align: center;"><span class="badge badge-done">✅ Fait</span></td>
+      </tr>
+      <tr>
+        <td><strong>E07</strong></td>
+        <td class="feature-title">🎯 Test CECRL & Gamification</td>
+        <td>LevelTestAgent adaptatif (CEFR), Battle Mode WebSocket, Spaced Repetition SM-2, badges, XP, streaks</td>
+        <td><span class="badge badge-high">Must</span></td>
+        <td style="text-align: center;">S7</td>
+        <td style="text-align: center; font-weight: bold;">21 pts</td>
+        <td style="text-align: center;"><span class="badge badge-done">✅ Fait</span></td>
+      </tr>
+      <tr>
+        <td><strong>E08</strong></td>
+        <td class="feature-title">🚀 Frontend & Déploiement</td>
+        <td>React 18 + Vite + TypeScript + Tailwind + shadcn/ui, CI/CD Jenkins, SonarQube 10.6, 8 conteneurs Docker Compose</td>
+        <td><span class="badge badge-high">Must</span></td>
+        <td style="text-align: center;">S8</td>
+        <td style="text-align: center; font-weight: bold;">21 pts</td>
+        <td style="text-align: center;"><span class="badge badge-done">✅ Fait</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="velocity-info-box">
+    <strong>📊 Vélocité :</strong> 152 Story Points · Vélocité moyenne ~19 pts/sprint · Durée totale ~22 semaines
+  </div>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Backlog Général</span>
+      <span class="page-num">4</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║                SLIDE 5 : RELEASES 1 & 2                               ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Planification des Releases</span>
+      <div class="capsules">
+        <span style="background: #5dade2;"></span>
+        <span style="background: #e74c6f;"></span>
+        <span style="background: #2ecc71;"></span>
+        <span style="background: #f39c12;"></span>
+        <span style="background: #9b59b6;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Plan des Releases : R1 (Conception) & R2 (Socle)</h2>
+  </div>
+
+  <div class="releases-container">
+    <!-- Release 1 Table -->
+    <table class="talan-table" style="margin: 0;">
+      <thead>
+        <tr>
+          <th style="width: 10%;">Release</th>
+          <th style="width: 10%;">Sprint</th>
+          <th style="width: 15%;">Priorité</th>
+          <th style="width: 25%;">Feature</th>
+          <th style="width: 40%;">User Stories / Livrables</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="4" class="merged-release">R1</td>
+          <td rowspan="2" class="merged-sprint">S1</td>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Cahier des charges</td>
+          <td>Identification des acteurs (Admin, Collaborateur). Rédaction des besoins fonctionnels et non-fonctionnels.</td>
+        </tr>
+        <tr>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Backlog & Maquettes</td>
+          <td>Définition des User Stories et estimation. Prototypage des écrans principaux.</td>
+        </tr>
+        <tr>
+          <td rowspan="2" class="merged-sprint">S2</td>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Diagrammes UML</td>
+          <td>Cas d'utilisation, diagramme de classes (16 entités), séquences.</td>
+        </tr>
+        <tr>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Architecture technique</td>
+          <td>Architecture 4 couches. Stack : Spring Boot, React, FastAPI, PostgreSQL, Keycloak.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Release 2 Table -->
+    <table class="talan-table" style="margin: 0;">
+      <thead>
+        <tr>
+          <th style="width: 10%;">Release</th>
+          <th style="width: 10%;">Sprint</th>
+          <th style="width: 15%;">Priorité</th>
+          <th style="width: 25%;">Feature</th>
+          <th style="width: 40%;">User Stories / Livrables</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="4" class="merged-release" style="background: #e8f8f5; color: #27ae60; border-right-color: #8e44ad;">R2</td>
+          <td rowspan="2" class="merged-sprint">S3</td>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Socle Backend & BDD</td>
+          <td>Spring Boot 3.3 (Java 21). 16 entités JPA + 16 repositories PostgreSQL.</td>
+        </tr>
+        <tr>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Sécurité Keycloak</td>
+          <td>OAuth2/OIDC, validation JWT, gestion des rôles Admin/Collaborateur.</td>
+        </tr>
+        <tr>
+          <td rowspan="2" class="merged-sprint">S4</td>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Panel Administration</td>
+          <td>AdminController + 7 pages admin React (Dashboard, Users, Courses, Settings…).</td>
+        </tr>
+        <tr>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Gestion des Cours</td>
+          <td>CRUD cours/leçons. Rapports de progression et statistiques.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Releases R1 & R2</span>
+      <span class="page-num">5</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║                SLIDE 6 : RELEASES 3 & 4                               ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Planification des Releases</span>
+      <div class="capsules">
+        <span style="background: #5dade2;"></span>
+        <span style="background: #e74c6f;"></span>
+        <span style="background: #2ecc71;"></span>
+        <span style="background: #f39c12;"></span>
+        <span style="background: #9b59b6;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Plan des Releases : R3 (Moteur IA) & R4 (Livraison)</h2>
+  </div>
+
+  <div class="releases-container">
+    <!-- Release 3 Table -->
+    <table class="talan-table" style="margin: 0;">
+      <thead>
+        <tr>
+          <th style="width: 10%;">Release</th>
+          <th style="width: 10%;">Sprint</th>
+          <th style="width: 15%;">Priorité</th>
+          <th style="width: 25%;">Feature</th>
+          <th style="width: 40%;">User Stories / Livrables</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="4" class="merged-release" style="background: #f5eef8; color: #9b59b6; border-right-color: #8e44ad;">R3</td>
+          <td rowspan="2" class="merged-sprint">S5</td>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">STT & TTS (FastAPI)</td>
+          <td>Faster-Whisper + edge-TTS + Phonemizer. Scoring WER.</td>
+        </tr>
+        <tr>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Exercices Prononciation</td>
+          <td>ExerciseService, PracticeService. Pages Exercisesession + Revision.</td>
+        </tr>
+        <tr>
+          <td rowspan="2" class="merged-sprint">S6</td>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Infrastructure LLM</td>
+          <td>Ollama Qwen 2.5 3B (local) + Azure GPT-4.1-mini (fallback cloud).</td>
+        </tr>
+        <tr>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Agents IA (LangGraph4J)</td>
+          <td>ChatbotAgent + MasterAgent (orchestrateur CHATBOT/TEST/EXERCISE).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Release 4 Table -->
+    <table class="talan-table" style="margin: 0;">
+      <thead>
+        <tr>
+          <th style="width: 10%;">Release</th>
+          <th style="width: 10%;">Sprint</th>
+          <th style="width: 15%;">Priorité</th>
+          <th style="width: 25%;">Feature</th>
+          <th style="width: 40%;">User Stories / Livrables</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="4" class="merged-release" style="background: #fdf2e9; color: #e67e22; border-right-color: #8e44ad;">R4</td>
+          <td rowspan="2" class="merged-sprint">S7</td>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Test CECRL & Battle</td>
+          <td>LevelTestAgent (20 étapes, 3 vies). Battle Mode (2 joueurs, 3 rounds).</td>
+        </tr>
+        <tr>
+          <td class="prio-medium">Moyenne</td>
+          <td class="feature-title">Gamification & SM-2</td>
+          <td>XP, badges, streaks. Algorithme SM-2 de répétition espacée.</td>
+        </tr>
+        <tr>
+          <td rowspan="2" class="merged-sprint">S8</td>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">Interface utilisateur</td>
+          <td>Pages Landing, Login, Profile, Settings. Layout et composants partagés.</td>
+        </tr>
+        <tr>
+          <td class="prio-high">Élevée</td>
+          <td class="feature-title">CI/CD & Docker</td>
+          <td>Jenkins (9 étapes), SonarQube, Docker Compose (7 services).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Releases R3 & R4</span>
+      <span class="page-num">6</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║           SLIDE 7 : SPRINT 1 — ANALYSE DES BESOINS                   ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Backlog Détaillé des Sprints</span>
+      <div class="capsules">
+        <span style="background: #3498db;"></span>
+        <span style="background: #2980b9;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Sprint 1 : Analyse des Besoins & Planification</h2>
+  </div>
+
+  <div class="sprint-summary-bar">
+    <div class="summary-item">⏱️ <strong>Durée :</strong> 2 semaines</div>
+    <div class="summary-item">📊 <strong>Effort :</strong> 13 Story Points</div>
+    <div class="summary-item">🎯 <strong>Objectif :</strong> Cadrer le projet, identifier les acteurs et maquetter l'interface utilisateur.</div>
+  </div>
+
+  <table class="talan-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 25%;">User Story</th>
+        <th style="width: 45%;">Critères d'acceptation</th>
+        <th style="width: 10%;">Priorité</th>
+        <th style="width: 5%;">Pts</th>
+        <th style="width: 5%;">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>US-01</td>
+        <td class="feature-title">Identification des acteurs</td>
+        <td>2 rôles définis : Admin, Collaborateur. Matrice RACI créée.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-02</td>
+        <td class="feature-title">Besoins fonctionnels</td>
+        <td>Liste exhaustive (Chatbot, Test CECRL, Exercices, Battle, Admin). Priorisation MoSCoW.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-03</td>
+        <td class="feature-title">Besoins non-fonctionnels</td>
+        <td>Performance &lt; 500ms. Sécurité OAuth2. Disponibilité 99.9%.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">2</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-04</td>
+        <td class="feature-title">Product Backlog</td>
+        <td>User Stories estimées. Sprint Planning complété. Release plan validé.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">2</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-05</td>
+        <td class="feature-title">Maquettes UI/UX</td>
+        <td>Maquettes : Login, Dashboard, Chatbot, Exercices, Test, Admin. Charte graphique.</td>
+        <td class="prio-medium">Moyenne</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Sprint 1 Backlog</span>
+      <span class="page-num">7</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║           SLIDE 8 : SPRINT 2 — CONCEPTION UML                        ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Backlog Détaillé des Sprints</span>
+      <div class="capsules">
+        <span style="background: #1abc9c;"></span>
+        <span style="background: #16a085;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Sprint 2 : Conception UML & Architecture</h2>
+  </div>
+
+  <div class="sprint-summary-bar" style="border-left-color: #1abc9c;">
+    <div class="summary-item">⏱️ <strong>Durée :</strong> 2 semaines</div>
+    <div class="summary-item">📊 <strong>Effort :</strong> 13 Story Points</div>
+    <div class="summary-item">🎯 <strong>Objectif :</strong> Modéliser la base de données, les flux de données et spécifier l'architecture globale.</div>
+  </div>
+
+  <table class="talan-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 25%;">User Story</th>
+        <th style="width: 45%;">Critères d'acceptation</th>
+        <th style="width: 10%;">Priorité</th>
+        <th style="width: 5%;">Pts</th>
+        <th style="width: 5%;">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>US-06</td>
+        <td class="feature-title">Diagramme cas d'utilisation</td>
+        <td>2 acteurs modélisés. Relations include/extend. Fichier : 01_use_case.drawio</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-07</td>
+        <td class="feature-title">Diagramme de classes</td>
+        <td>16 entités modélisées avec relations. Fichier : 02_class_diagram.drawio</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-08</td>
+        <td class="feature-title">Diagrammes de séquences</td>
+        <td>Flux : Authentification, Chatbot, Exercice, Test CECRL. Fichier : 03_sequence_diagrams.drawio</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-09</td>
+        <td class="feature-title">Architecture technique</td>
+        <td>Architecture 4 couches. Stack défini. Diagramme de déploiement Docker.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">2</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Sprint 2 Backlog</span>
+      <span class="page-num">8</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║           SLIDE 9 : SPRINT 3 — BACKLOG DÉTAILLÉ                      ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Backlog Détaillé des Sprints</span>
+      <div class="capsules">
+        <span style="background: #27ae60;"></span>
+        <span style="background: #2ecc71;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Sprint 3 : Backend, BDD & Sécurité</h2>
+  </div>
+
+  <div class="sprint-summary-bar" style="border-left-color: #27ae60;">
+    <div class="summary-item">⏱️ <strong>Durée :</strong> 3 semaines</div>
+    <div class="summary-item">📊 <strong>Effort :</strong> 21 Story Points</div>
+    <div class="summary-item">🎯 <strong>Objectif :</strong> Mettre en place l'environnement technique, la base PostgreSQL et sécuriser les API via Keycloak.</div>
+  </div>
+
+  <table class="talan-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 25%;">User Story</th>
+        <th style="width: 45%;">Critères d'acceptation</th>
+        <th style="width: 10%;">Priorité</th>
+        <th style="width: 5%;">Pts</th>
+        <th style="width: 5%;">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>US-10</td>
+        <td class="feature-title">Initialisation Spring Boot</td>
+        <td>Spring Boot 3.3 + Java 21. Config Hibernate JPA. Structure MVC.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-11</td>
+        <td class="feature-title">Modèle de données</td>
+        <td>16 entités JPA (User, Course, Lesson, Attempt, Badge…). 16 repositories.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-12</td>
+        <td class="feature-title">Authentification Keycloak</td>
+        <td>Keycloak 24, OAuth2/OIDC, JWT via JWK. SecurityConfig, KeycloakRoleConverter.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-13</td>
+        <td class="feature-title">Gestion utilisateurs</td>
+        <td>AuthController (login, register, reset). UserController (profil). EmailService.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-14</td>
+        <td class="feature-title">Configuration API</td>
+        <td>CORS configuré. Swagger UI. AppConfig globale.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Sprint 3 Backlog</span>
+      <span class="page-num">9</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║           SLIDE 10 : SPRINT 4 — ADMIN & COURS                        ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Backlog Détaillé des Sprints</span>
+      <div class="capsules">
+        <span style="background: #16a085;"></span>
+        <span style="background: #1abc9c;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Sprint 4 : Administration & Gestion des Cours</h2>
+  </div>
+
+  <div class="sprint-summary-bar" style="border-left-color: #16a085;">
+    <div class="summary-item">⏱️ <strong>Durée :</strong> 3 semaines</div>
+    <div class="summary-item">📊 <strong>Effort :</strong> 21 Story Points</div>
+    <div class="summary-item">🎯 <strong>Objectif :</strong> Réaliser les interfaces d'administration et les fonctions d'édition des contenus pédagogiques.</div>
+  </div>
+
+  <table class="talan-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 25%;">User Story</th>
+        <th style="width: 45%;">Critères d'acceptation</th>
+        <th style="width: 10%;">Priorité</th>
+        <th style="width: 5%;">Pts</th>
+        <th style="width: 5%;">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>US-15</td>
+        <td class="feature-title">Admin Dashboard</td>
+        <td>AdminController + AdminDashboard.jsx avec graphiques et statistiques.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-16</td>
+        <td class="feature-title">Gestion utilisateurs (Admin)</td>
+        <td>CRUD complet. AdminUsers.jsx. Gestion des rôles et permissions.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-17</td>
+        <td class="feature-title">Gestion des cours</td>
+        <td>CourseController CRUD. AdminCourses + Courses + CourseDetail côté React.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-18</td>
+        <td class="feature-title">Configuration admin</td>
+        <td>AdminSettings, AdminLogin, AdminMailSettings. PublicStatsController.</td>
+        <td class="prio-medium">Moyenne</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-19</td>
+        <td class="feature-title">Rapports de progression</td>
+        <td>ReportsController + ReportService. Page Reports.jsx avec visualisations.</td>
+        <td class="prio-medium">Moyenne</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Sprint 4 Backlog</span>
+      <span class="page-num">10</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║           SLIDE 11 : SPRINT 5 — AUDIO & EXERCICES                    ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Backlog Détaillé des Sprints</span>
+      <div class="capsules">
+        <span style="background: #9b59b6;"></span>
+        <span style="background: #8e44ad;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Sprint 5 : Traitement Audio STT/TTS & Exercices</h2>
+  </div>
+
+  <div class="sprint-summary-bar" style="border-left-color: #9b59b6;">
+    <div class="summary-item">⏱️ <strong>Durée :</strong> 3 semaines</div>
+    <div class="summary-item">📊 <strong>Effort :</strong> 21 Story Points</div>
+    <div class="summary-item">🎯 <strong>Objectif :</strong> Développer le microservice d'analyse vocale en Python et concevoir les pages d'exercices.</div>
+  </div>
+
+  <table class="talan-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 25%;">User Story</th>
+        <th style="width: 45%;">Critères d'acceptation</th>
+        <th style="width: 10%;">Priorité</th>
+        <th style="width: 5%;">Pts</th>
+        <th style="width: 5%;">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>US-20</td>
+        <td class="feature-title">Microservice FastAPI</td>
+        <td>main.py : API REST. audio_engine.py : moteur audio. config.py.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-21</td>
+        <td class="feature-title">Speech-To-Text (Whisper)</td>
+        <td>Faster-Whisper (small). PythonSttClient. Scoring WER. Latence &lt; 800ms.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-22</td>
+        <td class="feature-title">Text-To-Speech (edge-TTS)</td>
+        <td>edge-TTS intégré. ChatbotFastApiClient. Latence &lt; 200ms.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-23</td>
+        <td class="feature-title">Phonémisation</td>
+        <td>phonemizer_utils.py : analyse phonétique. Comparaison phonème par phonème.</td>
+        <td class="prio-medium">Moyenne</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-24</td>
+        <td class="feature-title">Exercices de prononciation</td>
+        <td>ExerciseService + PracticeService. Pages Exercisesession + ExerciseRevision.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-25</td>
+        <td class="feature-title">Taxonomie des phrases</td>
+        <td>PhraseTaxonomy : phrases classées par niveau CECRL (A1→C2). FR et EN.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">2</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Sprint 5 Backlog</span>
+      <span class="page-num">11</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║           SLIDE 12 : SPRINT 6 — IA GÉNÉRATIVE                        ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Backlog Détaillé des Sprints</span>
+      <div class="capsules">
+        <span style="background: #e74c6f;"></span>
+        <span style="background: #c0392b;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Sprint 6 : IA Générative & Multi-Agents</h2>
+  </div>
+
+  <div class="sprint-summary-bar" style="border-left-color: #e74c6f;">
+    <div class="summary-item">⏱️ <strong>Durée :</strong> 3 semaines</div>
+    <div class="summary-item">📊 <strong>Effort :</strong> 21 Story Points</div>
+    <div class="summary-item">🎯 <strong>Objectif :</strong> Connecter les modèles LLM et implémenter les agents de discussion avec mémoire et orchestration.</div>
+  </div>
+
+  <table class="talan-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 25%;">User Story</th>
+        <th style="width: 45%;">Critères d'acceptation</th>
+        <th style="width: 10%;">Priorité</th>
+        <th style="width: 5%;">Pts</th>
+        <th style="width: 5%;">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>US-26</td>
+        <td class="feature-title">LLM local (Ollama)</td>
+        <td>OllamaService + OllamaClientService. Qwen 2.5 3B. Latence ~150ms.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-27</td>
+        <td class="feature-title">Fallback Azure OpenAI</td>
+        <td>AzureOpenAIService. GPT-4.1-mini. Basculement auto. Latence ~350ms.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-28</td>
+        <td class="feature-title">ChatbotAgent</td>
+        <td>Agent LangGraph4J. ChatbotPromptBuilder. SessionMemoryService (20 msgs). Streaming.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-29</td>
+        <td class="feature-title">MasterAgent (Orchestrateur)</td>
+        <td>Routage intelligent : CHATBOT / TEST / EXERCISE. MasterController. MasterSession.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-30</td>
+        <td class="feature-title">Interface Chatbot</td>
+        <td>ChatbotController. Pages ChatbotPage + MasterCoach. Composants chatbot React.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Sprint 6 Backlog</span>
+      <span class="page-num">12</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║           SLIDE 13 : SPRINT 7 — TEST CECRL & BATTLE                  ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Backlog Détaillé des Sprints</span>
+      <div class="capsules">
+        <span style="background: #e67e22;"></span>
+        <span style="background: #f39c12;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Sprint 7 : Test CECRL, Battle Mode & Gamification</h2>
+  </div>
+
+  <div class="sprint-summary-bar" style="border-left-color: #e67e22;">
+    <div class="summary-item">⏱️ <strong>Durée :</strong> 3 semaines</div>
+    <div class="summary-item">📊 <strong>Effort :</strong> 21 Story Points</div>
+    <div class="summary-item">🎯 <strong>Objectif :</strong> Intégrer l'évaluation de niveau adaptative, le duel en temps réel et la gamification avec SM-2.</div>
+  </div>
+
+  <table class="talan-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 25%;">User Story</th>
+        <th style="width: 45%;">Critères d'acceptation</th>
+        <th style="width: 10%;">Priorité</th>
+        <th style="width: 5%;">Pts</th>
+        <th style="width: 5%;">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>US-31</td>
+        <td class="feature-title">LevelTestAgent</td>
+        <td>Agent LangGraph4J adaptatif. 20 étapes, 3 vies. Attribution niveau A1→C2.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">8</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-32</td>
+        <td class="feature-title">Interface Test CECRL</td>
+        <td>CEFRTest.jsx : interface gamifiée. Barre de progression, animations, feedback.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-33</td>
+        <td class="feature-title">Battle Mode</td>
+        <td>BattleController + BattleService. 2 joueurs, 3 rounds. Page Battle.jsx.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-34</td>
+        <td class="feature-title">Gamification</td>
+        <td>GamificationService : XP, badges, streaks. Entité Badge. Intégration profil.</td>
+        <td class="prio-medium">Moyenne</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-35</td>
+        <td class="feature-title">Répétition Espacée SM-2</td>
+        <td>SpacedRepetitionController. Algorithme SM-2. Timeline : J0→J1→J10→J30.</td>
+        <td class="prio-medium">Moyenne</td>
+        <td style="text-align: center; font-weight: bold;">2</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Sprint 7 Backlog</span>
+      <span class="page-num">13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║           SLIDE 14 : SPRINT 8 — FRONTEND & DÉPLOIEMENT               ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Backlog Détaillé des Sprints</span>
+      <div class="capsules">
+        <span style="background: #e74c3c;"></span>
+        <span style="background: #c0392b;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+        <span style="background: #bdc3c7;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-bar">
+    <h2>| Sprint 8 : Frontend Global, CI/CD & Déploiement</h2>
+  </div>
+
+  <div class="sprint-summary-bar" style="border-left-color: #e74c3c;">
+    <div class="summary-item">⏱️ <strong>Durée :</strong> 3 semaines</div>
+    <div class="summary-item">📊 <strong>Effort :</strong> 21 Story Points</div>
+    <div class="summary-item">🎯 <strong>Objectif :</strong> Réaliser les pages utilisateur React finales, configurer le pipeline CI/CD et packager sous Docker.</div>
+  </div>
+
+  <table class="talan-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 25%;">User Story</th>
+        <th style="width: 45%;">Critères d'acceptation</th>
+        <th style="width: 10%;">Priorité</th>
+        <th style="width: 5%;">Pts</th>
+        <th style="width: 5%;">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>US-36</td>
+        <td class="feature-title">Pages utilisateur</td>
+        <td>Landing, Login, Profile, Settings, ResetPassword, NotFound.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-37</td>
+        <td class="feature-title">Architecture frontend</td>
+        <td>App.tsx (routage). KeycloakProvider. ProtectedRoute. Layout + composants partagés.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-38</td>
+        <td class="feature-title">Pipeline CI/CD Jenkins</td>
+        <td>9 étapes : Checkout → Build → Tests (JUnit + Vitest + Pytest) → SonarQube → Quality Gate → Docker → Deploy.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-39</td>
+        <td class="feature-title">Qualité (SonarQube)</td>
+        <td>SonarQube 10.6. Analyse full-stack (Java + React + Python). Quality Gate.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">3</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+      <tr>
+        <td>US-40</td>
+        <td class="feature-title">Docker & Déploiement</td>
+        <td>docker-compose : 7 services. Healthchecks. Monitoring : pgAdmin + Keycloak + SonarQube.</td>
+        <td class="prio-high">Élevée</td>
+        <td style="text-align: center; font-weight: bold;">5</td>
+        <td style="text-align: center;"><span class="badge badge-done">Fait</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Sprint 8 Backlog</span>
+      <span class="page-num">14</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+<!-- ║           SLIDE 15 : CALENDRIER & BURNDOWN CHART                      ║ -->
+<!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="header-left">
+      <span class="slide-category">Planning & Burndown</span>
+      <div class="capsules">
+        <span style="background: #5dade2;"></span>
+        <span style="background: #e74c6f;"></span>
+        <span style="background: #2ecc71;"></span>
+        <span style="background: #f39c12;"></span>
+        <span style="background: #9b59b6;"></span>
+      </div>
+    </div>
+    <div class="talan-logo">
+      <span class="brand">TALAN</span>
+      <span class="tagline">Positive innovation</span>
+    </div>
+  </div>
+
+  <div class="slide-title-blue">
+    <h2>Synthèse de Planification & Burndown Chart</h2>
+  </div>
+
+  <div style="display: flex; gap: 20px; align-items: flex-start; height: 490px; width: 100%;">
+    <!-- Left column: Summary Calendar Table -->
+    <div style="flex: 0 0 540px; display: flex; flex-direction: column;">
+      <table class="talan-table" style="margin: 0;">
+        <thead>
+          <tr>
+            <th style="width: 15%;">Sprint</th>
+            <th style="width: 40%;">Thème / Objectif Principal</th>
+            <th style="width: 15%;">Durée</th>
+            <th style="width: 15%;">Effort</th>
+            <th style="width: 15%;">Release</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="background:#3498db; color:white; font-weight:700; text-align:center;">S1</td>
+            <td class="feature-title">Analyse des Besoins</td>
+            <td>2 sem.</td>
+            <td style="text-align:center; font-weight:700;">13 pts</td>
+            <td rowspan="2" style="vertical-align:middle; text-align:center; font-weight:700; color:#3498db; background: #f4f9fd;">R1</td>
+          </tr>
+          <tr>
+            <td style="background:#1abc9c; color:white; font-weight:700; text-align:center;">S2</td>
+            <td class="feature-title">Conception UML</td>
+            <td>2 sem.</td>
+            <td style="text-align:center; font-weight:700;">13 pts</td>
+          </tr>
+          <tr>
+            <td style="background:#27ae60; color:white; font-weight:700; text-align:center;">S3</td>
+            <td class="feature-title">Backend & Sécurité</td>
+            <td>3 sem.</td>
+            <td style="text-align:center; font-weight:700;">21 pts</td>
+            <td rowspan="2" style="vertical-align:middle; text-align:center; font-weight:700; color:#27ae60; background: #f4fdf8;">R2</td>
+          </tr>
+          <tr>
+            <td style="background:#16a085; color:white; font-weight:700; text-align:center;">S4</td>
+            <td class="feature-title">Admin & Cours</td>
+            <td>3 sem.</td>
+            <td style="text-align:center; font-weight:700;">21 pts</td>
+          </tr>
+          <tr>
+            <td style="background:#9b59b6; color:white; font-weight:700; text-align:center;">S5</td>
+            <td class="feature-title">Audio & Exercices</td>
+            <td>3 sem.</td>
+            <td style="text-align:center; font-weight:700;">21 pts</td>
+            <td rowspan="2" style="vertical-align:middle; text-align:center; font-weight:700; color:#9b59b6; background: #fdfafd;">R3</td>
+          </tr>
+          <tr>
+            <td style="background:#8e44ad; color:white; font-weight:700; text-align:center;">S6</td>
+            <td class="feature-title">IA & Agents</td>
+            <td>3 sem.</td>
+            <td style="text-align:center; font-weight:700;">21 pts</td>
+          </tr>
+          <tr>
+            <td style="background:#e67e22; color:white; font-weight:700; text-align:center;">S7</td>
+            <td class="feature-title">CECRL & Gamification</td>
+            <td>3 sem.</td>
+            <td style="text-align:center; font-weight:700;">21 pts</td>
+            <td rowspan="2" style="vertical-align:middle; text-align:center; font-weight:700; color:#e67e22; background: #fffdfb;">R4</td>
+          </tr>
+          <tr>
+            <td style="background:#e74c3c; color:white; font-weight:700; text-align:center;">S8</td>
+            <td class="feature-title">Frontend & CI/CD</td>
+            <td>3 sem.</td>
+            <td style="text-align:center; font-weight:700;">21 pts</td>
+          </tr>
+          <tr style="background: #1a2332; color: white;">
+            <td colspan="2" style="text-align:right; font-weight:700; color: white;">TOTAL GENERAL</td>
+            <td style="font-weight:700; color: white;">22 sem.</td>
+            <td style="font-weight:700; color: #e74c6f; text-align:center;">152 pts</td>
+            <td style="font-weight:700; color: white; text-align:center;">4 Releases</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Right column: Burndown chart using beautiful vector SVG -->
+    <div style="flex: 1; display: flex; flex-direction: column; height: 100%;">
+      <h3 style="font-size: 13px; color: #1a2332; margin-bottom: 8px; font-weight: 700;">📉 Burndown Chart — Progression de l'effort (Points restants)</h3>
+      <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%;">
+        <svg viewBox="0 0 600 230" style="width: 100%; height: 210px; background: #fafbfc; border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 15px 5px 10px;">
+          <!-- Grid Lines -->
+          <line x1="50" y1="20" x2="550" y2="20" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="50" y1="50" x2="550" y2="50" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="50" y1="80" x2="550" y2="80" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="50" y1="110" x2="550" y2="110" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="50" y1="140" x2="550" y2="140" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="50" y1="170" x2="550" y2="170" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="50" y1="200" x2="550" y2="200" stroke="#cbd5e1" stroke-width="1.5" />
+          
+          <!-- Y Axis Labels -->
+          <text x="40" y="24" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="end">152 pts</text>
+          <text x="40" y="54" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="end">120 pts</text>
+          <text x="40" y="84" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="end">90 pts</text>
+          <text x="40" y="114" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="end">60 pts</text>
+          <text x="40" y="144" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="end">30 pts</text>
+          <text x="40" y="204" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="end">0 pt</text>
+
+          <!-- X Axis Labels -->
+          <text x="50" y="215" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="middle">Départ</text>
+          <text x="112.5" y="215" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="middle">S1</text>
+          <text x="175" y="215" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="middle">S2</text>
+          <text x="237.5" y="215" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="middle">S3</text>
+          <text x="300" y="215" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="middle">S4</text>
+          <text x="362.5" y="215" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="middle">S5</text>
+          <text x="425" y="215" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="middle">S6</text>
+          <text x="487.5" y="215" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="middle">S7</text>
+          <text x="550" y="215" font-size="9" font-family="'Poppins', sans-serif" fill="#64748b" text-anchor="middle">S8</text>
+
+          <!-- Ideal Burndown Line (Dashed Pink/Red) -->
+          <line x1="50" y1="20" x2="550" y2="200" stroke="#f43f5e" stroke-width="2.5" stroke-dasharray="6 4" />
+          
+          <!-- Actual Burndown Line (Solid Violet) -->
+          <!-- Coordinates: 
+               Start: 152 SP -> y = 20
+               S1: 139 SP -> y = 20 + 13 * 1.18 = 35
+               S2: 126 SP -> y = 20 + 26 * 1.18 = 51
+               S3: 105 SP -> y = 20 + 47 * 1.18 = 76
+               S4: 84 SP -> y = 20 + 68 * 1.18 = 101
+               S5: 63 SP -> y = 20 + 89 * 1.18 = 125
+               S6: 42 SP -> y = 20 + 110 * 1.18 = 150
+               S7: 21 SP -> y = 20 + 131 * 1.18 = 175
+               S8: 0 SP -> y = 200
+          -->
+          <polyline points="50,20 112.5,35 175,51 237.5,76 300,101 362.5,125 425,150 487.5,175 550,200" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
+          
+          <!-- Markers for Actual -->
+          <circle cx="50" cy="20" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="2" />
+          <circle cx="112.5" cy="35" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="2" />
+          <circle cx="175" cy="51" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="2" />
+          <circle cx="237.5" cy="76" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="2" />
+          <circle cx="300" cy="101" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="2" />
+          <circle cx="362.5" cy="125" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="2" />
+          <circle cx="425" cy="150" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="2" />
+          <circle cx="487.5" cy="175" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="2" />
+          <circle cx="550" cy="200" r="5" fill="#22c55e" stroke="#ffffff" stroke-width="2" />
+
+          <!-- Legend -->
+          <g transform="translate(420, 10)">
+            <line x1="0" y1="5" x2="20" y2="5" stroke="#f43f5e" stroke-width="2" stroke-dasharray="3 2" />
+            <text x="25" y="9" font-size="8" font-family="'Poppins', sans-serif" font-weight="600" fill="#475569">Idéal (Théorique)</text>
+            
+            <line x1="0" y1="18" x2="20" y2="18" stroke="#6366f1" stroke-width="2" />
+            <circle cx="10" cy="18" r="3" fill="#6366f1" />
+            <text x="25" y="22" font-size="8" font-family="'Poppins', sans-serif" font-weight="600" fill="#475569">Réel (Mesuré)</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="footer-line"></div>
+    <div class="footer-meta">
+      <span>Planning de Projet</span>
+      <span class="page-num">15</span>
+    </div>
+  </div>
+</div>
+
+<!-- Mode Diaporama Overlay HTML -->
+<div class="slideshow-overlay no-print" id="slideshowOverlay">
+  <div class="slideshow-container" id="slideshowContainer"></div>
+  <div class="slideshow-controls">
+    <button class="control-btn" onclick="showPrevSlide()">◀ Précédent</button>
+    <span class="slideshow-counter" id="slideshowCounter">Diapositive 1 / 15</span>
+    <button class="control-btn" onclick="showNextSlide()">Suivant ▶</button>
+    <button class="control-btn close-btn" onclick="exitSlideshow()">Quitter ✕</button>
+  </div>
+</div>
+
+<script>
+  let isSlideshow = false;
+  let currentSlideIndex = 0;
+  const slides = document.querySelectorAll('.slide');
+  const overlay = document.getElementById('slideshowOverlay');
+  const container = document.getElementById('slideshowContainer');
+  const counter = document.getElementById('slideshowCounter');
+
+  function updateSlideshow() {
+    container.innerHTML = '';
+    const activeSlide = slides[currentSlideIndex].cloneNode(true);
+    container.appendChild(activeSlide);
+    counter.textContent = `Diapositive ${currentSlideIndex + 1} / ${slides.length}`;
+    scaleSlide();
+  }
+
+  function scaleSlide() {
+    const slide = container.querySelector('.slide');
+    if (!slide) return;
+
+    const vWidth = window.innerWidth;
+    const vHeight = window.innerHeight;
+
+    const sWidth = 1123;
+    const sHeight = 794;
+
+    const scaleX = vWidth / sWidth;
+    const scaleY = (vHeight - 65) / sHeight;
+    const scale = Math.min(scaleX, scaleY, 1);
+
+    slide.style.transform = `scale(${scale})`;
+    slide.style.transformOrigin = 'center center';
+    slide.style.margin = '0';
+    slide.style.boxShadow = 'none';
+    slide.style.borderRadius = '0';
+  }
+
+  window.addEventListener('resize', () => {
+    if (isSlideshow) scaleSlide();
+  });
+
+  function showNextSlide() {
+    if (currentSlideIndex < slides.length - 1) {
+      currentSlideIndex++;
+      updateSlideshow();
+    }
+  }
+
+  function showPrevSlide() {
+    if (currentSlideIndex > 0) {
+      currentSlideIndex--;
+      updateSlideshow();
+    }
+  }
+
+  function toggleSlideshow() {
+    isSlideshow = true;
+    currentSlideIndex = 0;
+    overlay.style.display = 'flex';
+    updateSlideshow();
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+
+  function exitSlideshow() {
+    isSlideshow = false;
+    overlay.style.display = 'none';
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  // Support de navigation clavier
+  document.addEventListener('keydown', (e) => {
+    if (!isSlideshow) return;
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      showNextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp') {
+      showPrevSlide();
+    } else if (e.key === 'Escape') {
+      exitSlideshow();
+    }
+  });
+
+  function toggleWorkspaceTheme() {
+    document.body.classList.toggle('dark-workspace');
+  }
+</script>
+
+</body>
+</html>

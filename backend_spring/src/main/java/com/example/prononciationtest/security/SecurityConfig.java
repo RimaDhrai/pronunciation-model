@@ -46,7 +46,8 @@ public class SecurityConfig {
                     "/auth/reset-password",
                     "/storage/**", "/uploads/**",
                     "/api/practice/generate",
-                    "/api/public/**"
+                    "/api/public/**",
+                    "/actuator/**"
                 ).permitAll()
                 .requestMatchers("/api/user/me").authenticated()
                 .requestMatchers("/api/admin/**").hasRole("admin")

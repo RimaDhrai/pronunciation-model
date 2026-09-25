@@ -1,0 +1,390 @@
+\chapter*{Chapitre 3}
+\markboth{Chapitre 3}{Release 1 : Foundation}
+\addcontentsline{toc}{chapter}{Chapitre 3 : Release 1 --- Foundation}
+\textsc{\textbf{\Huge Release 1 : Foundation}} \\ \\
+\setcounter{chapter}{3}
+\setcounter{section}{0}
+
+%--------------------------------------------------
+\section{Introduction}
+%--------------------------------------------------
+
+Ce chapitre présente la première release du projet \textbf{SpeakCoach}, couvrant les fondations
+techniques et fonctionnelles de la plateforme. Il regroupe deux sprints complémentaires :
+
+\begin{itemize}
+    \item \textbf{Sprint 1} --- Authentification via Keycloak, gestion des
+          comptes utilisateurs et des profils apprenants.
+    \item \textbf{Sprint 2} --- Système d'évaluation de niveau (CEFR) piloté par un agent IA (LangGraph) 
+          et gestion du contenu pédagogique (cours et leçons).
+\end{itemize}
+
+Ces deux sprints établissent le socle technique robuste et sécurisé sur lequel reposent les futurs modules d'intelligence
+artificielle de la Release~2.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+% SPRINT 1
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Sprint 1 : Authentification et Profil Utilisateur}
+
+\subsection{Backlog du sprint}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|p{2.8cm}|p{7.5cm}|c|}
+\hline
+\rowcolor[gray]{0.88}
+\textbf{ID} & \textbf{Fonctionnalité} & \textbf{User Story} & \textbf{Priorité} \\
+\hline
+US-01 & Authentification &
+    En tant qu'apprenant, je veux m'inscrire et m'authentifier via un système sécurisé (Keycloak)
+    afin d'accéder à la plateforme de façon fiable. & Must Have \\
+\hline
+US-02 & Gestion utilisateurs &
+    En tant qu'administrateur, je veux créer, modifier et désactiver les
+    comptes utilisateurs afin de contrôler les accès à la plateforme. & Must Have \\
+\hline
+US-03 & Rôles et permissions &
+    En tant qu'administrateur, je veux gérer les rôles et permissions des
+    utilisateurs afin de contrôler finement les privilèges (Admin/Apprenant). & Must Have \\
+\hline
+US-04 & Profil apprenant &
+    En tant qu'apprenant, je veux consulter et modifier mon profil (informations,
+    langue maternelle) afin de personnaliser mon expérience de suivi. & Must Have \\
+\hline
+\end{tabular}
+\caption{Backlog du Sprint~1 --- Authentification et Profil}
+\label{tab:backlog-sprint1}
+\end{table}
+
+\subsection{Analyse}
+
+\subsubsection{Identification des acteurs}
+
+Le système implique trois acteurs principaux dans ce sprint :
+
+\begin{itemize}
+    \item \textbf{L'Apprenant} : utilisateur final de la plateforme ; il s'inscrit,
+          s'authentifie et gère l'évolution de son profil.
+    \item \textbf{L'Administrateur} : supervise les comptes utilisateurs, consulte les statistiques globales
+          et gère les accès via le panel d'administration.
+    \item \textbf{Serveur d'identité (Keycloak)} : système externe et centralisé chargé de valider les accès (interfacé avec le LDAP Talan) et de délivrer les jetons de sécurité (JWT).
+\end{itemize}
+
+\subsubsection{Description textuelle --- Authentification et Profil (US-01 à US-04)}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\rowcolor[gray]{0.88}
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & S'inscrire, s'authentifier et gérer son profil apprenant \\
+\hline
+Acteurs principaux  & Apprenant, Administrateur \\
+\hline
+Pré-conditions    & L'infrastructure Keycloak est opérationnelle. \\
+\hline
+Scénario nominal  &
+    1.~L'apprenant saisit ses informations d'inscription directement sur l'interface SpeakCoach.\newline
+    2.~Le backend crée le compte en toute transparence via l'API Keycloak et initialise le profil en base de données.\newline
+    3.~L'apprenant se connecte avec ses identifiants depuis la page de connexion native.\newline
+    4.~Le système interroge Keycloak (qui valide via le LDAP Talan) et retourne un token JWT sécurisé.\newline
+    5.~L'apprenant accède à son tableau de bord, affichant sa progression, ses séries d'activités (streaks) et son niveau CEFR.\newline
+    6.~L'administrateur peut, de son côté, lister les utilisateurs et restreindre des accès. \\
+\hline
+Post-conditions   & L'apprenant est authentifié et possède une session valide (JWT) pour requêter l'API. \\
+\hline
+Scénarios alt.    &
+    \textbf{A1} --- Mot de passe oublié : l'apprenant demande une réinitialisation, le système génère un token UUID en base et envoie un email sécurisé contenant le lien de modification. \\
+\hline
+\end{tabular}
+\caption{Description textuelle --- Sprint 1}
+\label{tab:desc-auth}
+\end{table}
+
+\subsubsection{Diagramme de cas d'utilisation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=13cm]{use_case_sprint1}
+    \caption{Diagramme de cas d'utilisation --- Sprint~1}
+    \label{fig:uc-sprint1}
+\end{figure}
+
+\subsection{Conception}
+
+\subsubsection{Diagramme de séquence --- Flux d'authentification API}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=14cm]{sequence_auth_sprint1}
+    \caption{Diagramme de séquence --- Flux d'authentification direct sans redirection}
+    \label{fig:seq-auth-sprint1}
+\end{figure}
+
+\subsubsection{Diagramme de séquence Objets --- Inscription et Login}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=15cm]{sequence_objects_sprint1}
+    \caption{Diagramme de séquence détaillé (Objets) --- Sprint 1}
+    \label{fig:seq-obj-sprint1}
+\end{figure}
+
+
+\subsection{Réalisation}
+
+\subsubsection{Interface de connexion et d'inscription}
+
+L'inscription et l'authentification s'effectuent directement depuis l'interface native de l'application SpeakCoach, garantissant une expérience utilisateur fluide et sans redirection vers un portail externe. Le backend Spring Boot se charge de communiquer de manière sécurisée avec l'API Keycloak pour valider les accès (via le LDAP Talan) et gérer la création des comptes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{capture projet pfe/LOGIN.png}
+    \caption{Interface native de connexion et d'inscription}
+    \label{fig:login-sprint1}
+\end{figure}
+
+\subsubsection{Gestion du profil apprenant}
+
+Une fois connecté, l'apprenant accède à son profil. Il peut y modifier
+ses informations personnelles et professionnelles, consulter son niveau CEFR actuel et observer ses
+statistiques d'apprentissage (points d'expérience, régularité, mots à réviser).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{capture projet pfe/interadmin.png}
+    \caption{Interface de gestion du profil apprenant}
+    \label{fig:profil-sprint1}
+\end{figure}
+
+\subsubsection{Tableau de bord administrateur}
+
+L'administrateur dispose d'une interface de supervision listant l'ensemble des utilisateurs. Ce panneau de contrôle permet de filtrer par rôle ou par statut, et offre des actions de maintenance (désactivation d'un compte, forçage de la synchronisation avec Keycloak).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=14cm]{capture projet pfe/adminuserses.png}
+    \caption{Interface de gestion globale des utilisateurs --- Administrateur}
+    \label{fig:admin-sprint1}
+\end{figure}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+% SPRINT 2
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Sprint 2 : Évaluation CEFR et Parcours Pédagogique}
+
+\subsection{Backlog du sprint}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|p{2.8cm}|p{7.5cm}|c|}
+\hline
+\rowcolor[gray]{0.88}
+\textbf{ID} & \textbf{Fonctionnalité} & \textbf{User Story} & \textbf{Priorité} \\
+\hline
+US-05 & Test CEFR piloté par IA &
+    En tant qu'apprenant, je veux passer un test de positionnement CEFR interactif, 
+    géré par un agent IA, pour obtenir une évaluation globale de mon niveau (A1--C2). & Must Have \\
+\hline
+US-06 & Parcours de cours &
+    En tant qu'apprenant, je veux suivre des cours de prononciation (vidéo/audio) 
+    adaptés à mon niveau CEFR afin de m'améliorer. & Must Have \\
+\hline
+US-07 & Gestion des cours &
+    En tant qu'administrateur, je veux créer, organiser et enrichir des cours et leçons 
+    avec du contenu multimédia. & Must Have \\
+\hline
+\end{tabular}
+\caption{Backlog du Sprint~2 --- Évaluation CEFR et cours}
+\label{tab:backlog-sprint2}
+\end{table}
+
+\subsection{Analyse}
+
+\subsubsection{Description textuelle --- Test de positionnement CEFR (US-05)}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\rowcolor[gray]{0.88}
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & Évaluer le niveau de prononciation CEFR via un Agent IA \\
+\hline
+Acteur principal  & Apprenant \\
+\hline
+Pré-conditions    & L'apprenant est authentifié et sélectionne la langue à évaluer (FR/EN). \\
+\hline
+Scénario nominal  &
+    1.~L'apprenant lance le test de niveau depuis son tableau de bord.\newline
+    2.~L'Agent LangGraph initialise la session et prépare une file de 20 phonèmes spécifiques à la langue.\newline
+    3.~Pour chaque étape, l'IA (modèle Ollama) génère dynamiquement une phrase contextuelle ciblant le phonème.\newline
+    4.~L'apprenant enregistre sa voix en lisant la phrase affichée.\newline
+    5.~Le module STT convertit l'audio et attribue un score de précision (0-100).\newline
+    6.~L'Agent analyse le score et génère un feedback immédiat.\newline
+    7.~Le cycle se répète jusqu'à l'étape 20 (l'Agent optimise le test en ignorant les phonèmes déjà parfaitement maîtrisés).\newline
+    8.~À la fin, l'Agent dresse une synthèse globale et calcule le niveau CEFR définitif.\newline
+    9.~Les phonèmes en échec sont sauvegardés dans le système de répétition espacée (Spaced Repetition). \\
+\hline
+Post-conditions   & L'historique des 20 étapes est persisté. Le profil de l'utilisateur est mis à jour avec son nouveau niveau CEFR, ce qui débloque les cours adaptés. \\
+\hline
+Scénarios alt.    &
+    \textbf{A1} --- Abandon anticipé : L'apprenant quitte avant l'étape 20. La session est marquée comme \texttt{ABANDONED}, mais l'historique partiel est conservé. \\
+\hline
+\end{tabular}
+\caption{Description textuelle --- Évaluation CEFR}
+\label{tab:desc-cefr}
+\end{table}
+
+\subsubsection{Fonctionnement de l'Agent IA (Architecture LangGraph4J)}
+
+Le cœur de ce sprint repose sur une architecture agentique avancée, pilotée par LangGraph4J. L'évaluation ne suit pas un chemin statique, mais est gérée par une machine à états (StateGraph) dotée de mémoire et d'une capacité de décision :
+
+\begin{itemize}
+    \item \textbf{Gestion de la Mémoire (State et Checkpointer)} : L'agent maintient un état global (\texttt{AgentState}) à travers chaque étape de la session via un \texttt{MemorySaver}. Il se souvient de l'historique complet des scores et des phrases prononcées pour adapter la suite du test.
+    \item \textbf{Prise de décision (Conditional Edges)} : Après chaque interaction, l'agent prend une décision de routage. Il analyse l'historique en mémoire : s'il détecte qu'un apprenant maîtrise parfaitement un phonème spécifique (score $\ge 75$), il prend la décision d'exclure ce son des itérations futures. Il contrôle également l'arrêt du test (fixé à 20 itérations).
+    \item \textbf{Actions et Consommation LLM (Ollama)} : L'agent interagit dynamiquement avec un LLM local (\texttt{qwen2.5}) au travers de différents \textit{Nodes} d'action :
+    \begin{itemize}
+        \item \textit{genContentNode} : Il demande au LLM de générer à la volée une phrase ciblée contenant le phonème à tester.
+        \item \textit{genFeedbackNode} : Il fournit le score STT et la transcription au LLM pour générer un retour pédagogique personnalisé en temps réel.
+        \item \textit{synthesizeNode} : À la fin du test, l'agent compile la mémoire et demande au LLM de rédiger une synthèse globale (forces et axes d'amélioration).
+    \end{itemize}
+    \item \textbf{Calcul du niveau (Moyenne pondérée)} : Indépendamment du LLM, l'agent calcule de manière déterministe le niveau final (A1 à C2) via une moyenne pondérée des scores.
+\end{itemize}
+
+\subsubsection{Diagramme de cas d'utilisation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=13cm]{use_case_sprint2}
+    \caption{Diagramme de cas d'utilisation --- Sprint~2}
+    \label{fig:uc-sprint2}
+\end{figure}
+
+\subsection{Conception}
+
+\subsubsection{Diagramme de classes}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=14cm]{class_diagram_sprint2}
+    \caption{Diagramme de classes du modèle de données --- Sprint~2}
+    \label{fig:class-sprint2}
+\end{figure}
+
+\subsubsection{Diagrammes de séquence --- Comportement de l'Agent IA}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=15cm]{sequence_agent_sprint2}
+    \caption{Diagramme de séquence --- Flux asynchrone, Mémoire et Décisions de l'Agent LangGraph}
+    \label{fig:seq-agent-sprint2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{activity_cefr_sprint2}
+    \caption{Diagramme d'activité --- Logique de la machine à état de l'Agent}
+    \label{fig:act-cefr-sprint2}
+\end{figure}
+
+\subsubsection{Modèle de données}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|p{4.5cm}|l|p{3.5cm}|}
+\hline
+\rowcolor[gray]{0.88}
+\textbf{Entité} & \textbf{Attributs} & \textbf{Type} & \textbf{Contraintes} \\
+\hline
+CEFRSession &
+    id, sessionId, userId, lang, status, finalLevel, avgScore, startedAt &
+    Long, String, Long, String, String, String, Integer, Timestamp &
+    PK \\
+\hline
+PlannerStepResult &
+    id, sessionId, userId, stepNumber, targetSound, phrase, score &
+    Long, String, Long, Integer, String, Text, Integer &
+    PK, FK(User) \\
+\hline
+SpacedRepetitionItem &
+    id, userId, word, level, errorCount, intervalDays, nextReview &
+    Long, Long, String, String, Integer, Integer, Date &
+    PK, FK(User) \\
+\hline
+Course &
+    id, title, cefrLevel, lang, active, durationMinutes &
+    Long, String, String, String, Boolean, Integer &
+    PK \\
+\hline
+Lesson &
+    id, courseId, title, type, content, lessonOrder &
+    Long, Long, String, String, Text, Integer &
+    PK, FK(Course) \\
+\hline
+UserCourseProgress &
+    id, userId, courseId, status, progressPercent &
+    Long, Long, Long, String, Integer &
+    PK, FK(User), FK(Course) \\
+\hline
+\end{tabular}
+\caption{Structure de persistance --- Sprint~2}
+\label{tab:data-sprint2}
+\end{table}
+
+\subsection{Réalisation}
+
+\subsubsection{Interface d'évaluation CEFR}
+
+L'apprenant est guidé étape par étape par l'Agent IA. À chaque itération, l'interface présente la phrase générée dynamiquement, permet la capture vocale au microphone, puis affiche le score de précision (calculé par le STT) accompagné des remarques pédagogiques du coach.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{test_cefr_sprint2}
+    \caption{Interface de passage du test interactif CEFR}
+    \label{fig:test-cefr-sprint2}
+\end{figure}
+
+\subsubsection{Bilan et Synthèse IA}
+
+Une fois les 20 phonèmes évalués, l'Agent compile les données pour générer un bilan sur-mesure (points forts et phonèmes à travailler). Le niveau final validé permet de débloquer le contenu d'apprentissage correspondant au profil de l'utilisateur.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{resultat_cefr_sprint2}
+    \caption{Rapport de test et synthèse générée par l'IA}
+    \label{fig:resultat-cefr-sprint2}
+\end{figure}
+
+\subsubsection{Catalogue et Suivi des Cours}
+
+La plateforme propose un parcours structuré par niveaux (ex: B1, B2). L'apprenant accède aux leçons (vidéos, supports audio) et suit sa complétion. L'administrateur, quant à lui, dispose d'un espace de gestion CRUD complet pour enrichir cette base de connaissances multimédia.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=14cm]{admin_cours_sprint2}
+    \caption{Espace pédagogique --- Consultation et progression des cours}
+    \label{fig:admin-cours-sprint2}
+\end{figure}
+
+%--------------------------------------------------
+\section{Conclusion}
+%--------------------------------------------------
+
+Cette première Release a posé des bases techniques particulièrement solides pour l'application \textbf{SpeakCoach}.
+Le Sprint~1 a permis d'intégrer une couche d'authentification native et sécurisée, s'appuyant sur Keycloak et le LDAP d'entreprise en arrière-plan, tout en offrant une gestion complète des profils.
+Le Sprint~2 s'est distingué par l'implémentation d'une architecture agentique complexe (LangGraph4J couplé à Ollama), remplaçant les questionnaires classiques par une évaluation vocale dynamique et adaptative du niveau CEFR. L'intégration de la répétition espacée (SRS) et de la gestion de contenu pédagogique finalise ce socle, créant les conditions idéales pour le développement des modules de coaching en temps réel de la Release~2.

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture Logique — SpeakCoach</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0f1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .slide {
+            background: #ffffff;
+            width: 1280px;
+            height: 720px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header ── */
+        .header {
+            background: linear-gradient(135deg, #e8345e, #c4254a);
+            padding: 16px 40px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            font-size: 26px;
+            font-weight: 900;
+            font-style: italic;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            background: linear-gradient(135deg, #e8345e, #c4254a);
+            padding: 7px 40px;
+            color: #fff;
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 2px;
+            flex-shrink: 0;
+        }
+
+        /* ── Canvas ── */
+        .canvas {
+            flex: 1;
+            padding: 20px 40px 16px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* ── Legend ── */
+        .legend {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 20px;
+            font-size: 11.5px;
+            color: #666;
+            font-weight: 600;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .legend-line {
+            width: 45px;
+            height: 2px;
+            position: relative;
+        }
+        .legend-line.sync { background: #2c3e50; }
+        .legend-line.sync::after {
+            content: ''; position: absolute; right: -6px; top: -4px;
+            border-left: 8px solid #2c3e50;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+        .legend-line.async { border-top: 2.5px dashed #d42a52; background: none; }
+        .legend-line.async::after {
+            content: ''; position: absolute; right: -6px; top: -5px;
+            border-left: 8px solid #d42a52;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        /* ═══ MAIN ARCHITECTURE AREA ═══ */
+        .architecture {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ── Top Row: Main Flow ── */
+        .main-flow {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        /* ── Group (dashed border) ── */
+        .group {
+            border: 2.5px dashed;
+            border-radius: 14px;
+            padding: 14px 18px 18px;
+        }
+        .group-label {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .group-frontend {
+            border-color: #00c8ff;
+        }
+        .group-frontend .group-label { color: #00c8ff; }
+
+        .group-spring {
+            border-color: #27ae60;
+        }
+        .group-spring .group-label { color: #27ae60; }
+
+        /* ── Boxes ── */
+        .flow-boxes {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+        }
+        .box {
+            background: linear-gradient(180deg, #3d4f6f 0%, #2b3a52 100%);
+            color: #fff;
+            padding: 18px 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            min-width: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            letter-spacing: 0.2px;
+        }
+
+        /* ── Orange Arrow ── */
+        .arrow {
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; flex-shrink: 0;
+        }
+        .arrow svg { width: 28px; height: 24px; }
+
+        .arrow-big {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; width: 78px; flex-shrink: 0; gap: 3px;
+        }
+        .arrow-big .arrow-label {
+            font-size: 10.5px; font-weight: 800; color: #e8345e;
+            text-align: center; line-height: 1.25;
+        }
+        .arrow-big svg { width: 44px; height: 28px; }
+
+        /* ── DB Cylinder ── */
+        .db-wrap {
+            display: flex; flex-direction: column;
+            align-items: center; align-self: center;
+        }
+        .db-svg { width: 90px; height: 100px; }
+        .db-name {
+            font-size: 13px; font-weight: 800; color: #2c3e50; margin-top: 4px;
+        }
+        .db-sub {
+            font-size: 9.5px; color: #95a5a6; font-weight: 600;
+        }
+
+        /* ═══ BOTTOM ROW: External Services ═══ */
+        .externals-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .ext-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ext-badge {
+            border-radius: 10px;
+            padding: 14px 18px;
+            text-align: center;
+            min-width: 135px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+        }
+        .ext-badge .name {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #fff;
+        }
+        .ext-badge .sub {
+            font-size: 9.5px;
+            color: rgba(255,255,255,0.85);
+            font-weight: 600;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+        .ext-badge.keycloak { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .ext-badge.fastapi  { background: linear-gradient(135deg, #009688, #00796b); }
+        .ext-badge.storage   { background: linear-gradient(135deg, #e67e22, #d35400); }
+
+        .ext-circle {
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        .ext-circle .name {
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+        }
+        .ext-circle .sub {
+            font-size: 9px;
+            color: rgba(255,255,255,0.85);
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+        .ext-circle.azure  { background: linear-gradient(135deg, #0078d4, #0053a6); }
+        .ext-circle.ollama { background: linear-gradient(135deg, #8e44ad, #6c3483); }
+
+        /* ── Connection label under external ── */
+        .conn-label {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #d42a52;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .conn-label .conn-arrow {
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        /* ── Dashed vertical connector lines ── */
+        .conn-line-up {
+            width: 2px;
+            height: 30px;
+            border-left: 2.5px dashed #d42a52;
+        }
+
+        /* ── Mapping labels between main flow and externals ── */
+        .mapping-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            position: relative;
+        }
+        .mapping-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ── SVG for connections overlay ── */
+        .svg-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <!-- ═══ HEADER ═══ -->
+        <div class="header">
+            <h1>Architecture Logique</h1>
+        </div>
+
+        <!-- ═══ CANVAS ═══ -->
+        <div class="canvas">
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-line sync"></div>
+                    <span>Synchrone (REST / HTTP)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line async"></div>
+                    <span>Asynchrone / Service Externe</span>
+                </div>
+            </div>
+
+            <div class="architecture">
+
+                <!-- ═══════════════════════════════════════ -->
+                <!-- ROW 1: Main Horizontal Flow            -->
+                <!-- ═══════════════════════════════════════ -->
+                <div class="main-flow">
+
+                    <!-- Frontend Group -->
+                    <div class="group group-frontend">
+                        <div class="group-label">React 18 / Vite</div>
+                        <div class="flow-boxes">
+                            <div class="box">Pages &amp;<br>Components</div>
+                            <div class="arrow">
+                                <svg viewBox="0 0 28 24"><polygon points="0,5 16,5 16,0 28,12 16,24 16,19 0,19" fill="#f39c12"/></svg>
+                            </div>
+                            <div class="box">Services<br>Axios / Hooks</div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow: Frontend → Spring -->
+                    <div class="arrow-big">
+                        <div class="arrow-label">REST API<br>HTTPS</div>
+                        <svg viewBox="0 0 44 28"><polygon points="0,7 26,7 26,0 44,14 26,28 26,21 0,21" fill="#f39c12"/></svg>
+                    </div>
+
+                    <!-- Spring Boot Group -->
+                    <div class="group group-spring">
+                        <div class="group-label">Spring Boot</div>
+                        <div class="flow-boxes">
+                            <div class="box">REST<br>Controllers</div>
+                            <div class="arrow">
+                                <svg viewBox="0 0 28 24"><polygon points="0,5 16,5 16,0 28,12 16,24 16,19 0,19" fill="#f39c12"/></svg>
+                            </div>
+                            <div class="box">Services /<br>AI Agents</div>
+                            <div class="arrow">
+                                <svg viewBox="0 0 28 24"><polygon points="0,5 16,5 16,0 28,12 16,24 16,19 0,19" fill="#f39c12"/></svg>
+                            </div>
+                            <div class="box">Repositories<br>JPA / Spec</div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow → PostgreSQL -->
+                    <div class="arrow" style="width:42px;">
+                        <svg viewBox="0 0 28 24"><polygon points="0,5 16,5 16,0 28,12 16,24 16,19 0,19" fill="#f39c12"/></svg>
+                    </div>
+
+                    <!-- PostgreSQL Cylinder -->
+                    <div class="db-wrap">
+                        <svg class="db-svg" viewBox="0 0 90 100">
+                            <!-- Cylinder body -->
+                            <rect x="5" y="20" width="80" height="60" rx="2" fill="url(#dbGrad)" />
+                            <!-- Top ellipse -->
+                            <ellipse cx="45" cy="20" rx="40" ry="14" fill="url(#dbTop)" />
+                            <!-- Bottom ellipse -->
+                            <ellipse cx="45" cy="80" rx="40" ry="14" fill="url(#dbBot)" />
+                            <!-- Shiny highlight -->
+                            <rect x="20" y="30" width="12" height="40" rx="6" fill="rgba(255,255,255,0.1)" />
+                            <defs>
+                                <linearGradient id="dbGrad" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#2471a3"/>
+                                    <stop offset="40%" stop-color="#3498db"/>
+                                    <stop offset="70%" stop-color="#5dade2"/>
+                                    <stop offset="100%" stop-color="#2980b9"/>
+                                </linearGradient>
+                                <linearGradient id="dbTop" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#5dade2"/>
+                                    <stop offset="50%" stop-color="#85c1e9"/>
+                                    <stop offset="100%" stop-color="#5dade2"/>
+                                </linearGradient>
+                                <linearGradient id="dbBot" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#1a5276"/>
+                                    <stop offset="50%" stop-color="#2471a3"/>
+                                    <stop offset="100%" stop-color="#1a5276"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="db-name">PostgreSQL</div>
+                        <div class="db-sub">+ Hibernate</div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════ -->
+                <!-- ROW 2: Dashed lines (vertical)         -->
+                <!-- ═══════════════════════════════════════ -->
+                <div style="display:flex; justify-content:space-between; padding: 0 24px 0 60px;">
+                    <div style="display:flex;flex-direction:column;align-items:center;width:135px;">
+                        <div class="conn-line-up"></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;width:135px; margin-left:70px;">
+                        <div class="conn-line-up"></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;width:135px;">
+                        <div class="conn-line-up"></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;width:105px;">
+                        <div class="conn-line-up"></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;width:105px;">
+                        <div class="conn-line-up"></div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════ -->
+                <!-- ROW 3: External Services               -->
+                <!-- ═══════════════════════════════════════ -->
+                <div class="externals-row">
+
+                    <!-- Keycloak -->
+                    <div class="ext-card">
+                        <div class="ext-badge keycloak">
+                            <div class="name">🔐 Keycloak</div>
+                            <div class="sub">IAM · OAuth2 / OIDC<br>JWT Validation</div>
+                        </div>
+                        <div class="conn-label">
+                            <span class="conn-arrow">↕</span> Auth Tokens
+                        </div>
+                    </div>
+
+                    <!-- FastAPI -->
+                    <div class="ext-card">
+                        <div class="ext-badge fastapi">
+                            <div class="name">⚡ FastAPI</div>
+                            <div class="sub">Whisper STT · TTS<br>Phonemizer · Audio</div>
+                        </div>
+                        <div class="conn-label">
+                            <span class="conn-arrow">↕</span> HTTP REST :8000
+                        </div>
+                    </div>
+
+                    <!-- File Storage -->
+                    <div class="ext-card">
+                        <div class="ext-badge storage">
+                            <div class="name">📁 File Storage</div>
+                            <div class="sub">Audio · Vidéo<br>Images</div>
+                        </div>
+                        <div class="conn-label">
+                            <span class="conn-arrow">↕</span> Filesystem I/O
+                        </div>
+                    </div>
+
+                    <!-- Azure OpenAI -->
+                    <div class="ext-card">
+                        <div class="ext-circle azure">
+                            <div class="name">Azure</div>
+                            <div class="sub">OpenAI<br>GPT-4.1 Mini</div>
+                        </div>
+                        <div class="conn-label">
+                            <span class="conn-arrow">↕</span> HTTPS API
+                        </div>
+                    </div>
+
+                    <!-- Ollama -->
+                    <div class="ext-card">
+                        <div class="ext-circle ollama">
+                            <div class="name">🦙 Ollama</div>
+                            <div class="sub">Qwen 2.5<br>(local)</div>
+                        </div>
+                        <div class="conn-label">
+                            <span class="conn-arrow">↕</span> HTTP :11434
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /architecture -->
+        </div><!-- /canvas -->
+
+        <!-- ═══ FOOTER ═══ -->
+        <div class="footer">TALAN</div>
+    </div>
+</body>
+</html>

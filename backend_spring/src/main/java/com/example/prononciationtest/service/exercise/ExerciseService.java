@@ -7,6 +7,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service de génération des exercices de prononciation.
+ *
+ * Thèmes : Réunions professionnelles, présentations client, architecture IT,
+ *          gestion de projet, communication d'entreprise, KPIs.
+ */
 @Service
 public class ExerciseService {
 
@@ -20,127 +26,195 @@ public class ExerciseService {
         this.taxonomy = taxonomy;
     }
 
+    // ── Génération de phrase de pratique orale ─────────────────────────────────
     public String generatePhrase(String lang, String level) {
         String wc = switch (level) {
-            case "A1" -> "fr".equals(lang) ? "4-6 mots" : "4-6 words";
-            case "A2" -> "fr".equals(lang) ? "6-8 mots" : "6-8 words";
-            case "B1" -> "fr".equals(lang) ? "9-12 mots" : "9-12 words";
-            case "B2" -> "fr".equals(lang) ? "12-15 mots" : "12-15 words";
-            case "C1" -> "fr".equals(lang) ? "15-18 mots" : "15-18 words";
-            default -> "fr".equals(lang) ? "18-22 mots" : "18-22 words";
+            case "A1" -> "fr".equals(lang)
+                    ? "1 à 2 phrases simples et complètes (8-12 mots), contexte bureau ou équipe"
+                    : "1-2 simple complete sentences (8-12 words), office or team context";
+            case "A2" -> "fr".equals(lang)
+                    ? "2 phrases complètes (12-18 mots), réunion d'équipe ou organisation du travail"
+                    : "2 complete sentences (12-18 words), team meeting or work organization";
+            case "B1" -> "fr".equals(lang)
+                    ? "2 phrases complètes (20-30 mots), gestion de projet ou relation client"
+                    : "2 complete sentences (20-30 words), project management or client relationship";
+            case "B2" -> "fr".equals(lang)
+                    ? "3 phrases complètes (30-45 mots), présentation stratégique ou architecture IT"
+                    : "3 complete sentences (30-45 words), strategic presentation or IT architecture";
+            case "C1" -> "fr".equals(lang)
+                    ? "3 à 4 phrases complètes (45-60 mots), offre commerciale ou transformation digitale"
+                    : "3-4 complete sentences (45-60 words), commercial offer or digital transformation";
+            default -> "fr".equals(lang)
+                    ? "4 à 5 phrases complètes (60+ mots), enjeux stratégiques et technologiques"
+                    : "4-5 complete sentences (60+ words), strategic and technological challenges";
         };
 
         String system;
         String prompt;
         if ("fr".equals(lang)) {
-            system = "Tu g\u00e9n\u00e8res UNE phrase fran\u00e7aise parl\u00e9e, niveau " + level + ". " +
-                    "INTERDIT : explications, guillemets, tirets, num\u00e9ros, m\u00e9ta-commentaires. " +
-                    "R\u00e9ponds UNIQUEMENT avec la phrase, rien d'autre.";
-            prompt = "G\u00e9n\u00e8re une phrase fran\u00e7aise de " + wc
-                    + " sur un sujet quotidien (voyage, nourriture, famille, travail, m\u00e9t\u00e9o, sport).";
+            system = "Tu es un formateur expert en communication orale professionnelle. " +
+                     "Tu génères du texte parlé professionnel en français, niveau CECR " + level + ". " +
+                     "Thèmes : présentation client, réunion d'équipe, gestion de projet, " +
+                     "suivi budgétaire, livrables, parties prenantes, transformation digitale, ROI. " +
+                     "INTERDIT : vocabulaire enfantin, sujets généraux, explications, guillemets, tirets, puces. " +
+                     "Réponds UNIQUEMENT avec le texte à prononcer, rien d'autre.";
+            prompt = "Génère un texte de " + wc +
+                     " représentant une situation professionnelle courante en entreprise " +
+                     "(ex: présentation à la direction, réunion client, revue de projet, démonstration produit, négociation commerciale).";
         } else {
-            system = "You generate ONE spoken English sentence, level " + level + ". " +
-                    "FORBIDDEN: explanations, quotes, dashes, numbers, meta-comments. " +
-                    "Reply with the sentence ONLY, nothing else.";
-            prompt = "Generate an English sentence of " + wc
-                    + " about a daily topic (travel, food, family, work, weather, sport).";
+            system = "You are an expert professional oral communication trainer. " +
+                     "You generate professional spoken English text at CEFR level " + level + ". " +
+                     "Topics: client presentations, team meetings, project management, " +
+                     "budget tracking, deliverables, stakeholders, digital transformation, ROI. " +
+                     "FORBIDDEN: childish vocabulary, general topics, explanations, quotes, dashes, bullets. " +
+                     "Reply with the spoken text ONLY, nothing else.";
+            prompt = "Generate a text of " + wc +
+                     " representing a common professional situation in a company " +
+                     "(e.g. executive presentation, client meeting, project review, product demo, business negotiation).";
         }
 
-        String raw = ollamaClientService.callOllama(system, prompt, 40, 0.85);
+        // Nombre de tokens adapté au niveau pour ne jamais couper la phrase
+        int maxTokens = switch (level) {
+            case "A1" -> 60;
+            case "A2" -> 90;
+            case "B1" -> 150;
+            case "B2" -> 220;
+            case "C1" -> 300;
+            default   -> 380;
+        };
+
+        if ("fr".equals(lang)) {
+            system += " Termine TOUJOURS par un point. Ne coupe jamais une phrase à mi-chemin.";
+        } else {
+            system += " ALWAYS end with a period. Never cut a sentence in the middle.";
+        }
+
+        String raw = ollamaClientService.callOllama(system, prompt, maxTokens, 0.80);
         String cleaned = raw.split("\n")[0].trim()
                 .replaceAll("^[\\d]+[.)\\-\\s]+", "")
                 .replaceAll("^[\\\"'\\u00AB\\u00BB\\-*#\\u2022]+", "")
                 .replaceAll("[\\\"'\\u00AB\\u00BB]+$", "")
-                .replaceAll("[.!?]+$", "")
                 .trim();
-        
+
+        // Ajoute un point final si la phrase n'en a pas
+        if (!cleaned.isEmpty() && !cleaned.matches(".*[.!?]$")) {
+            cleaned = cleaned + ".";
+        }
+
         if (taxonomy.isHallucination(cleaned, lang)) {
             return taxonomy.getFallback(lang, level, "general");
         }
         return cleaned;
     }
 
+    // ── Génération d'exercices QCM (grammaire, vocabulaire, etc.) ─────────────
     public String generateExercises(String lang, String level, String type, int count) {
         boolean fr = "fr".equals(lang);
         String typeLabel = fr ? switch (type) {
-            case "grammar" -> "grammaire";
-            case "vocabulary" -> "vocabulaire";
-            case "pronunciation" -> "prononciation";
-            case "listening" -> "compr\u00e9hension orale";
-            default -> type;
-        } : type;
+            case "grammar"       -> "grammaire professionnelle";
+            case "vocabulary"    -> "vocabulaire corporate et IT";
+            case "pronunciation" -> "prononciation en contexte professionnel";
+            case "listening"     -> "compréhension orale en réunion";
+            default              -> type;
+        } : switch (type) {
+            case "grammar"       -> "professional grammar";
+            case "vocabulary"    -> "corporate and IT vocabulary";
+            case "pronunciation" -> "pronunciation in professional context";
+            case "listening"     -> "listening comprehension in meetings";
+            default              -> type;
+        };
 
         String system = fr
-                ? "Tu es un g\u00e9n\u00e9rateur d'exercices p\u00e9dagogiques. R\u00e9ponds UNIQUEMENT avec un tableau JSON valide, rien d'autre."
-                : "You are an educational exercise generator. Reply ONLY with a valid JSON array, nothing else.";
+                ? "Tu es un concepteur d'exercices de communication professionnelle en entreprise. " +
+                  "Réponds UNIQUEMENT avec un tableau JSON valide, rien d'autre."
+                : "You are a professional business communication exercise designer. " +
+                  "Reply ONLY with a valid JSON array, nothing else.";
 
         String prompt = fr
                 ? String.format(
-                        "G\u00e9n\u00e8re %d exercices de %s en fran\u00e7ais pour le niveau CECR %s.\n" +
-                                "Format JSON : [{\"question\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"correct\":\"A\",\"explanation\":\"...\"}]",
-                        count, typeLabel, level)
+                    "Génère %d exercices de %s en français (niveau CECR %s) basés sur des situations réelles " +
+                    "en entreprise : réunions d'équipe, présentations client, gestion de projet, " +
+                    "transformation digitale, négociation commerciale, communication interne.%n" +
+                    "Format JSON : [{\"question\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"correct\":\"A\",\"explanation\":\"...\"}]",
+                    count, typeLabel, level)
                 : String.format(
-                        "Generate %d %s exercises in English for CEFR level %s.\n" +
-                                "JSON format: [{\"question\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"correct\":\"A\",\"explanation\":\"...\"}]",
-                        count, typeLabel, level);
+                    "Generate %d %s exercises in English (CEFR level %s) based on real business situations: " +
+                    "team meetings, client presentations, project management, " +
+                    "digital transformation, business negotiation, internal communication.%n" +
+                    "JSON format: [{\"question\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"correct\":\"A\",\"explanation\":\"...\"}]",
+                    count, typeLabel, level);
 
-        return ollamaClientService.callOllama(system, prompt, 600, 0.6);
+        return ollamaClientService.callOllama(system, prompt, 800, 0.55);
     }
 
+    // ── Génération de phrases de pratique orale (JSON array) ──────────────────
     public String generateExercisePhrases(String lang, String level, int count) {
         boolean fr = "fr".equals(lang);
         String system = fr
-                ? "Tu g\u00e9n\u00e8res des phrases de pratique orale. R\u00e9ponds UNIQUEMENT avec un tableau JSON valide, rien d'autre."
-                : "You generate spoken practice phrases. Reply ONLY with a valid JSON array, nothing else.";
+                ? "Tu génères des phrases de pratique orale pour des professionnels en entreprise, " +
+                  "lors de réunions, présentations ou échanges avec des clients. " +
+                  "Réponds UNIQUEMENT avec un tableau JSON valide."
+                : "You generate spoken practice phrases for business professionals " +
+                  "in meetings, presentations or client interactions. Reply ONLY with a valid JSON array.";
 
         String prompt = fr
                 ? String.format(
-                        "G\u00e9n\u00e8re %d phrases fran\u00e7aises de pratique orale pour le niveau CECR %s.\n" +
-                                "Format JSON : [\"phrase1\",\"phrase2\",...]",
-                        count, level)
+                    "Génère %d phrases professionnelles de pratique orale en français (niveau CECR %s) " +
+                    "adaptées à un contexte d'entreprise. Thèmes : réunions d'équipe, présentations client, " +
+                    "gestion de projet, suivi des objectifs, communication avec la direction, négociation.%n" +
+                    "Format JSON : [\"phrase1\",\"phrase2\",...]",
+                    count, level)
                 : String.format(
-                        "Generate %d English spoken practice phrases for CEFR level %s.\n" +
-                                "JSON format: [\"phrase1\",\"phrase2\",...]",
-                        count, level);
+                    "Generate %d professional English spoken practice phrases (CEFR level %s) " +
+                    "adapted to a business environment. Topics: team meetings, client presentations, " +
+                    "project management, goal tracking, management communication, negotiation.%n" +
+                    "JSON format: [\"phrase1\",\"phrase2\",...]",
+                    count, level);
 
-        return ollamaClientService.callOllama(system, prompt, 400, 0.75);
+        return ollamaClientService.callOllama(system, prompt, 600, 0.70);
     }
 
+    // ── Adaptation du prochain exercice (planner adaptatif) ───────────────────
     public String adaptNextStep(String lang, String level, String targetSound,
             int lastScore, String lastPhrase, List<String> weakSounds) {
         boolean fr = "fr".equals(lang);
         String weakHint = "";
         if (weakSounds != null && !weakSounds.isEmpty()) {
-            String prefix = fr ? " Sons faibles : " : " Weak sounds: ";
+            String prefix = fr ? " Sons à travailler : " : " Sounds to work on: ";
             weakHint = prefix + String.join(", ", weakSounds) + ".";
         }
 
         String system = fr
-                ? "Tu es un g\u00e9n\u00e9rateur de phrases de pratique orale. R\u00e9ponds UNIQUEMENT en JSON valide, rien d'autre."
-                : "You are a spoken practice phrase generator. Reply ONLY with valid JSON, nothing else.";
+                ? "Tu génères des phrases de pratique orale pour des professionnels en entreprise. " +
+                  "Réponds UNIQUEMENT en JSON valide, rien d'autre."
+                : "You generate spoken practice phrases for business professionals. " +
+                  "Reply ONLY with valid JSON, nothing else.";
 
         String prompt;
         if (fr) {
             prompt = String.format("""
-                    G\u00e9n\u00e8re une phrase fran\u00e7aise niveau %s ciblant le son [%s].%s
-                    Score pr\u00e9c\u00e9dent : %d/100. Phrase pr\u00e9c\u00e9dente : "%s".
-                    Adapte la difficult\u00e9 selon le score (score < 55 \u2192 plus simple, score > 75 \u2192 plus difficile).
-                    R\u00e9ponds avec CE JSON exact :
+                    Génère une phrase professionnelle en entreprise (réunion d'équipe, présentation client, suivi de projet) \
+                    niveau %s ciblant le son [%s].%s
+                    Score précédent : %d/100. Phrase précédente : "%s".
+                    Adapte la difficulté selon le score (si <60 : simplifie ; si >80 : enrichis le vocabulaire professionnel).
+                    Réponds avec CE JSON exact :
                     {"phrase":"...","target_sound":"%s","tip":"...","difficulty":"..."}""",
                     level, targetSound, weakHint, lastScore, lastPhrase, targetSound);
         } else {
             prompt = String.format("""
-                    Generate an English sentence at level %s targeting the sound [%s].%s
+                    Generate a professional business phrase (team meeting, client presentation, project follow-up) \
+                    at level %s targeting the sound [%s].%s
                     Previous score: %d/100. Previous phrase: "%s".
-                    Adapt difficulty based on score (score < 55 \u2192 easier, score > 75 \u2192 harder).
+                    Adapt difficulty based on score (if <60: simplify; if >80: enrich with professional vocabulary).
                     Reply with EXACTLY this JSON:
                     {"phrase":"...","target_sound":"%s","tip":"...","difficulty":"..."}""",
                     level, targetSound, weakHint, lastScore, lastPhrase, targetSound);
         }
 
-        return ollamaClientService.callOllama(system, prompt, 120, 0.7);
+        return ollamaClientService.callOllama(system, prompt, 150, 0.65);
     }
 
+    // ── Bilan de session (planner summary) ────────────────────────────────────
     public String generatePlannerSummary(String lang, String level,
             List<Map<String, Object>> stepResults) {
         boolean fr = "fr".equals(lang);
@@ -153,26 +227,26 @@ public class ExerciseService {
         }
 
         String system = fr
-                ? "Tu es un coach p\u00e9dagogique. R\u00e9ponds UNIQUEMENT en JSON valide, rien d'autre."
-                : "You are a pedagogical coach. Reply ONLY with valid JSON, nothing else.";
+                ? "Tu es un coach pédagogique expert en communication professionnelle. Réponds UNIQUEMENT en JSON valide, rien d'autre."
+                : "You are a pedagogical coach expert in professional communication. Reply ONLY with valid JSON, nothing else.";
 
         String prompt;
         if (fr) {
             prompt = String.format("""
-                    Voici les r\u00e9sultats d'une session de prononciation niveau %s :
+                    Voici les résultats d'une session de prononciation niveau %s :
                     %s
-                    G\u00e9n\u00e8re un bilan JSON avec CE format exact :
+                    Génère un bilan JSON encourageant adapté à un contexte professionnel, avec CE format exact :
                     {"mastered":["son1"],"to_work":["son2"],"encouragement":"...","next_focus":"..."}""",
                     level, sb);
         } else {
             prompt = String.format("""
                     Here are the results of a level %s pronunciation session:
                     %s
-                    Generate a summary JSON with EXACTLY this format:
+                    Generate an encouraging JSON summary adapted to a professional context, with EXACTLY this format:
                     {"mastered":["sound1"],"to_work":["sound2"],"encouragement":"...","next_focus":"..."}""",
                     level, sb);
         }
 
-        return ollamaClientService.callOllama(system, prompt, 200, 0.4);
+        return ollamaClientService.callOllama(system, prompt, 250, 0.40);
     }
 }

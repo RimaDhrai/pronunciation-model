@@ -1,0 +1,136 @@
+@startuml Agent_Loop_SpeakCoach
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam ArrowColor #444444
+skinparam ArrowFontSize 10
+skinparam ArrowFontColor #333333
+skinparam ActivityBorderColor #555555
+skinparam ActivityBorderThickness 2
+skinparam ActivityFontSize 12
+skinparam ActivityDiamondBackgroundColor #FFF9C4
+skinparam ActivityDiamondBorderColor #F9A825
+
+title Agent Loop — SpeakCoach\nLangGraph4J : THINK → PLAN → ACT → OBSERVE
+
+' ─────────────────────────────
+'  DEBUT
+' ─────────────────────────────
+start
+
+' ─── ETAPE 1 : INPUT ───
+#D0EBFF:1 - INPUT\nL'apprenant parle au micro\nAudio buffer capture (WAV/MP3);
+
+note right
+  Source : microphone navigateur
+  Format : WAV / MP3
+end note
+
+' ─── ETAPE 2 : STT ───
+#D0EBFF:2 - WHISPER STT\nTranscription Audio -> Texte\nFastAPI + Whisper (local);
+
+note right
+  Whisper detecte la langue
+  Output : texte transcrit
+end note
+
+' ─── ETAPE 3 : THINK ───
+partition "THINK — Preparation du contexte LLM" {
+
+  #E8F5E9:3a - Charger la session\nHistorique utilisateur (MemorySaver);
+
+  #E8F5E9:3b - Construire le Prompt\nChatbotPromptBuilder\nTemplates CECRL A1->C2;
+
+  #E8F5E9:3c - Enrichir le contexte\nMots faibles + erreurs\nde prononciation;
+
+  #E8F5E9:3d - Assembler les messages\nListe [system, user, history]\nprete pour le LLM;
+
+}
+
+note right
+  Prompt Engineering :
+  - Niveau CECRL cible
+  - Mots difficiles detectes
+  - Historique de la session
+end note
+
+' ─── ETAPE 4 : PLAN ───
+partition "PLAN — MasterAgent Router (LangGraph)" {
+
+  #FFF8E1:4a - MasterAgent route la requete\nCHAT | TEST | EXERCISE;
+
+  #FFF8E1:4b - ConditionalEdges LangGraph\nBranchement sans LLM\n(logique deterministe);
+
+  #FFF8E1:4c - Noeud suivant selectionne\nAgent specialise active;
+
+}
+
+note right
+  Agents disponibles :
+  CHAT  -> conversation libre
+  TEST  -> evaluation CECRL
+  EXERCISE -> drill phonetique
+end note
+
+' ─── ETAPE 5 : ACT ───
+#F3E5F5:5 - ACT\nExecution LLM : Ollama ou Azure GPT\nOutput : reponse texte + score [0..100];
+
+note right
+  LLM local : Ollama Qwen 2.5 3B
+  LLM cloud : Azure GPT-4.1-Mini
+end note
+
+' ─── ETAPE 6 : OBSERVE ───
+#E3F2FD:6 - OBSERVE\nMemorySaver sauvegarde le score\nEvaluation de la qualite;
+
+note right
+  Score calcule par le LLM
+  ou l'outil d'analyse phonetique
+end note
+
+' ─── DECISION : score >= 70 ? ───
+if (score >= 70 ?) then (OUI)
+
+  ' ─── SUCCESS ───
+  #C8E6C9:8 - SUCCESS\nXP accorde a l'apprenant\nReponse TTS audio generee;
+
+  #C8E6C9:Sauvegarde session\nProgression + XP enregistres;
+
+  stop
+
+else (NON — score < 70)
+
+  ' ─── LOOP CONTROL ───
+  #FFF9C4:7 - LOOP CONTROL\nCircuit Breaker\nIncrement compteur retry;
+
+  if (retry > 3 ?) then (OUI — timeout)
+
+    ' ─── FAILURE ───
+    #FFCDD2:9 - FAILURE — Fallback\nFeedback envoye a l'apprenant\nMessage d'aide propose;
+
+    #FFCDD2:Sauvegarde de l'echec\nMots faibles enregistres;
+
+    stop
+
+  else (NON — retry <= 3)
+
+    #FFF9C4:Retour a THINK\nContexte enrichi avec\nl'erreur precedente;
+
+    note right
+      Rebouclage :
+      Le prompt est reformule
+      avec plus de contexte
+      (retry incremente)
+    end note
+
+    goto think_start
+
+  endif
+
+endif
+
+' ─── LABEL GOTO (rebouclage) ───
+label think_start
+
+@enduml

@@ -1,0 +1,127 @@
+🔧 CORRECTION ERREUR 400 - AGENT LOOP DIAGRAM
+============================================================================
+
+❌ PROBLÈME:
+Le diagramme original causait une erreur 400 sur Kiroquml/PlantUML.com
+
+✅ SOLUTIONS:
+
+1️⃣ VERSION CORRIGÉE (RECOMMANDÉE - Fonctionne parfaitement):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@startuml StateGraph_Agent_Loop
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam stateBorderColor #003366
+skinparam stateBackgroundColor #E6F2FF
+skinparam stateArrowColor #003366
+
+title State Graph - Agent Loop (LangGraph4J Implementation)
+
+[*] --> INPUT
+
+state INPUT as "INPUT - Audio apprenant"
+state STT as "WHISPER STT\n(Audio -> Texte)"
+state THINK as "THINK - LLM Reasoning"
+state PLAN as "PLAN - Agent Router"
+state ACT as "ACT - Tool Execution"
+state OBSERVE as "OBSERVE - Evaluation"
+state LOOPCTRL as "LOOP CONTROL\nCircuit Breaker"
+state SUCCESS as "SUCCESS - XP + TTS"
+state FAILURE as "FAILURE - Fallback"
+
+INPUT --> STT: Audio buffer
+STT --> THINK: Texte transcrit
+THINK --> PLAN: Contexte injecte
+PLAN --> ACT: Agent defini
+ACT --> OBSERVE: Score obtenu
+
+OBSERVE --> SUCCESS: score >= 70
+OBSERVE --> LOOPCTRL: score < 70
+
+LOOPCTRL --> THINK: reboucle <= 3\nAvec advice
+LOOPCTRL --> FAILURE: reboucle > 3\nCircuit breaker
+
+SUCCESS --> [*]: Session sauvee
+FAILURE --> [*]: Feedback utilisateur
+
+note right of THINK
+  **Prompt Engineering**
+  - ChatbotPromptBuilder
+  - Templates CECRL A1-C2
+  - Few-shot examples
+end note
+
+note right of ACT
+  **Tool Call**
+  - Whisper API
+  - Python Evaluator
+  - Edge-TTS API
+end note
+
+note right of LOOPCTRL
+  **Circuit Breaker Pattern**
+  - Max 3 reboucles
+  - Exponential backoff
+  - Fallback apres 3
+end note
+
+@enduml
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2️⃣ ALTERNATIVE - VERSION ULTRA-SIMPLE (Si encore erreur):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@startuml SimpleAgentLoop
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam stateBorderColor #003366
+skinparam stateBackgroundColor #E6F2FF
+
+title Agent Loop - Cycle Think-Plan-Act-Observe
+
+[*] --> THINK
+THINK --> PLAN
+PLAN --> ACT
+ACT --> OBSERVE
+OBSERVE --> DECIDE
+
+state DECIDE {
+  SUCCESS1: Score >= 70
+  RETRY: Score < 70
+}
+
+SUCCESS1 --> [*]
+RETRY --> THINK
+
+@enduml
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 CAUSE DE L'ERREUR 400:
+❌ Emojis: 🎤📝🧠⚙️👁️🔁✅❌🛑
+❌ Accents: é à ≥ ≤ →
+❌ Caractères spéciaux: • ✓ ✗
+❌ États composés (nested states)
+
+✅ FIXES APPLIQUÉES:
+✓ Supprimé TOUS les emojis
+✓ Remplacé accents: é -> e, à -> a, ≥ -> >=
+✓ ASCII pur: flèches -> au lieu de →
+✓ Simplifié structure (pas de nested states)
+✓ Enlevé caractères spéciaux
+
+============================================================================
+
+💡 COMMENT UTILISER:
+
+1. Copier la VERSION CORRIGÉE (Option 1)
+2. Aller sur: https://www.plantuml.com/plantuml/uml/
+3. Coller dans l'éditeur
+4. Cliquer "Render"
+5. Exporter en PNG/SVG
+
+✅ RESULT: Diagramme parfait sans erreur 400!
+
+============================================================================

@@ -1,0 +1,63 @@
+@startuml
+title SpeakCoach Agent Loop - LangGraph4J
+
+skinparam backgroundColor #FFFFFF
+skinparam state {
+  BackgroundColor #E8F4FC
+  BorderColor #2563EB
+  FontSize 11
+}
+
+state "1 - INPUT\nAudio apprenant" as S1
+state "2 - WHISPER STT\nFastAPI" as S2
+
+state "3a - Load session" as S3a
+state "3b - Build prompt\nChatbotPromptBuilder CECRL" as S3b
+state "3c - Enrich context\nweak words historique" as S3c
+state "3d - Assemble messages" as S3d
+
+state "4a - MasterAgent route\nCHAT TEST EXERCISE" as S4a
+state "4b - LangGraph branch\nconditionalEdges" as S4b
+state "4c - Select next node" as S4c
+
+state "5 - ACT\nLLM ou Tool audio" as S5
+state "6 - OBSERVE\nMemorySaver score" as S6
+
+state "7 - LOOP CONTROL\nretry max 3" as S7 #FFF3CD
+state "8 - SUCCESS\nXP TTS feedback" as S8 #D1FAE5
+state "9 - FAILURE\nFallback" as S9 #FECACA
+
+S1 --> S2 : audio
+S2 --> S3a : texte
+S3a --> S3b
+S3b --> S3c
+S3c --> S3d
+S3d --> S4a : contexte pret
+
+S4a --> S4b : sans LLM
+S4b --> S4c
+S4c --> S5 : noeud choisi
+S5 --> S6 : resultat
+
+S6 --> S8 : score >= 70
+S6 --> S7 : score < 70 et retry <= 3
+S6 --> S9 : timeout ou retry > 3
+
+S7 --> S3a : reboucle THINK
+
+note right of S3b
+  THINK = Prompt Building
+  + Context Engineering
+end note
+
+note right of S4a
+  PLAN = Next Step
+  MasterAgent + LangGraph
+end note
+
+note bottom of S7
+  Mode CHAT: graphe lineaire
+  sans reboucle score
+end note
+
+@enduml

@@ -32,7 +32,6 @@
         <jacoco.version>0.8.12</jacoco.version>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.exclusions>**/keycloak/**,**/*Application.java,**/config/**,**/entity/**,**/dto/**,**/security/**,**/repository/**,**/controller/**</sonar.exclusions>
     </properties>
 
 
@@ -138,10 +137,22 @@
             <artifactId>spring-retry</artifactId>
         </dependency>
 
+        <!-- Spring Boot Actuator (health, info, metrics endpoints) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- Micrometer Metrics -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
+        </dependency>
+
+        <!-- Micrometer Prometheus Registry (expose /actuator/prometheus) -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
         <!-- Activer @Retryable -->

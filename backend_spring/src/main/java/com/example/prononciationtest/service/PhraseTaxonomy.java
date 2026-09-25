@@ -21,39 +21,38 @@ public class PhraseTaxonomy {
     // ── French Phrases Arrays ────────────────────────────────────────────────
 
     private static final String[] FR_A1_G = {
-        "Je mange une pomme chaque matin.",
-        "Il fait beau aujourd'hui.",
-        "J'habite à Paris avec ma famille.",
-        "Le chat dort sur le canapé.",
-        "Je bois du café le matin.",
-        "Elle s'appelle Marie.",
-        "Nous allons à l'école chaque jour.",
-        "Mon père travaille en ville.",
-        "J'aime la pizza et les pâtes.",
-        "Il y a un parc près de chez moi.",
-        "Le lundi, je vais au marché.",
-        "Tu parles français très bien.",
-        "Ma mère cuisine très bien.",
-        "Je lis un livre le soir.",
-        "Nous regardons la télévision ensemble."
+        "Je travaille dans un bureau moderne.",
+        "La réunion commence à neuf heures.",
+        "Mon client est très important.",
+        "Nous avons une équipe de projet.",
+        "Je lis le rapport ce matin.",
+        "Elle organise le planning de la semaine.",
+        "Nous discutons avec le manager.",
+        "Le budget du projet est validé.",
+        "J'envoie un e-mail au consultant.",
+        "Il y a un problème sur le serveur.",
+        "Tu prépares la présentation pour demain.",
+        "Notre objectif est la satisfaction client.",
+        "Je participe à un atelier technique.",
+        "La solution informatique fonctionne bien."
     };
 
     private static final String[] FR_A2_G = {
-        "Le week-end, j'aime me promener dans le parc.",
-        "J'ai commandé un café et un croissant au bar.",
-        "Mon frère travaille dans un hôpital depuis deux ans.",
-        "Nous avons visité le musée du Louvre hier matin.",
-        "Elle prend le train tous les jours pour aller travailler.",
-        "Pouvez-vous me dire où se trouve la gare, s'il vous plaît?",
-        "Je cherche un appartement proche du centre-ville.",
-        "Il pleut souvent en automne dans cette région.",
-        "Mes parents habitent à Lyon depuis trente ans.",
-        "Le marché du dimanche est très animé et coloré.",
-        "Tu peux m'aider à trouver une bonne boulangerie?",
-        "J'ai besoin d'acheter des médicaments à la pharmacie.",
-        "La réunion commence à neuf heures du matin.",
-        "Nous partons en vacances à la mer cet été.",
-        "Elle a appris à conduire quand elle avait dix-huit ans."
+        "Le consultant IT présente la nouvelle architecture au client.",
+        "Nous devons analyser les besoins avant de commencer le projet.",
+        "L'équipe de développement travaille sur cette fonctionnalité depuis deux jours.",
+        "J'ai organisé un point de synchronisation avec les partenaires.",
+        "Le chef de projet a validé le budget pour ce trimestre.",
+        "Pouvez-vous m'envoyer le compte-rendu de la réunion d'hier?",
+        "Nous cherchons une solution pour améliorer notre infrastructure cloud.",
+        "Le déploiement de l'application est prévu pour la fin du mois.",
+        "Mon manager souhaite revoir la stratégie digitale de l'entreprise.",
+        "Les retours des utilisateurs sont essentiels pour notre processus agile.",
+        "Tu peux m'aider à configurer cet accès sécurisé au serveur?",
+        "J'ai besoin de finaliser le document d'architecture technique.",
+        "La migration des données s'est déroulée sans aucun incident majeur.",
+        "Nous participons à un appel d'offres très important cette semaine.",
+        "Elle a réussi à résoudre le bug bloquant en production."
     };
 
     private static final String[] FR_B1_G = {
@@ -121,39 +120,38 @@ public class PhraseTaxonomy {
     // ── English Phrases Arrays ───────────────────────────────────────────────
 
     private static final String[] EN_A1_G = {
-        "I eat breakfast every morning.",
-        "The weather is nice today.",
-        "My name is Alex and I live here.",
-        "I like pizza and pasta.",
-        "She has a cat and a dog.",
-        "We go to school every day.",
-        "My father works in the city.",
-        "I drink coffee in the morning.",
-        "There is a park near my house.",
-        "He reads books every night.",
-        "They live in a small town.",
-        "I have two brothers and one sister.",
-        "The bus comes at eight o'clock.",
-        "She works at the supermarket.",
-        "Today is Monday and it is sunny."
+        "I work in a modern office.",
+        "The meeting starts at nine o'clock.",
+        "My client is very important.",
+        "We have a strong project team.",
+        "I read the report this morning.",
+        "She organizes the weekly schedule.",
+        "We are talking with the manager.",
+        "The project budget is approved.",
+        "I am sending an email to the consultant.",
+        "There is an issue on the server.",
+        "You prepare the presentation for tomorrow.",
+        "Our goal is client satisfaction.",
+        "I participate in a technical workshop.",
+        "The software solution works perfectly."
     };
 
     private static final String[] EN_A2_G = {
-        "On weekends, I enjoy walking in the park.",
-        "I ordered a coffee and a croissant at the café.",
-        "My brother has worked at the hospital for two years.",
-        "We visited the museum yesterday morning.",
-        "She takes the train every day to go to work.",
-        "Could you tell me where the station is, please?",
-        "I am looking for an apartment near the city center.",
-        "It rains a lot in autumn in this region.",
-        "My parents have lived in London for thirty years.",
-        "The Sunday market is very busy and colorful.",
-        "Can you help me find a good bakery nearby?",
-        "I need to buy some medicine at the pharmacy.",
-        "The meeting starts at nine o'clock in the morning.",
-        "We are going on holiday to the seaside this summer.",
-        "She learned to drive when she was eighteen years old."
+        "The IT consultant presents the new architecture to the client.",
+        "We must analyze the requirements before starting the project.",
+        "The development team has worked on this feature for two days.",
+        "I organized a sync meeting with our business partners.",
+        "The project manager validated the budget for this quarter.",
+        "Could you send me the minutes from yesterday's meeting?",
+        "We are looking for a solution to improve our cloud infrastructure.",
+        "The application deployment is scheduled for the end of the month.",
+        "My manager wants to review the company's digital strategy.",
+        "User feedback is essential for our agile development process.",
+        "Can you help me configure secure access to the server?",
+        "I need to finalize the technical architecture document today.",
+        "The data migration went smoothly without any major incidents.",
+        "We are participating in a very important call for tenders.",
+        "She managed to resolve the critical bug in the production environment."
     };
 
     private static final String[] EN_B1_G = {
@@ -230,10 +228,10 @@ public class PhraseTaxonomy {
         // Populate French Battle (referencing FR_*_G arrays where identical)
         add("fr", "A1", "battle",
             FR_A1_G[0],
-            "Il fait beau aujourd'hui en ville.",
-            "Mon chat s'appelle Minou.",
-            "J'aime le café chaud le matin.",
-            "Nous habitons près du parc."
+            "Le client valide la stratégie digitale.",
+            "L'équipe agile est très performante.",
+            "Nous optimisons les processus métiers.",
+            "La roadmap du projet est prête."
         );
         add("fr", "A2", "battle",
             FR_A2_G[0],
@@ -273,18 +271,18 @@ public class PhraseTaxonomy {
 
         // Populate French Revision
         add("fr", "A1", "revision",
-            "Je mange une pomme et une poire chaque matin.",
-            "Il fait très beau aujourd'hui dans le jardin.",
-            "Mon chat noir dort sur le grand canapé.",
-            "J'aime boire du café chaud avec du lait.",
-            "Nous habitons près du parc et du marché."
+            "Je prépare la présentation pour le comité de pilotage.",
+            "Le consultant analyse les données du client.",
+            "Notre équipe déploie la nouvelle solution informatique.",
+            "Le chef de projet valide le sprint en cours.",
+            "Nous mettons en place une architecture robuste."
         );
         add("fr", "A2", "revision",
-            "Le week-end, j'aime me promener dans le grand parc.",
-            "J'ai commandé un café et un croissant frais au bar.",
-            "Elle prend le bus tous les matins pour aller au bureau.",
-            "Nous avons visité un beau musée pendant nos vacances.",
-            "Il pleut souvent le soir en automne dans notre ville."
+            "Le consultant explique l'architecture cloud aux équipes techniques.",
+            "Nous avons audité les processus pour optimiser les performances.",
+            "Elle pilote la migration des données vers le nouveau serveur.",
+            "L'équipe de développement a corrigé les anomalies signalées.",
+            "Le directeur technique a approuvé le budget du trimestre."
         );
         add("fr", "B1", "revision",
             "Les nouvelles technologies transforment notre façon de travailler chaque jour.",
@@ -326,10 +324,10 @@ public class PhraseTaxonomy {
         // Populate English Battle
         add("en", "A1", "battle",
             EN_A1_G[0],
-            "The weather is very nice today.",
-            "My cat sleeps on the sofa.",
-            "I like coffee and chocolate.",
-            "We live near the park."
+            "The client approves the digital strategy.",
+            "The agile team performs very well.",
+            "We optimize the business processes.",
+            "The project roadmap is ready."
         );
         add("en", "A2", "battle",
             EN_A2_G[0],
@@ -369,18 +367,18 @@ public class PhraseTaxonomy {
 
         // Populate English Revision
         add("en", "A1", "revision",
-            "I eat an apple and drink coffee every morning.",
-            "The weather is warm and sunny in the park today.",
-            "My big black cat always sleeps on the sofa.",
-            "I like drinking hot coffee with milk in winter.",
-            "We live very close to the park and the market."
+            "I am preparing the presentation for the steering committee.",
+            "The consultant analyzes the client's business data.",
+            "Our team is deploying the new IT solution.",
+            "The project manager validates the current sprint.",
+            "We are implementing a highly robust architecture."
         );
         add("en", "A2", "revision",
-            "On weekends, I really enjoy walking in the local park.",
-            "She takes the commuter train every morning to go to work.",
-            "We visited a fantastic museum during our trip last year.",
-            "It often rains in the evenings during autumn in this region.",
-            "I am searching for a cozy apartment close to the city center."
+            "The consultant explains the cloud architecture to the technical teams.",
+            "We audited the business processes to optimize overall performance.",
+            "She is leading the data migration to the new cloud server.",
+            "The development team has fixed the reported software bugs.",
+            "The technical director approved the budget for this quarter."
         );
         add("en", "B1", "revision",
             "New technologies are constantly transforming the way we work on a daily basis.",
@@ -429,7 +427,7 @@ public class PhraseTaxonomy {
 
         String lower = text.toLowerCase(Locale.ROOT);
         if (containsMetaCommentary(lower)) return true;
-        if (containsTechnicalJargon(lower)) return true;
+        // Technical jargon is allowed for business English/French, so we removed the check here.
         return isWrongLanguageStarter(lower, expectedLang);
     }
 
@@ -448,18 +446,8 @@ public class PhraseTaxonomy {
         return false;
     }
 
+    // Method kept for compatibility but no longer used to flag business terms as hallucinations
     private boolean containsTechnicalJargon(String lower) {
-        for (String tech : List.of(
-                "algorithme", "intelligence artificielle", "digitalisation", "numérisation",
-                "pandémie", "épistémologie", "rhétorique", "hégémonie", "décarbonation",
-                "intersubjectivité", "herméneutique", "dialectique", "déconstruction",
-                "métacognition", "subsidiarité", "transversalité", "phénoménolog",
-                "homo œconomicus", "epistème", "cognitive bias", "metacognition",
-                "epistemology", "hegemony", "decarbonisation", "intersubjectivity",
-                "hermeneutics", "subsidiarity", "behaviourial", "behavioral economics",
-                "phenomenolog", "dialectic", "deconstruct")) {
-            if (lower.contains(tech)) return true;
-        }
         return false;
     }
 

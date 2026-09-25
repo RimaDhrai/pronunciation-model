@@ -1,0 +1,65 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class User {
+  - id: Long
+  - email: String
+  - passwordHash: String
+  - fullName: String
+  - enabled: boolean
+  - cefrLevel: String
+  - cefrCompleted: Boolean
+  - jobTitle: String
+  - nativeLang: String
+  - totalXp: Integer
+  - currentStreak: Integer
+  - weakWords: String
+  --
+  + getters()
+  + setters()
+}
+
+class PasswordResetToken {
+  - id: Long
+  - token: String
+  - email: String
+  - expiresAt: LocalDateTime
+  - used: boolean
+  --
+  + isUsed(): boolean
+  + setUsed(boolean)
+}
+
+class AuthController {
+  + register(body: Map)
+  + forgotPassword(body: Map)
+  + resetPassword(body: Map)
+}
+
+class UserController {
+  + me(auth: Authentication): Map
+  + updateProfile(request: UpdateProfile): User
+  + updateProgress(request: ProgressUpdate): User
+}
+
+class AdminController {
+  + getAllUsers(): List
+  + createUser(payload: Map)
+  + syncToKeycloak(id: Long, body: Map)
+  + getStats(): Map
+}
+
+class KeycloakAdminService {
+  + createUser(email, password, fullName)
+  + sendResetPasswordEmail(email)
+  + updateUserPassword(email, newPassword)
+}
+
+AuthController --> KeycloakAdminService
+AuthController --> PasswordResetToken
+AuthController --> User
+UserController --> User
+AdminController --> User
+AdminController --> KeycloakAdminService
+
+@enduml

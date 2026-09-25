@@ -1,0 +1,46 @@
+@startuml
+skinparam maxMessageSize 150
+actor ":Apprenant" as User
+participant "FE: Frontend" as FE
+participant "authCtrl: AuthController" as AuthCtrl
+participant "keycloakAdmin: IKeycloakAdminService" as KCService
+participant "userRepo: UserRepository" as Repo
+participant "KC: Keycloak API" as KC
+
+== Inscription (Registration) ==
+User -> FE: submit(email, password, fullName)
+activate FE
+FE -> AuthCtrl: POST /auth/register
+activate AuthCtrl
+
+AuthCtrl -> KCService: createUser(email, password, fullName)
+activate KCService
+KCService -> KC: POST /admin/realms/{realm}/users
+activate KC
+KC --> KCService: 201 Created
+deactivate KC
+KCService --> AuthCtrl: void
+deactivate KCService
+
+AuthCtrl -> Repo: save(new User(email, fullName))
+activate Repo
+Repo --> AuthCtrl: User
+deactivate Repo
+
+AuthCtrl --> FE: 201 Created (Success)
+deactivate AuthCtrl
+FE --> User: Affiche "Inscription validée"
+deactivate FE
+
+== Authentification (Login Direct Access) ==
+User -> FE: submit(email, password)
+activate FE
+FE -> KC: POST /realms/{realm}/protocol/openid-connect/token\n(grant_type=password)
+activate KC
+KC -> KC: verifyCredentials(LDAP Talan / DB locale)
+KC --> FE: 200 OK (access_token, refresh_token)
+deactivate KC
+FE -> FE: storeTokens(localStorage)
+FE --> User: Redirige vers Tableau de bord
+deactivate FE
+@enduml

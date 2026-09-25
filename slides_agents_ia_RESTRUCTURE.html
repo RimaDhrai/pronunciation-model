@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeakCoach — Agentique IA & 7 Piliers</title>
+    <meta name="description" content="Architecture agentique SpeakCoach - Les 7 piliers clés de l'IA autonome">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a1a;
+            --bg-surface: rgba(255,255,255,0.04);
+            --text-primary: #f0f0f8;
+            --text-secondary: rgba(240,240,248,0.65);
+            --text-muted: rgba(240,240,248,0.4);
+            
+            --blue: #6C9FFF;
+            --purple: #A78BFA;
+            --cyan: #67E8F9;
+            --green: #6EE7B7;
+            --orange: #FDBA74;
+            --pink: #F9A8D4;
+            --red: #FCA5A5;
+            
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-xs: 6px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html {
+            scroll-behavior: smooth;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ════════════════════════════════════════
+           BACKGROUND ANIMATION
+           ════════════════════════════════════════ */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(108,159,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(108,159,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        /* ════════════════════════════════════════
+           SLIDE CONTAINER
+           ════════════════════════════════════════ */
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 80px;
+            position: relative;
+            z-index: 1;
+            scroll-snap-align: start;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .slide.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 32px;
+            left: 40px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: 48px;
+            width: 100%;
+        }
+
+        .slide-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 100px;
+            background: rgba(108,159,255,0.12);
+            color: var(--blue);
+            border: 1px solid rgba(108,159,255,0.2);
+            margin-bottom: 16px;
+        }
+
+        .slide-title {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+            background: linear-gradient(135deg, var(--blue), var(--purple), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ════════════════════════════════════════
+           CARD LAYOUT
+           ════════════════════════════════════════ */
+        .glass {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0 40px rgba(108,159,255,0.15);
+        }
+
+        /* ════════════════════════════════════════
+           SLIDE 1: LES 7 PILIERS
+           ════════════════════════════════════════ */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .pillar-card {
+            padding: 28px;
+            border-radius: var(--radius-sm);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pillar-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .pillar-number {
+            font-size: 32px;
+            font-weight: 800;
+            opacity: 0.2;
+        }
+
+        .pillar-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .pillar-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .pillar-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .pillar-tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.08);
+            width: fit-content;
+        }
+
+        /* Color schemes for each pillar */
+        .pillar-1::before { background: linear-gradient(135deg, #6C9FFF, #67E8F9); }
+        .pillar-1 { background: rgba(108,159,255,0.08); border: 1px solid rgba(108,159,255,0.15); }
+        .pillar-1 .pillar-title { color: #6C9FFF; }
+
+        .pillar-2::before { background: linear-gradient(135deg, #A78BFA, #F9A8D4); }
+        .pillar-2 { background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.15); }
+        .pillar-2 .pillar-title { color: #A78BFA; }
+
+        .pillar-3::before { background: linear-gradient(135deg, #67E8F9, #6EE7B7); }
+        .pillar-3 { background: rgba(103,232,249,0.08); border: 1px solid rgba(103,232,249,0.15); }
+        .pillar-3 .pillar-title { color: #67E8F9; }
+
+        .pillar-4::before { background: linear-gradient(135deg, #6EE7B7, #34D399); }
+        .pillar-4 { background: rgba(110,231,183,0.08); border: 1px solid rgba(110,231,183,0.15); }
+        .pillar-4 .pillar-title { color: #6EE7B7; }
+
+        .pillar-5::before { background: linear-gradient(135deg, #FDBA74, #FB923C); }
+        .pillar-5 { background: rgba(253,186,116,0.08); border: 1px solid rgba(253,186,116,0.15); }
+        .pillar-5 .pillar-title { color: #FDBA74; }
+
+        .pillar-6::before { background: linear-gradient(135deg, #F9A8D4, #F87171); }
+        .pillar-6 { background: rgba(249,168,212,0.08); border: 1px solid rgba(249,168,212,0.15); }
+        .pillar-6 .pillar-title { color: #F9A8D4; }
+
+        .pillar-7::before { background: linear-gradient(135deg, #FCA5A5, #FB7185); }
+        .pillar-7 { background: rgba(252,165,165,0.08); border: 1px solid rgba(252,165,165,0.15); }
+        .pillar-7 .pillar-title { color: #FCA5A5; }
+
+        /* ════════════════════════════════════════
+           SLIDE 2: PROMPT ENGINEERING
+           ════════════════════════════════════════ */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 1200px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .code-block {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #67E8F9;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px;
+            background: rgba(255,255,255,0.02);
+            border-radius: var(--radius-xs);
+            border-left: 3px solid var(--blue);
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            flex-grow: 1;
+        }
+
+        .feature-text strong {
+            color: var(--text-primary);
+        }
+
+        .feature-text span {
+            color: var(--text-secondary);
+        }
+
+        /* ════════════════════════════════════════
+           SLIDE 3+: CONTENT SECTIONS
+           ════════════════════════════════════════ */
+        .content-box {
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .box-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .info-box {
+            padding: 28px;
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .info-box h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .stacked-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .list-item strong {
+            color: var(--text-primary);
+        }
+
+        /* ════════════════════════════════════════
+           AGENT LOOP DIAGRAM (Slide 5)
+           ════════════════════════════════════════ */
+        .loop-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 1100px;
+            width: 100%;
+            margin-top: 32px;
+        }
+
+        .loop-step {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            font-weight: 700;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .loop-step-icon {
+            font-size: 32px;
+        }
+
+        .loop-step-text {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .loop-step-1 { background: linear-gradient(135deg, rgba(108,159,255,0.2), rgba(108,159,255,0.08)); border: 2px solid var(--blue); }
+        .loop-step-2 { background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.08)); border: 2px solid var(--purple); }
+        .loop-step-3 { background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(6,182,212,0.08)); border: 2px solid var(--cyan); }
+        .loop-step-4 { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.08)); border: 2px solid var(--green); }
+
+        .loop-arrow {
+            font-size: 24px;
+            color: var(--text-muted);
+        }
+
+        /* ════════════════════════════════════════
+           NAVIGATION
+           ════════════════════════════════════════ */
+        .nav-bar {
+            position: fixed;
+            right: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot:hover {
+            border-color: rgba(108,159,255,0.5);
+        }
+
+        .nav-dot.active {
+            border-color: var(--blue);
+            background: var(--blue);
+            box-shadow: 0 0 12px rgba(108,159,255,0.4);
+        }
+
+        /* ════════════════════════════════════════
+           PROGRESS BAR
+           ════════════════════════════════════════ */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue), var(--purple), var(--cyan), var(--green), var(--orange), var(--pink));
+            z-index: 200;
+            transition: width 0.3s ease;
+        }
+
+        /* ════════════════════════════════════════
+           FADE-UP ANIMATION
+           ════════════════════════════════════════ */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+
+        /* ════════════════════════════════════════
+           RESPONSIVE
+           ════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .slide { padding: 40px 24px; }
+            .two-column { grid-template-columns: 1fr; gap: 24px; }
+            .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+            .box-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .slide { padding: 30px 16px; }
+            .slide-title { font-size: 32px; }
+            .pillars-grid { grid-template-columns: 1fr; }
+            .loop-diagram { gap: 12px; }
+            .loop-step { width: 120px; height: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<nav class="nav-bar" id="navBar">
+    <div class="nav-dot active" data-slide="0" title="7 Piliers"></div>
+    <div class="nav-dot" data-slide="1" title="Prompt Eng."></div>
+    <div class="nav-dot" data-slide="2" title="Context Eng."></div>
+    <div class="nav-dot" data-slide="3" title="Tool Call"></div>
+    <div class="nav-dot" data-slide="4" title="Observability"></div>
+    <div class="nav-dot" data-slide="5" title="Agent Loop"></div>
+    <div class="nav-dot" data-slide="6" title="Safety"></div>
+    <div class="nav-dot" data-slide="7" title="Agent Harness"></div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 0: LES 7 PILIERS DE L'AGENTIQUE
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-0">
+    <div class="slide-number">01 / 08</div>
+    
+    <div class="slide-header fade-up">
+        <div class="slide-tag">Fondamentaux</div>
+        <h1 class="slide-title">Les 7 Piliers de l'Agentique IA</h1>
+        <p class="slide-subtitle">Les fondations essentielles pour construire des agents autonomes et fiables</p>
+    </div>
+
+    <div class="pillars-grid fade-up stagger-1">
+        <!-- Pillar 1 -->
+        <div class="pillar-card glass pillar-1">
+            <div class="pillar-number">1</div>
+            <div class="pillar-icon">📝</div>
+            <div class="pillar-title">Prompt Engineering</div>
+            <div class="pillar-desc">
+                Structuration précise des instructions pour guider le raisonnement du LLM. Définit le "comment" du comportement.
+            </div>
+            <div class="pillar-tag">Instructions claires</div>
+        </div>
+
+        <!-- Pillar 2 -->
+        <div class="pillar-card glass pillar-2">
+            <div class="pillar-number">2</div>
+            <div class="pillar-icon">🧠</div>
+            <div class="pillar-title">Context Engineering</div>
+            <div class="pillar-desc">
+                Gestion du contexte (court et long terme). Maintient la mémoire, l'état et l'historique des interactions.
+            </div>
+            <div class="pillar-tag">Mémoire intelligente</div>
+        </div>
+
+        <!-- Pillar 3 -->
+        <div class="pillar-card glass pillar-3">
+            <div class="pillar-number">3</div>
+            <div class="pillar-icon">🔧</div>
+            <div class="pillar-title">Tool Calling</div>
+            <div class="pillar-desc">
+                Accès à des outils externes (APIs, BD, services). Étend les capacités au-delà du texte pur.
+            </div>
+            <div class="pillar-tag">Extériorisation</div>
+        </div>
+
+        <!-- Pillar 4 -->
+        <div class="pillar-card glass pillar-4">
+            <div class="pillar-number">4</div>
+            <div class="pillar-icon">📊</div>
+            <div class="pillar-title">Observability</div>
+            <div class="pillar-desc">
+                Visibilité totale : logs, traces, métriques, état partagé. Permet le débogage et l'optimisation.
+            </div>
+            <div class="pillar-tag">Transparence</div>
+        </div>
+
+        <!-- Pillar 5 -->
+        <div class="pillar-card glass pillar-5">
+            <div class="pillar-number">5</div>
+            <div class="pillar-icon">🔄</div>
+            <div class="pillar-title">Agent Loop</div>
+            <div class="pillar-desc">
+                Boucle autonome : Perception → Raisonnement → Décision → Action → Feedback. Le cœur de l'autonomie.
+            </div>
+            <div class="pillar-tag">Autonomie</div>
+        </div>
+
+        <!-- Pillar 6 -->
+        <div class="pillar-card glass pillar-6">
+            <div class="pillar-number">6</div>
+            <div class="pillar-icon">🛡️</div>
+            <div class="pillar-title">Safety</div>
+            <div class="pillar-desc">
+                Limites, garde-fou, validations. Prévient les dérives et garantit la conformité aux règles métier.
+            </div>
+            <div class="pillar-tag">Contrôle</div>
+        </div>
+
+        <!-- Pillar 7 -->
+        <div class="pillar-card glass pillar-7">
+            <div class="pillar-number">7</div>
+            <div class="pillar-icon">⚙️</div>
+            <div class="pillar-title">Agent Harness</div>
+            <div class="pillar-desc">
+                Infrastructure d'orchestration (LangGraph, frameworks). L'enveloppe qui exécute et coordonne tout.
+            </div>
+            <div class="pillar-tag">Infrastructure</div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 1: PROMPT ENGINEERING
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-1">
+    <div class="slide-number">02 / 08</div>
+    
+    <div class="slide-header fade-up">
+        <div class="slide-tag">Pilier 1</div>
+        <h1 class="slide-title">Prompt Engineering</h1>
+        <p class="slide-subtitle">Structurer les instructions pour un raisonnement prévisible</p>
+    </div>
+
+    <div class="two-column fade-up stagger-1">
+        <div>
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Structure d'un Prompt Efficace</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text">
+                        <strong>Role</strong><br>
+                        <span>Définir le rôle de l'agent (ex: "Tu es un coach de prononciation")</span>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📋</div>
+                    <div class="feature-text">
+                        <strong>Objectif</strong><br>
+                        <span>Clarifier la tâche précise (ex: "Générer des phrases pour pratiquer le son /ʃ/")</span>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📐</div>
+                    <div class="feature-text">
+                        <strong>Contraintes</strong><br>
+                        <span>Limites (longueur, format, complexité) pour contrôler la sortie</span>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📤</div>
+                    <div class="feature-text">
+                        <strong>Format de sortie</strong><br>
+                        <span>JSON, XML, ou texte structuré pour le parsing fiable</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="code-block" style="background: rgba(0,0,0,0.4); border-color: rgba(103,232,249,0.2);">
+<span style="color: #FDBA74;">"""</span>
+Role: Spécialiste en prononciation
+
+Objectif: Générer 5 phrases pour pratiquer
+le phonème /ʃ/ pour niveau B1
+
+Contraintes:
+- Longueur: 50-80 caractères
+- Complexité: B1 CECRL
+- Format: JSON
+
+Exemple:
+{
+  "phrases": [
+    {"text": "Le chat dort", 
+     "phonemes": ["/ʃ/"]},
+  ]
+}
+<span style="color: #FDBA74;">"""</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 2: CONTEXT ENGINEERING
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-2">
+    <div class="slide-number">03 / 08</div>
+    
+    <div class="slide-header fade-up">
+        <div class="slide-tag">Pilier 2</div>
+        <h1 class="slide-title">Context Engineering</h1>
+        <p class="slide-subtitle">Gestion intelligente de la mémoire et du contexte</p>
+    </div>
+
+    <div class="content-box fade-up stagger-1">
+        <div class="box-grid">
+            <div class="info-box glass">
+                <h3>💾 Mémoire Court Terme (Session)</h3>
+                <p>Contexte conversationnel actuel, état de la session en cours.</p>
+                <div class="stacked-list">
+                    <div class="list-item">📌 <strong>State JSON</strong> - Profil utilisateur</div>
+                    <div class="list-item">🔄 <strong>CheckPointer</strong> - Sauvegarde LangGraph</div>
+                    <div class="list-item">💬 <strong>Chat History</strong> - Messages récents</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🧠 Mémoire Long Terme (Persistance)</h3>
+                <p>Historique persistant, progression de l'utilisateur, patterns d'erreurs.</p>
+                <div class="stacked-list">
+                    <div class="list-item">📊 <strong>PostgreSQL</strong> - BD relationnelle</div>
+                    <div class="list-item">📈 <strong>Stats XP</strong> - Progression utilisateur</div>
+                    <div class="list-item">🎯 <strong>Weak Words</strong> - Points faibles</div>
+                </div>
+            </div>
+
+            <div class="info-box glass" style="grid-column: 1 / -1;">
+                <h3>🔀 Pipeline de Context Enrichment</h3>
+                <p style="margin-bottom: 12px;">Avant chaque appel au LLM, enrichissement du contexte avec données pertinentes :</p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div style="padding: 8px 12px; background: rgba(103,232,249,0.1); border-radius: 6px; border: 1px solid rgba(103,232,249,0.2); font-size: 13px;">
+                        <strong>Profil</strong> (niveau CECRL, langue)
+                    </div>
+                    <div style="padding: 8px 12px; background: rgba(110,231,183,0.1); border-radius: 6px; border: 1px solid rgba(110,231,183,0.2); font-size: 13px;">
+                        <strong>Historique</strong> (derniers sons pratiqués)
+                    </div>
+                    <div style="padding: 8px 12px; background: rgba(253,186,116,0.1); border-radius: 6px; border: 1px solid rgba(253,186,116,0.2); font-size: 13px;">
+                        <strong>Erreurs</strong> (sons mal prononcés)
+                    </div>
+                    <div style="padding: 8px 12px; background: rgba(249,168,212,0.1); border-radius: 6px; border: 1px solid rgba(249,168,212,0.2); font-size: 13px;">
+                        <strong>Objectif</strong> (cible pédagogique)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 3: TOOL CALLING
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-3">
+    <div class="slide-number">04 / 08</div>
+    
+    <div class="slide-header fade-up">
+        <div class="slide-tag">Pilier 3</div>
+        <h1 class="slide-title">Tool Calling</h1>
+        <p class="slide-subtitle">Donner au LLM accès à des outils externes</p>
+    </div>
+
+    <div class="content-box fade-up stagger-1">
+        <div class="box-grid">
+            <div class="info-box glass">
+                <h3>🎵 Analyse Vocale (FastAPI)</h3>
+                <p>Évaluation phonétique des enregistrements audio de l'utilisateur.</p>
+                <div class="stacked-list">
+                    <div class="list-item">📊 Calcul score /100</div>
+                    <div class="list-item">🔍 Diagnostic erreurs</div>
+                    <div class="list-item">📈 WER (Word Error Rate)</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🗄️ Base de Données (PostgreSQL)</h3>
+                <p>Persistence des données utilisateur et historique pédagogique.</p>
+                <div class="stacked-list">
+                    <div class="list-item">💾 Sauvegarde progression</div>
+                    <div class="list-item">📝 Historique sessions</div>
+                    <div class="list-item">🎖️ Badges & XP</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🎬 Générateur de Contenu</h3>
+                <p>Création dynamique de contenu pédagogique (phrases, exemples, feedback).</p>
+                <div class="stacked-list">
+                    <div class="list-item">✍️ Génération phrases IPA</div>
+                    <div class="list-item">💭 Conseils de correction</div>
+                    <div class="list-item">📊 Synthèse feedback</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🤖 Modèles ML</h3>
+                <p>Accès à des modèles d'apprentissage machine pour scoring phonétique.</p>
+                <div class="stacked-list">
+                    <div class="list-item">🔊 Reconnaissance phonétique</div>
+                    <div class="list-item">📐 Similarité phonémique</div>
+                    <div class="list-item">🎯 Prédiction progression</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 4: OBSERVABILITY
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-4">
+    <div class="slide-number">05 / 08</div>
+    
+    <div class="slide-header fade-up">
+        <div class="slide-tag">Pilier 4</div>
+        <h1 class="slide-title">Observability</h1>
+        <p class="slide-subtitle">Visibilité complète du comportement de l'agent</p>
+    </div>
+
+    <div class="content-box fade-up stagger-1">
+        <div class="box-grid">
+            <div class="info-box glass">
+                <h3>📋 Logs Structurés</h3>
+                <p>Enregistrement détaillé de chaque action de l'agent.</p>
+                <div class="stacked-list">
+                    <div class="list-item">🔀 Routing décisions</div>
+                    <div class="list-item">🧠 LLM prompts & réponses</div>
+                    <div class="list-item">🔧 Appels outils</div>
+                    <div class="list-item">❌ Erreurs & exceptions</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🔬 Traces Distribuées</h3>
+                <p>Suivi du flux complet d'une requête à travers tous les composants.</p>
+                <div class="stacked-list">
+                    <div class="list-item">⏱️ Latence par étape</div>
+                    <div class="list-item">🌳 Call stack du LangGraph</div>
+                    <div class="list-item">🔗 Corrélation events</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>📊 État Partagé</h3>
+                <p>Snapshot de l'état interne de l'agent à chaque moment clé.</p>
+                <div class="stacked-list">
+                    <div class="list-item">💬 Shared state dict</div>
+                    <div class="list-item">🔄 Checkpoint sauvegardés</div>
+                    <div class="list-item">📈 Métriques en temps réel</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🎯 Alertes & Métriques</h3>
+                <p>Monitoring des KPIs critiques et détection d'anomalies.</p>
+                <div class="stacked-list">
+                    <div class="list-item">⚠️ Erreur rate agent</div>
+                    <div class="list-item">🐌 Latence anormale</div>
+                    <div class="list-item">🔁 Boucles infinies</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 5: AGENT LOOP
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-5">
+    <div class="slide-number">06 / 08</div>
+    
+    <div class="slide-header fade-up">
+        <div class="slide-tag">Pilier 5</div>
+        <h1 class="slide-title">Agent Loop</h1>
+        <p class="slide-subtitle">La boucle autonome de perception-décision-action</p>
+    </div>
+
+    <div class="loop-diagram fade-up stagger-1">
+        <div class="loop-step loop-step-1">
+            <div class="loop-step-icon">👁️</div>
+            <div class="loop-step-text">Perception</div>
+        </div>
+        <div class="loop-arrow">→</div>
+        
+        <div class="loop-step loop-step-2">
+            <div class="loop-step-icon">🧠</div>
+            <div class="loop-step-text">Raisonnement</div>
+        </div>
+        <div class="loop-arrow">→</div>
+        
+        <div class="loop-step loop-step-3">
+            <div class="loop-step-icon">⚡</div>
+            <div class="loop-step-text">Action</div>
+        </div>
+        <div class="loop-arrow">→</div>
+        
+        <div class="loop-step loop-step-4">
+            <div class="loop-step-icon">📊</div>
+            <div class="loop-step-text">Feedback</div>
+        </div>
+        <div class="loop-arrow" style="transform: translateX(-640px) translateY(100px); writing-mode: vertical-rl; transform-origin: center; width: 100px; text-align: center;">↻</div>
+    </div>
+
+    <div class="content-box fade-up stagger-2" style="margin-top: 40px;">
+        <div class="box-grid">
+            <div class="info-box glass">
+                <h3>📥 Perception</h3>
+                <p>L'agent reçoit une requête utilisateur et enrichit son contexte avec données pertinentes (historique, profil, objectif).</p>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🧠 Raisonnement</h3>
+                <p>Le LLM analyse le contexte, décide quelle action prendre (appel outil, réponse directe, routing).</p>
+            </div>
+
+            <div class="info-box glass">
+                <h3>⚡ Action</h3>
+                <p>Exécution de la décision : appel API, requête DB, génération de contenu, affichage à l'utilisateur.</p>
+            </div>
+
+            <div class="info-box glass">
+                <h3>📊 Feedback</h3>
+                <p>L'agent observe le résultat, met à jour son état, et continue la boucle si nécessaire.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 6: SAFETY
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-6">
+    <div class="slide-number">07 / 08</div>
+    
+    <div class="slide-header fade-up">
+        <div class="slide-tag">Pilier 6</div>
+        <h1 class="slide-title">Safety</h1>
+        <p class="slide-subtitle">Garde-fou et validations pour éviter les dérives</p>
+    </div>
+
+    <div class="content-box fade-up stagger-1">
+        <div class="box-grid">
+            <div class="info-box glass">
+                <h3>🚦 Limites du Contexte</h3>
+                <p>Empêcher que le contexte ne devienne trop grand (explosion tokens/latence).</p>
+                <div class="stacked-list">
+                    <div class="list-item">🔒 Max tokens session</div>
+                    <div class="list-item">🗑️ Éviction du contexte ancien</div>
+                    <div class="list-item">⏰ TTL (Time To Live) messages</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🛡️ Validations de Sortie</h3>
+                <p>Vérifier que les réponses du LLM respectent les contraintes métier.</p>
+                <div class="stacked-list">
+                    <div class="list-item">✅ JSON parsing strict</div>
+                    <div class="list-item">🔍 Validation schéma</div>
+                    <div class="list-item">⚠️ Fallback en cas erreur</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🔐 Rate Limiting & DoS</h3>
+                <p>Prévenir l'abus de ressources par l'agent ou les utilisateurs.</p>
+                <div class="stacked-list">
+                    <div class="list-item">📊 Limite requêtes/min</div>
+                    <div class="list-item">💰 Budget tokens LLM</div>
+                    <div class="list-item">⏳ Timeout actions</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🎯 Vérification de Pertinence</h3>
+                <p>S'assurer que les actions sont appropriées au contexte et à l'utilisateur.</p>
+                <div class="stacked-list">
+                    <div class="list-item">🎓 Niveau adapté à l'apprenant</div>
+                    <div class="list-item">🔄 Pas de boucle infinie</div>
+                    <div class="list-item">👤 Authentification + autorisation</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 7: AGENT HARNESS
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="slide" id="slide-7">
+    <div class="slide-number">08 / 08</div>
+    
+    <div class="slide-header fade-up">
+        <div class="slide-tag">Pilier 7</div>
+        <h1 class="slide-title">Agent Harness</h1>
+        <p class="slide-subtitle">Infrastructure d'orchestration et d'exécution</p>
+    </div>
+
+    <div class="content-box fade-up stagger-1">
+        <div class="box-grid">
+            <div class="info-box glass">
+                <h3>🔗 LangGraph (Spring AI)</h3>
+                <p>Framework d'orchestration des agents avec état persistent.</p>
+                <div class="stacked-list">
+                    <div class="list-item">📊 State management</div>
+                    <div class="list-item">🔀 Graph routing</div>
+                    <div class="list-item">💾 Checkpoints intégrés</div>
+                    <div class="list-item">🔁 Cycle loops handled</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>🎯 Master Agent (Routing)</h3>
+                <p>Orchestrateur central qui route les requêtes vers l'agent spécialisé approprié.</p>
+                <div class="stacked-list">
+                    <div class="list-item">🧩 Agent Chatbot</div>
+                    <div class="list-item">🧪 Agent LevelTest</div>
+                    <div class="list-item">💪 Agent Exercise</div>
+                </div>
+            </div>
+
+            <div class="info-box glass">
+                <h3>📦 Spring AI ChatClient</h3>
+                <p>Abstraction d'accès aux LLM (Ollama local ou Azure OpenAI).</p>
+                <div class="stacked-list">
+                    <div class="list-item">⚙️ Interchangeabilité backend</div>
+                    <div class="list-item">🔄 Fallback automatique</div>
+                    <div class="list-item">⚡ Streaming SSE</div>
+                </div>
+            </div>
+
+            <div class="info-box glass" style="grid-column: 1 / -1;">
+                <h3>🏗️ Stack Technique Complet</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px;">
+                    <div style="padding: 12px; background: rgba(108,159,255,0.08); border-radius: 6px; border-left: 3px solid var(--blue); text-align: center;">
+                        <strong>Backend</strong><br><span style="font-size: 12px; color: var(--text-secondary);">Spring Boot 3</span>
+                    </div>
+                    <div style="padding: 12px; background: rgba(103,232,249,0.08); border-radius: 6px; border-left: 3px solid var(--cyan); text-align: center;">
+                        <strong>LLM</strong><br><span style="font-size: 12px; color: var(--text-secondary);">Qwen 2.5 / GPT</span>
+                    </div>
+                    <div style="padding: 12px; background: rgba(110,231,183,0.08); border-radius: 6px; border-left: 3px solid var(--green); text-align: center;">
+                        <strong>Orchestration</strong><br><span style="font-size: 12px; color: var(--text-secondary);">LangGraph4J</span>
+                    </div>
+                    <div style="padding: 12px; background: rgba(253,186,116,0.08); border-radius: 6px; border-left: 3px solid var(--orange); text-align: center;">
+                        <strong>ML Voice</strong><br><span style="font-size: 12px; color: var(--text-secondary);">FastAPI Python</span>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px;">
+                    <div style="padding: 12px; background: rgba(249,168,212,0.08); border-radius: 6px; border-left: 3px solid var(--pink); text-align: center;">
+                        <strong>Database</strong><br><span style="font-size: 12px; color: var(--text-secondary);">PostgreSQL</span>
+                    </div>
+                    <div style="padding: 12px; background: rgba(252,165,165,0.08); border-radius: 6px; border-left: 3px solid var(--red); text-align: center;">
+                        <strong>Frontend</strong><br><span style="font-size: 12px; color: var(--text-secondary);">React + Vite</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Slide animations
+    const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -50px 0px' };
+    const slideObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                entry.target.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.slide').forEach(slide => slideObserver.observe(slide));
+
+    // Navigation
+    const navDots = document.querySelectorAll('.nav-dot');
+    const slides = document.querySelectorAll('.slide');
+
+    navDots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            slides[parseInt(dot.dataset.slide)].scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    const navObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const idx = Array.from(slides).indexOf(entry.target);
+                navDots.forEach(d => d.classList.remove('active'));
+                navDots[idx].classList.add('active');
+            }
+        });
+    }, { threshold: 0.5 });
+
+    slides.forEach(slide => navObserver.observe(slide));
+
+    // Progress bar
+    const progressBar = document.getElementById('progressBar');
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        progressBar.style.width = progress + '%';
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        const current = Array.from(navDots).findIndex(d => d.classList.contains('active'));
+        if ((e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') && current < slides.length - 1) {
+            e.preventDefault();
+            slides[current + 1].scrollIntoView({ behavior: 'smooth' });
+        }
+        if ((e.key === 'ArrowUp' || e.key === 'ArrowLeft') && current > 0) {
+            e.preventDefault();
+            slides[current - 1].scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+
+    window.addEventListener('load', () => {
+        slides[0].classList.add('visible');
+        slides[0].querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
+    });
+</script>
+
+</body>
+</html>

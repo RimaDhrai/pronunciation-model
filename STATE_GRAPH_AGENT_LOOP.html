@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>SpeakCoach - Agent Loop</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fafbfd; padding: 24px; }
+    h1 { font-size: 18px; color: #1e293b; }
+    p { font-size: 13px; color: #64748b; }
+    .mermaid { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
+  </style>
+</head>
+<body>
+  <h1>State Graph - Agent Loop SpeakCoach</h1>
+  <p>Ouvre ce fichier dans Chrome → clic droit sur le diagramme → Enregistrer l'image (ou capture ecran pour PPT)</p>
+
+  <div class="mermaid">
+flowchart TD
+    S1["1 INPUT<br/>Audio apprenant"]
+    S2["2 WHISPER STT<br/>FastAPI"]
+    S3a["3a Load session"]
+    S3b["3b Build prompt<br/>ChatbotPromptBuilder CECRL"]
+    S3c["3c Enrich context<br/>weak words + historique"]
+    S3d["3d Assemble messages"]
+    S4a["4a MasterAgent route<br/>CHAT | TEST | EXERCISE"]
+    S4b["4b LangGraph branch<br/>conditionalEdges"]
+    S4c["4c Select next node"]
+    S5["5 ACT<br/>LLM Ollama ou Tool audio"]
+    S6["6 OBSERVE<br/>MemorySaver + score"]
+    S7["7 LOOP CONTROL<br/>retry max 3"]
+    S8["8 SUCCESS<br/>XP + TTS"]
+    S9["9 FAILURE<br/>Fallback"]
+
+    S1 -->|audio| S2
+    S2 -->|texte| S3a
+    S3a --> S3b --> S3c --> S3d
+    S3d -->|contexte pret| S4a
+    S4a -->|sans LLM| S4b --> S4c
+    S4c --> S5 --> S6
+    S6 -->|score >= 70| S8
+    S6 -->|score < 70| S7
+    S6 -->|timeout| S9
+    S7 -->|reboucle THINK| S3a
+    S7 -->|retry > 3| S9
+
+    subgraph THINK["THINK - Prompt Building"]
+      S3a
+      S3b
+      S3c
+      S3d
+    end
+
+    subgraph PLAN["PLAN - Next Step"]
+      S4a
+      S4b
+      S4c
+    end
+
+    style S8 fill:#d1fae5,stroke:#059669
+    style S9 fill:#fecaca,stroke:#dc2626
+    style S7 fill:#fff3cd,stroke:#d97706
+  </div>
+
+  <script>mermaid.initialize({ startOnLoad: true, theme: 'neutral' });</script>
+</body>
+</html>

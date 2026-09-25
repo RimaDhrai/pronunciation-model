@@ -21,6 +21,11 @@ from typing import Any, Optional
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    PROMETHEUS_AVAILABLE = True
+except ImportError:
+    PROMETHEUS_AVAILABLE = False
 
 logging.basicConfig(
     level=logging.INFO,
@@ -39,6 +44,19 @@ from phonemizer_utils import get_phonemes, compare_phonemes
 
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(title="SpeakCoach API")
+
+# ── Prometheus Instrumentation ────────────────────────────────────────────────
+# Expose /metrics en format Prometheus (scraped by Prometheus server)
+if PROMETHEUS_AVAILABLE:
+    Instrumentator(
+        should_group_status_codes=True,
+        should_ignore_untemplated=True,
+        should_respect_env_var=False,
+        should_instrument_requests_inprogress=True,
+        excluded_handlers=["/health", "/docs", "/openapi.json"],
+        inprogress_name="speakcoach_fastapi_requests_inprogress",
+        inprogress_labels=True,
+    ).instrument(app).expose(app, endpoint="/metrics", include_in_schema=True)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -106,8 +124,9 @@ def health():
         "whisper": "loaded" if whisper_model else f"error:{whisper_load_error}",
     }
 
-@app.get("/metrics")
-def metrics():
+@app.get("/system-info")
+def system_info():
+    """Métriques système JSON (debug) — les métriques Prometheus sont sur /metrics"""
     if psutil is None:
         return {"error": "psutil not installed"}
     

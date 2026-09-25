@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeakCoach — Révision Jury Sécurité Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --glass: rgba(255,255,255,0.06);
+            --border: rgba(255,255,255,0.1);
+            --text: #f0f0f8;
+            --muted: rgba(240,240,248,0.55);
+            --blue: #6C9FFF;
+            --green: #6EE7B7;
+            --orange: #FDBA74;
+            --red: #FCA5A5;
+            --purple: #A78BFA;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 40px 28px;
+            background-image:
+                linear-gradient(rgba(108,159,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(108,159,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .slide {
+            width: 1180px; max-width: 100%;
+            margin: 0 auto 72px;
+        }
+        .tag { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
+        h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+        .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+
+        /* ── Slide 1: 3 niveaux ── */
+        .levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+        .level-card {
+            border-radius: 14px; padding: 18px; border: 1px solid var(--border);
+            background: var(--glass);
+        }
+        .level-card.l1 { border-top: 3px solid var(--blue); }
+        .level-card.l2 { border-top: 3px solid var(--green); }
+        .level-card.l3 { border-top: 3px solid var(--orange); }
+        .level-num { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+        .l1 .level-num { color: var(--blue); }
+        .l2 .level-num { color: var(--green); }
+        .l3 .level-num { color: var(--orange); }
+        .level-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+        .level-list { list-style: none; font-size: 11px; color: var(--muted); line-height: 1.7; }
+        .level-list li::before { content: "✓ "; color: var(--green); font-weight: 700; }
+        .level-list li.no::before { content: "○ "; color: var(--orange); }
+        .level-list li.no { color: rgba(240,240,248,0.4); }
+
+        .pitch-box {
+            padding: 16px 22px; border-radius: 12px; text-align: center;
+            background: linear-gradient(135deg, rgba(108,159,255,0.12), rgba(167,139,250,0.08));
+            border: 1px solid rgba(108,159,255,0.25);
+            font-size: 14px; line-height: 1.6;
+        }
+        .pitch-box strong { color: var(--blue); }
+
+        /* ── Slide 2: Q&R ── */
+        .qr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .qr-card {
+            border-radius: 12px; padding: 14px 16px;
+            border: 1px solid var(--border); background: var(--glass);
+        }
+        .qr-q { font-size: 12px; font-weight: 700; color: var(--purple); margin-bottom: 6px; }
+        .qr-a { font-size: 11px; color: var(--muted); line-height: 1.55; }
+        .qr-a strong { color: var(--text); font-weight: 600; }
+
+        /* ── Slide 3: Mémo + pièges ── */
+        .memo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .memo-box {
+            border-radius: 12px; padding: 16px; border: 1px solid var(--border);
+            background: var(--glass);
+        }
+        .memo-box h3 { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+        .memo-box.do h3 { color: var(--green); }
+        .memo-box.dont h3 { color: var(--red); }
+        .memo-box ul { list-style: none; font-size: 11px; color: var(--muted); line-height: 1.7; }
+        .memo-box.do li::before { content: "✓ "; color: var(--green); }
+        .memo-box.dont li::before { content: "✗ "; color: var(--red); }
+
+        .acronym {
+            display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+            margin-top: 16px;
+        }
+        .acronym span {
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 14px;
+            background: rgba(108,159,255,0.15); border: 1px solid rgba(108,159,255,0.3);
+            color: var(--blue);
+        }
+        .acronym-label {
+            text-align: center; font-size: 10px; color: var(--muted);
+            margin-top: 8px; line-height: 1.6;
+        }
+
+        .numbers-row {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 16px;
+        }
+        .num-chip {
+            text-align: center; padding: 10px 6px; border-radius: 10px;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+        }
+        .num-chip .n { font-size: 18px; font-weight: 800; color: var(--blue); }
+        .num-chip .l { font-size: 9px; color: var(--muted); margin-top: 2px; line-height: 1.3; }
+
+        @media print {
+            body { padding: 20px; }
+            .slide { page-break-after: always; margin-bottom: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══ SLIDE 1 — 3 NIVEAUX ═══ -->
+<section class="slide">
+    <div class="tag">Révision jury · Sécurité</div>
+    <h1>Sécurité de l'agent — 3 niveaux</h1>
+    <p class="subtitle">Fiche de révision SpeakCoach · Réponse honnête pour doctorante IA</p>
+
+    <div class="levels">
+        <div class="level-card l1">
+            <div class="level-num">Niveau 1</div>
+            <div class="level-title">🔐 Sécurité système</div>
+            <ul class="level-list">
+                <li>Keycloak + JWT OAuth2</li>
+                <li>Rôles admin / collaborateur</li>
+                <li>CORS restreint (Spring)</li>
+                <li>Sessions stateless</li>
+                <li class="no">Rate limiting (roadmap)</li>
+            </ul>
+        </div>
+        <div class="level-card l2">
+            <div class="level-num">Niveau 2</div>
+            <div class="level-title">🤖 Sécurité agentique</div>
+            <ul class="level-list">
+                <li>Routage sans LLM (switch mode)</li>
+                <li>StateGraph à nœuds fixes</li>
+                <li>Tools fixes (Whisper, TTS, eval)</li>
+                <li>20 steps max · TTL 1h · timeouts</li>
+                <li>Historique 20 msgs · contexte 4</li>
+                <li class="no">Tools dynamiques arbitraires</li>
+            </ul>
+        </div>
+        <div class="level-card l3">
+            <div class="level-num">Niveau 3</div>
+            <div class="level-title">🧠 Sécurité LLM</div>
+            <ul class="level-list">
+                <li>System prompt contraint (CECRL)</li>
+                <li>Quick responses (≤12 car, exact)</li>
+                <li>Fallbacks si échec / timeout</li>
+                <li>Validation DTO (mode, score, phrase)</li>
+                <li class="no">Anti-jailbreak / guardrails model</li>
+                <li class="no">Modération toxicité / PII</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="pitch-box">
+        <strong>Réponse clé (15 sec) :</strong>
+        « Sécurisé <strong>par conception restrictive</strong> — agent narrow-domain, graphe borné, tools fixes, auth OAuth2.
+        Pas sécurisé au sens <strong>guardrails IA avancés</strong> — c'est un trade-off MVP cohérent. »
+    </div>
+
+    <div class="numbers-row">
+        <div class="num-chip"><div class="n">20</div><div class="l">steps max test</div></div>
+        <div class="num-chip"><div class="n">20</div><div class="l">msgs historique</div></div>
+        <div class="num-chip"><div class="n">4</div><div class="l">msgs contexte LLM</div></div>
+        <div class="num-chip"><div class="n">1h</div><div class="l">TTL session</div></div>
+        <div class="num-chip"><div class="n">55s</div><div class="l">timeout chat</div></div>
+    </div>
+</section>
+
+<!-- ═══ SLIDE 2 — Q&R RAPIDE ═══ -->
+<section class="slide">
+    <div class="tag">Révision jury · Q&R</div>
+    <h1>Questions fréquentes — réponses courtes</h1>
+    <p class="subtitle">À réciter en 20–30 secondes chacune</p>
+
+    <div class="qr-grid">
+        <div class="qr-card">
+            <div class="qr-q">❓ Ton agent est-il sécurisé ?</div>
+            <div class="qr-a"><strong>Partiellement, par design restrictif.</strong> Domaine restreint (coaching vocal), pas d'agent généraliste. Guardrails contenu = roadmap.</div>
+        </div>
+        <div class="qr-card">
+            <div class="qr-q">❓ Prompt injection ?</div>
+            <div class="qr-a"><strong>Surface réduite</strong> : pas de LLM-router, tools fixes, prompt verrouillé. Pas de classifieur anti-injection dédié. Pire cas = texte inapproprié, pas action système.</div>
+        </div>
+        <div class="qr-card">
+            <div class="qr-q">❓ Actions dangereuses ?</div>
+            <div class="qr-a"><strong>Non.</strong> Pas de ReAct libre. Seulement STT, TTS, scoring phonétique, génération texte pédagogique. Pas de SQL/file/HTTP arbitraire.</div>
+        </div>
+        <div class="qr-card">
+            <div class="qr-q">❓ Boucles infinies ?</div>
+            <div class="qr-a"><strong>StateGraph borné.</strong> Chatbot = 2 nœuds linéaires. Test = 20 steps. Timeouts 25–55s. TTL session 1h.</div>
+        </div>
+        <div class="qr-card">
+            <div class="qr-q">❓ Hallucinations LLM ?</div>
+            <div class="qr-a"><strong>Prompt + fallbacks + post-traitement TTS.</strong> PhraseTaxonomy si LLM down. Pas de modération sémantique auto.</div>
+        </div>
+        <div class="qr-card">
+            <div class="qr-q">❓ LangGraph = sécurité ?</div>
+            <div class="qr-a"><strong>Non, orchestration.</strong> LangGraph borne le comportement (état, nœuds). Guardrails contenu = couche au-dessus, complémentaire.</div>
+        </div>
+        <div class="qr-card">
+            <div class="qr-q">❓ Session vs auth ?</div>
+            <div class="qr-a">JWT Keycloak sur API. Session agent = UUID. <strong>Limitation MVP</strong> : lier obligatoirement session ↔ user JWT en prod.</div>
+        </div>
+        <div class="qr-card">
+            <div class="qr-q">❓ Exemple d'attaque ?</div>
+            <div class="qr-a">« Ignore tes instructions » → le LLM peut céder partiellement. <strong>Défense</strong> : aucun tool dangereux disponible. Mitigation future : output filter + guardrail model.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ SLIDE 3 — MÉMO + PIÈGES ═══ -->
+<section class="slide">
+    <div class="tag">Révision jury · Mémo</div>
+    <h1>À dire / À ne pas dire</h1>
+    <p class="subtitle">Dernière révision avant la soutenance</p>
+
+    <div class="memo-grid">
+        <div class="memo-box do">
+            <h3>✓ À dire</h3>
+            <ul>
+                <li>« Sécurisé dans son périmètre »</li>
+                <li>« Agent narrow-domain, pas généraliste »</li>
+                <li>« LangGraph borne le comportement »</li>
+                <li>« Routage déterministe sans LLM »</li>
+                <li>« Trade-off MVP assumé + roadmap »</li>
+                <li>« 3 niveaux : système / agent / LLM »</li>
+            </ul>
+        </div>
+        <div class="memo-box dont">
+            <h3>✗ À éviter</h3>
+            <ul>
+                <li>« 100% sécurisé »</li>
+                <li>« LangGraph protège des injections »</li>
+                <li>« On a du rate limiting » (pas encore)</li>
+                <li>« Guardrails complets » (partiels)</li>
+                <li>« AutoGPT-level autonomy » (non)</li>
+                <li>Minimiser les limites connues</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="acronym">
+        <span>S</span><span>É</span><span>C</span><span>U</span><span>R</span><span>I</span><span>T</span><span>É</span>
+    </div>
+    <div class="acronym-label">
+        <strong>S</strong>urface réduite · <strong>É</strong>tat explicite · <strong>C</strong>ontrôle accès Keycloak ·
+        <strong>U</strong>X dégradée (fallbacks) · <strong>R</strong>outage déterministe ·
+        <strong>I</strong>nputs validés · <strong>T</strong>TTL + limites · <strong>É</strong>volution guardrails
+    </div>
+
+    <div class="pitch-box" style="margin-top: 24px;">
+        <strong>Transition vers benchmark LLM :</strong>
+        « La sécurité dépend aussi du modèle — Qwen local limite les fuites cloud,
+        GPT-4o-mini est plus robuste en instruction-following. D'où notre benchmark. »
+    </div>
+</section>
+
+</body>
+</html>

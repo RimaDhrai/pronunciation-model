@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeakCoach - Architecture Core</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 60px 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .title {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4, #45B7D1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1em;
+            color: #888;
+            font-style: italic;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .left-side {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .core-box {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.05));
+            border: 2px solid #FF6B6B;
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+        }
+
+        .core-box::before {
+            content: '🧠';
+            font-size: 2.5em;
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .core-box h2 {
+            color: #FF6B6B;
+            font-size: 1.8em;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .core-description {
+            color: #ddd;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .agent-item {
+            background: rgba(78, 205, 196, 0.1);
+            border-left: 4px solid #4ECDC4;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .agent-icon {
+            font-size: 1.8em;
+            min-width: 40px;
+        }
+
+        .agent-info h3 {
+            color: #4ECDC4;
+            font-size: 1em;
+            margin-bottom: 3px;
+        }
+
+        .agent-info p {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .right-side {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tools-box {
+            background: linear-gradient(135deg, rgba(69, 183, 209, 0.2), rgba(69, 183, 209, 0.05));
+            border: 2px solid #45B7D1;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .tools-box h3 {
+            color: #45B7D1;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: rgba(69, 183, 209, 0.05);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .tool-icon {
+            font-size: 1.5em;
+            min-width: 30px;
+        }
+
+        .tool-name {
+            font-weight: 600;
+            color: #fff;
+            flex: 1;
+        }
+
+        .tool-description {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .connection-flow {
+            background: linear-gradient(135deg, rgba(150, 206, 180, 0.2), rgba(150, 206, 180, 0.05));
+            border: 2px dashed #96CEB4;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .connection-flow h3 {
+            color: #96CEB4;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .flow-items {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .flow-item {
+            background: rgba(150, 206, 180, 0.15);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: #96CEB4;
+        }
+
+        .arrow {
+            color: #96CEB4;
+            font-size: 1.2em;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(255, 234, 167, 0.2), rgba(255, 234, 167, 0.05));
+            border: 2px solid #FFEAA7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .highlight-box h4 {
+            color: #FFEAA7;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .highlight-box p {
+            color: #ddd;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #FF6B6B;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .title {
+                font-size: 2em;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎯 SpeakCoach Architecture Core</h1>
+            <p class="subtitle">Master Agent + 3 Specialized Agents + Complete Toolstack</p>
+            <p class="tagline">The Most Important Part - What Makes It Work</p>
+        </div>
+
+        <div class="content">
+            <!-- LEFT SIDE: AGENTS -->
+            <div class="left-side">
+                <div class="core-box">
+                    <h2>Master Agent</h2>
+                    <div class="core-description">
+                        <strong>The Brain</strong> that interprets user intent and distributes tasks to specialists.
+                    </div>
+                    <p style="color: #999; font-size: 0.9em; margin-bottom: 20px;">
+                        ✓ Built with LangGraph4J<br>
+                        ✓ Stateful & context-aware<br>
+                        ✓ Routes to 3 specialized agents
+                    </p>
+
+                    <div class="agents-grid">
+                        <div class="agent-item">
+                            <div class="agent-icon">🎤</div>
+                            <div class="agent-info">
+                                <h3>CHATBOT Agent</h3>
+                                <p>Conversational guidance</p>
+                            </div>
+                        </div>
+
+                        <div class="agent-item">
+                            <div class="agent-icon">📊</div>
+                            <div class="agent-info">
+                                <h3>LEVEL_TEST Agent</h3>
+                                <p>Diagnostic assessment</p>
+                            </div>
+                        </div>
+
+                        <div class="agent-item">
+                            <div class="agent-icon">💪</div>
+                            <div class="agent-info">
+                                <h3>EXERCISE Agent</h3>
+                                <p>Targeted practice</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: TOOLS & INFRASTRUCTURE -->
+            <div class="right-side">
+                <div class="tools-box">
+                    <h3>🛠️ Execution Tools</h3>
+
+                    <div class="tool-item">
+                        <div class="tool-icon">🔊</div>
+                        <div>
+                            <div class="tool-name">FastAPI Audio Engine</div>
+                            <div class="tool-description">Whisper + Phoneme extraction + WER/F1 scoring</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item">
+                        <div class="tool-icon">💾</div>
+                        <div>
+                            <div class="tool-name">PostgreSQL Database</div>
+                            <div class="tool-description">Users, sessions, attempts, weak words, XP</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item">
+                        <div class="tool-icon">🎯</div>
+                        <div>
+                            <div class="tool-name">Spring AI (LLM Layer)</div>
+                            <div class="tool-description">Abstraction for Ollama / Azure OpenAI</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item">
+                        <div class="tool-icon">🧬</div>
+                        <div>
+                            <div class="tool-name">LLM Choice</div>
+                            <div class="tool-description">Ollama (dev) / Azure OpenAI (prod)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="connection-flow">
+                    <h3>🔄 Data Flow</h3>
+                    <div class="flow-items">
+                        <div class="flow-item">Agent Decision</div>
+                        <div class="arrow">→</div>
+                        <div class="flow-item">Tool Call</div>
+                        <div class="arrow">→</div>
+                        <div class="flow-item">Result</div>
+                        <div class="arrow">→</div>
+                        <div class="flow-item">Response</div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🎁 Why This Matters</h4>
+                    <p>
+                        This architecture enables <strong>true autonomy</strong>. Agents don't just respond - they 
+                        <strong>perceive</strong> (audio analysis), <strong>reason</strong> (LLM), 
+                        <strong>decide</strong> (routing), and <strong>act</strong> (tools) in a continuous loop.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Master Agent</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Specialized Agents</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Core Tools</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Possible Interactions</div>
+                </div>
+            </div>
+
+            <p style="margin-top: 30px; color: #666; font-size: 0.9em;">
+                Built with LangGraph4J • Spring AI • FastAPI • PostgreSQL
+            </p>
+        </div>
+    </div>
+</body>
+</html>

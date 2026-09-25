@@ -96,7 +96,7 @@ pipeline {
         // ── 6. ANALYSE SONARQUBE ─────────────────────────────────────────────
         stage('SonarQube Analysis') {
             steps {
-                // Analyse Spring Boot (Maven)
+                // Analyse Spring Boot (Maven) — TOUT le code Java est analysé
                 withSonarQubeEnv('SonarQube') {
                     dir("${env.WORKSPACE}/backend_spring") {
                         sh """
@@ -106,26 +106,20 @@ pipeline {
                                 -Dsonar.host.url=${SONAR_HOST_URL} \
                                 -Dsonar.token=${SONAR_TOKEN} \
                                 -Dsonar.java.binaries=target/classes \
-                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-                                -Dsonar.exclusions=**/keycloak/**,**/*Application.java,**/config/**,**/entity/**,**/dto/**,**/security/**,**/repository/**,**/controller/**,**/agent/** \
-                                -Dsonar.cpd.exclusions=**/entity/**,**/dto/**,**/repository/**
+                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
                     }
                 }
-                // Analyse multi-modules (Frontend + FastAPI) — Conditionnel
+                // Analyse Frontend + FastAPI — Obligatoire
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        if command -v sonar-scanner > /dev/null 2>&1; then
-                            echo "Lancement du sonar-scanner pour le Frontend & FastAPI..."
-                            sonar-scanner \
-                                -Dsonar.projectKey=speakcoach-fullstack \
-                                -Dsonar.host.url=${SONAR_HOST_URL} \
-                                -Dsonar.token=${SONAR_TOKEN} \
-                                -Dproject.settings=sonar-project.properties
-                        else
-                            echo "⚠️  sonar-scanner CLI non disponible sur cet agent Jenkins — Analyse Frontend/FastAPI ignorée"
-                        fi
-                    '''
+                    sh """
+                        echo "Lancement du sonar-scanner pour le Frontend & FastAPI..."
+                        sonar-scanner \
+                            -Dsonar.projectKey=speakcoach-fullstack \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.token=${SONAR_TOKEN} \
+                            -Dproject.settings=${env.WORKSPACE}/sonar-project.properties
+                    """
                 }
             }
         }
@@ -175,6 +169,58 @@ pipeline {
                         echo "Déploiement terminé"
                     else
                         echo "⚠️  Docker non disponible — déploiement ignoré en CI"
+                    fi
+                '''
+            }
+        }
+
+        // ── 10. VÉRIFICATION MONITORING ───────────────────────────────────────
+        stage('Verify Monitoring') {
+            when {
+                anyOf {
+                    branch 'main'
+                    expression { env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main' }
+                }
+            }
+            steps {
+                sh '''
+                    if command -v curl > /dev/null 2>&1; then
+                        echo "=== Vérification du stack de monitoring ==="
+
+                        # Attendre que Prometheus soit prêt
+                        sleep 15
+
+                        # Vérifier Prometheus
+                        if curl -sf http://localhost:9090/-/healthy > /dev/null 2>&1; then
+                            echo "✅ Prometheus UP — http://localhost:9090"
+                        else
+                            echo "⚠️  Prometheus non accessible (normal si déploiement hors CI)"
+                        fi
+
+                        # Vérifier Grafana
+                        if curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
+                            echo "✅ Grafana UP — http://localhost:3000"
+                        else
+                            echo "⚠️  Grafana non accessible (normal si déploiement hors CI)"
+                        fi
+
+                        # Vérifier Spring Boot Actuator Prometheus
+                        if curl -sf http://localhost:8080/actuator/prometheus > /dev/null 2>&1; then
+                            echo "✅ Spring Boot /actuator/prometheus OK"
+                        else
+                            echo "⚠️  Spring Boot /actuator/prometheus non accessible"
+                        fi
+
+                        # Vérifier FastAPI /metrics
+                        if curl -sf http://localhost:8000/metrics > /dev/null 2>&1; then
+                            echo "✅ FastAPI /metrics OK"
+                        else
+                            echo "⚠️  FastAPI /metrics non accessible"
+                        fi
+
+                        echo "=== Accès Grafana: http://localhost:3000 (admin/Admin1234!) ==="
+                    else
+                        echo "⚠️  curl non disponible — vérification monitoring ignorée"
                     fi
                 '''
             }

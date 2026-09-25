@@ -1,0 +1,122 @@
+groups:
+  # ── Alertes Spring Boot ────────────────────────────────────────────────────
+  - name: spring_boot_alerts
+    rules:
+      - alert: SpringBootDown
+        expr: up{job="spring-boot"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: spring-boot
+        annotations:
+          summary: "🔴 Spring Boot est DOWN"
+          description: "Le service Spring Boot ({{ $labels.instance }}) est inaccessible depuis plus d'1 minute."
+
+      - alert: SpringBootHighMemory
+        expr: jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"} > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: spring-boot
+        annotations:
+          summary: "⚠️ Mémoire JVM élevée ({{ $value | humanizePercentage }})"
+          description: "La heap JVM dépasse 85% sur {{ $labels.instance }}."
+
+      - alert: SpringBootHighErrorRate
+        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: spring-boot
+        annotations:
+          summary: "⚠️ Taux d'erreurs HTTP 5xx élevé"
+          description: "Plus de 10% des requêtes retournent des erreurs 5xx sur {{ $labels.instance }}."
+
+      - alert: SpringBootSlowResponses
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: spring-boot
+        annotations:
+          summary: "⚠️ Latence p95 > 2s sur Spring Boot"
+          description: "Le 95e percentile de latence dépasse 2 secondes sur {{ $labels.instance }}."
+
+  # ── Alertes FastAPI ────────────────────────────────────────────────────────
+  - name: fastapi_alerts
+    rules:
+      - alert: FastAPIDown
+        expr: up{job="fastapi"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: fastapi
+        annotations:
+          summary: "🔴 FastAPI (Whisper/TTS) est DOWN"
+          description: "Le service FastAPI {{ $labels.instance }} est inaccessible depuis plus d'1 minute."
+
+      - alert: FastAPIHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="fastapi"}[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: fastapi
+        annotations:
+          summary: "⚠️ Latence Whisper/TTS élevée (p95 > 10s)"
+          description: "Le 95e percentile de latence FastAPI dépasse 10 secondes."
+
+  # ── Alertes Base de données ────────────────────────────────────────────────
+  - name: postgres_alerts
+    rules:
+      - alert: PostgresDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgres
+        annotations:
+          summary: "🔴 PostgreSQL est DOWN"
+          description: "La base de données PostgreSQL est inaccessible."
+
+      - alert: PostgresHighConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: postgres
+        annotations:
+          summary: "⚠️ Connexions PostgreSQL > 80%"
+          description: "Le pool de connexions PostgreSQL est utilisé à plus de 80%."
+
+  # ── Alertes Infrastructure ─────────────────────────────────────────────────
+  - name: infrastructure_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 10m
+        labels:
+          severity: warning
+          service: host-system
+        annotations:
+          summary: "⚠️ CPU hôte > 90%"
+          description: "Le CPU de la machine hôte dépasse 90% depuis 10 minutes."
+
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"}) < 0.15
+        for: 5m
+        labels:
+          severity: warning
+          service: host-system
+        annotations:
+          summary: "⚠️ Espace disque < 15%"
+          description: "Moins de 15% d'espace disque disponible sur {{ $labels.mountpoint }}."
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.90
+        for: 5m
+        labels:
+          severity: warning
+          service: host-system
+        annotations:
+          summary: "⚠️ RAM hôte > 90%"
+          description: "La mémoire RAM de la machine hôte dépasse 90%."

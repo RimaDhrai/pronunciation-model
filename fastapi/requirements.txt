@@ -16,3 +16,5 @@ edge-tts>=6.1.0
 phonemizer>=3.2.2
 # Monitoring ressources système (CPU, RAM, GPU)
 psutil>=5.9.0
+# Monitoring Prometheus (expose /metrics en format Prometheus)
+prometheus-fastapi-instrumentator>=6.1.0

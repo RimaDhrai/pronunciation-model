@@ -80,6 +80,8 @@ public class AuthController {
                 log.error("[Auth] Erreur envoi email reset pour {} : {}", email, ex.getMessage());
                 return ResponseEntity.status(502).body(Map.of("message", "Échec d'envoi de l'email. Vérifie la config SMTP dans /admin/mail-settings."));
             }
+        } else {
+            log.warn("[Auth] Demande de reset ignorée : l'email {} n'existe pas en BDD.", email);
         }
 
         return ResponseEntity.ok(Map.of("message", "Si cet email est enregistré, un lien de réinitialisation a été envoyé."));

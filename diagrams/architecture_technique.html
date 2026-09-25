@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture Technique SpeakCoach (PPT Widescreen)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════════════════════
+           THEME & RESET (Slide PowerPoint 16:9 Premium)
+           ═══════════════════════════════════════════════════════════ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #07080e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Slide Frame 16:9 (1280 x 720) */
+        .slide {
+            background: #0c0d19;
+            width: 1280px;
+            height: 720px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* ── Space Grid Background & Floating Orbs ── */
+        .space-bg {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .space-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, transparent 20%, #0c0d19 90%);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 { width: 400px; height: 400px; background: #00c8ff; top: -10%; left: 10%; }
+        .orb-2 { width: 400px; height: 400px; background: #4ade80; bottom: -10%; right: 10%; }
+
+        /* ── Header ── */
+        .header {
+            background: rgba(15, 17, 32, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 18px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .header h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 img {
+            width: 26px;
+            height: 26px;
+        }
+
+        .header h1 span {
+            color: #00c8ff;
+            font-weight: 900;
+        }
+
+        .header .subtitle {
+            font-size: 10px;
+            color: #8c93b0;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            background: rgba(10, 11, 22, 0.8);
+            padding: 10px 40px;
+            color: #4e5575;
+            font-weight: 700;
+            font-size: 10.5px;
+            letter-spacing: 2px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 10;
+        }
+        
+        .footer-logo {
+            font-weight: 900;
+            color: #f43f5e;
+        }
+
+        /* ── Canvas Area ── */
+        .canvas {
+            flex: 1;
+            position: relative;
+            padding: 20px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 5;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           DIAGRAM LAYOUT & COMPONENTS
+           ═══════════════════════════════════════════════════════════ */
+        
+        /* 1. Client Browser (Top Center) */
+        .client-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .client-box {
+            background: linear-gradient(135deg, #1d2038, #111425);
+            border: 1.5px solid #00c8ff;
+            border-radius: 10px;
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.15);
+            color: #fff;
+        }
+
+        .client-logo {
+            width: 28px;
+            height: 28px;
+        }
+
+        .client-info h3 {
+            font-size: 13.5px;
+            font-weight: 800;
+        }
+
+        .client-info p {
+            font-size: 9.5px;
+            color: #00c8ff;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* 2. Middle Grid Section */
+        .middle-section {
+            display: grid;
+            grid-template-columns: 1fr 240px;
+            gap: 30px;
+            height: 380px;
+            align-items: center;
+        }
+
+        /* Docker Host Container */
+        .docker-host {
+            border: 1.5px dashed rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 20px 24px;
+            background: rgba(255, 255, 255, 0.01);
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .host-title-badge {
+            position: absolute;
+            top: -11px;
+            left: 24px;
+            background: #0c0d19;
+            padding: 2px 12px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #8c93b0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: 1.5px dashed rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .host-title-badge img {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* Network metadata label */
+        .network-bar {
+            font-size: 10px;
+            font-weight: 800;
+            color: #00c8ff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .network-bar span.subnet {
+            color: rgba(255, 255, 255, 0.25);
+            font-family: monospace;
+        }
+
+        /* Flow layout columns inside host */
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            flex: 1;
+        }
+
+        .flow-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            gap: 16px;
+        }
+
+        /* ── Premium Card Design with Brand Logos ── */
+        .card {
+            background: linear-gradient(135deg, #161726 0%, #0e0f1a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-logo {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .card-title {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-image-name {
+            font-size: 8px;
+            color: #8c93b0;
+            font-family: monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-port-pill {
+            font-size: 9px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            color: #8c93b0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-port-pill span {
+            color: #00c8ff;
+            font-family: monospace;
+        }
+
+        /* Card accent borders */
+        .card.fe { border-left: 3px solid #00c8ff; }
+        .card.spring { border-left: 3px solid #4ade80; }
+        .card.fastapi { border-left: 3px solid #a855f7; }
+        .card.keycloak { border-left: 3px solid #f43f5e; }
+        .card.postgres { border-left: 3px solid #fbbf24; }
+
+        /* External services stack (Right Side) */
+        .external-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            height: 100%;
+            justify-content: center;
+        }
+
+        .ext-card {
+            background: linear-gradient(135deg, #131427 0%, #0b0c16 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .ext-card-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .ext-card.azure { border-left: 3px solid #818cf8; }
+        .ext-card.ollama { border-left: 3px solid #c084fc; }
+
+        .ext-card-details h4 {
+            font-size: 12px;
+            font-weight: 800;
+            color: #fff;
+        }
+        .ext-card-details p {
+            font-size: 8.5px;
+            color: #8c93b0;
+            margin-top: 1px;
+        }
+
+        /* 3. Bottom Volumes Storage */
+        .volumes-section {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .volume-box {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px dashed rgba(251, 191, 36, 0.25);
+            border-radius: 8px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 200px;
+        }
+
+        .volume-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .volume-details h5 {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #fbbf24;
+        }
+
+        .volume-details p {
+            font-size: 8.5px;
+            color: rgba(255, 255, 255, 0.45);
+            font-family: monospace;
+            margin-top: 1px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           SVG DYNAMIC GLOWING LINES
+           ═══════════════════════════════════════════════════════════ */
+        .svg-connections {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .line {
+            fill: none;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+
+        .line.dashed {
+            stroke-dasharray: 4, 4;
+        }
+
+        /* Glowing filters for neon look */
+        .glow-blue { filter: drop-shadow(0 0 3px rgba(0, 200, 255, 0.6)); }
+        .glow-pink { filter: drop-shadow(0 0 3px rgba(244, 63, 94, 0.6)); }
+        .glow-green { filter: drop-shadow(0 0 3px rgba(74, 222, 128, 0.6)); }
+        .glow-purple { filter: drop-shadow(0 0 3px rgba(168, 85, 247, 0.6)); }
+        .glow-yellow { filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.6)); }
+        .glow-indigo { filter: drop-shadow(0 0 3px rgba(129, 140, 248, 0.6)); }
+        .glow-gray { filter: drop-shadow(0 0 2px rgba(78, 85, 117, 0.4)); }
+
+        /* Labels overlay */
+        .line-label {
+            position: absolute;
+            font-size: 9px;
+            font-weight: 800;
+            background: #0c0d19;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 2px 5px;
+            border-radius: 4px;
+            color: #8c93b0;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide">
+        <!-- space grid & background orbs -->
+        <div class="space-bg"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+
+        <!-- ═══ HEADER ═══ -->
+        <header class="header">
+            <h1>
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="Docker">
+                Architecture Technique &amp; Déploiement <span>SpeakCoach</span>
+            </h1>
+            <div class="subtitle">Docker Compose &amp; Topologie Réseau</div>
+        </header>
+
+        <!-- ═══ CANVAS ═══ -->
+        <main class="canvas" id="canvas-area">
+            
+            <!-- SVG Overlay for lines -->
+            <svg class="svg-connections" id="svg-connections-layer">
+                <defs>
+                    <!-- Rounded Arrow Markers -->
+                    <marker id="arrow-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#00c8ff" />
+                    </marker>
+                    <marker id="arrow-pink" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#f43f5e" />
+                    </marker>
+                    <marker id="arrow-green" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#4ade80" />
+                    </marker>
+                    <marker id="arrow-purple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#a855f7" />
+                    </marker>
+                    <marker id="arrow-yellow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#fbbf24" />
+                    </marker>
+                    <marker id="arrow-indigo" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#818cf8" />
+                    </marker>
+                    <marker id="arrow-gray" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#4e5575" />
+                    </marker>
+                </defs>
+            </svg>
+
+            <!-- Line Labels Overlay (positioned dynamically by JS) -->
+            <div class="line-label" id="lbl-client-fe">HTTP :8081</div>
+            <div class="line-label" id="lbl-client-kc" style="color: #f43f5e;">Auth / Login :8090</div>
+            <div class="line-label" id="lbl-fe-spring" style="color: #4ade80;">REST API</div>
+            <div class="line-label" id="lbl-spring-fastapi" style="color: #a855f7;">Audio REST :8000</div>
+            <div class="line-label" id="lbl-spring-postgres" style="color: #fbbf24;">JDBC :5432</div>
+            <div class="line-label" id="lbl-spring-kc">JWT verify / certs</div>
+            <div class="line-label" id="lbl-spring-azure" style="color: #818cf8;">HTTPS API (Cloud)</div>
+            <div class="line-label" id="lbl-spring-ollama" style="color: #c084fc;">host.docker.internal:11434</div>
+
+            <!-- ROW 1: CLIENT -->
+            <div class="client-container">
+                <div class="client-box" id="node-client">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" class="client-logo" alt="React">
+                    <div class="client-info">
+                        <h3>Poste Utilisateur</h3>
+                        <p>Client React 18 / Nginx</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROW 2: MIDDLE (DOCKER HOST + EXTERNALS) -->
+            <div class="middle-section">
+                
+                <!-- Docker Host Box -->
+                <div class="docker-host" id="node-host">
+                    <div class="host-title-badge">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="Docker">
+                        Serveur Hôte (Docker Engine)
+                    </div>
+                    
+                    <div class="network-bar">
+                        <span>🌐 Réseau Virtuel : speakcoach-net</span>
+                        <span class="subnet">bridge · 172.20.0.0/16</span>
+                    </div>
+
+                    <!-- Left to Right Logical Flow Grid -->
+                    <div class="flow-grid">
+                        
+                        <!-- Column 1: Entry Points (Frontend & Keycloak) -->
+                        <div class="flow-col">
+                            <!-- Nginx Frontend -->
+                            <div class="card fe" id="container-frontend">
+                                <div class="card-header">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nginx/nginx-original.svg" class="card-logo" alt="Nginx">
+                                    <div class="card-details">
+                                        <span class="card-title">speakcoach-frontend</span>
+                                        <span class="card-image-name">Nginx Alpine</span>
+                                    </div>
+                                </div>
+                                <div class="card-port">Exposé : <span>8081:80</span></div>
+                            </div>
+
+                            <!-- Keycloak Auth -->
+                            <div class="card keycloak" id="container-keycloak">
+                                <div class="card-header">
+                                    <img src="https://www.vectorlogo.zone/logos/keycloak/keycloak-icon.svg" class="card-logo" alt="Keycloak">
+                                    <div class="card-details">
+                                        <span class="card-title">speakcoach-keycloak</span>
+                                        <span class="card-image-name">keycloak:24.0.3</span>
+                                    </div>
+                                </div>
+                                <div class="card-port">Exposé : <span>8090:8080</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Column 2: Central Orchestration (Spring Boot) -->
+                        <div class="flow-col">
+                            <!-- Spring Boot Backend -->
+                            <div class="card spring" id="container-spring" style="margin: auto 0; min-height: 120px;">
+                                <div class="card-header">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original.svg" class="card-logo" alt="Spring Boot">
+                                    <div class="card-details">
+                                        <span class="card-title">speakcoach-spring</span>
+                                        <span class="card-image-name">Spring Boot (Java 17)</span>
+                                    </div>
+                                </div>
+                                <div class="card-port" style="margin-top: 12px;">Port Interne : <span>8080</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Column 3: Downstream Services (FastAPI & Postgres) -->
+                        <div class="flow-col">
+                            <!-- FastAPI Whisper AI -->
+                            <div class="card fastapi" id="container-fastapi">
+                                <div class="card-header">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg" class="card-logo" alt="FastAPI">
+                                    <div class="card-details">
+                                        <span class="card-title">speakcoach-fastapi</span>
+                                        <span class="card-image-name">Python 3.10 / Whisper</span>
+                                    </div>
+                                </div>
+                                <div class="card-port">Exposé : <span>8000:8000</span></div>
+                            </div>
+
+                            <!-- Postgres DB -->
+                            <div class="card postgres" id="container-postgres">
+                                <div class="card-header">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" class="card-logo" alt="PostgreSQL">
+                                    <div class="card-details">
+                                        <span class="card-title">speakcoach-postgres</span>
+                                        <span class="card-image-name">PostgreSQL 16 Alpine</span>
+                                    </div>
+                                </div>
+                                <div class="card-port">Exposé : <span>5432:5432</span></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- External Services (Right Stack) -->
+                <div class="external-stack">
+                    <!-- Azure OpenAI -->
+                    <div class="ext-card azure" id="node-azure">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg" class="ext-card-logo" alt="Azure">
+                        <div class="ext-card-details">
+                            <h4>Azure OpenAI</h4>
+                            <p>GPT-4.1-Mini (Production)</p>
+                        </div>
+                    </div>
+
+                    <!-- Ollama Local -->
+                    <div class="ext-card ollama" id="node-ollama">
+                        <!-- Ollama styled logo -->
+                        <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/ollama.svg" class="ext-card-logo" alt="Ollama" style="filter: invert(0.8) sepia(1) hue-rotate(240deg);">
+                        <div class="ext-card-details">
+                            <h4>Ollama (Daemon)</h4>
+                            <p>Qwen 2.5 3B (Local Host OS)</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ROW 3: VOLUMES -->
+            <div class="volumes-section">
+                <!-- Volume Keycloak -->
+                <div class="volume-box" id="vol-keycloak">
+                    <img src="https://www.vectorlogo.zone/logos/keycloak/keycloak-icon.svg" class="volume-icon" alt="Keycloak">
+                    <div class="volume-details">
+                        <h5>keycloak_data</h5>
+                        <p>Hôte ➔ /opt/keycloak/data</p>
+                    </div>
+                </div>
+
+                <!-- Volume Spring Storage -->
+                <div class="volume-box" id="vol-spring">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original.svg" class="volume-icon" alt="Spring">
+                    <div class="volume-details">
+                        <h5>spring_storage</h5>
+                        <p>Hôte ➔ /app/storage (Audios)</p>
+                    </div>
+                </div>
+
+                <!-- Volume Postgres -->
+                <div class="volume-box" id="vol-postgres">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" class="volume-icon" alt="Postgres">
+                    <div class="volume-details">
+                        <h5>postgres_data</h5>
+                        <p>Hôte ➔ /var/lib/postgresql/data</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ═══ FOOTER ═══ -->
+        <footer class="footer">
+            <div>Diagramme Physique &amp; Infrastructures &bull; Talan PFE</div>
+            <div class="footer-logo">TALAN</div>
+        </footer>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         DYNAMIC CONNECTIONS ALIGNMENT SCRIPT
+         ═══════════════════════════════════════════════════════════════ -->
+    <script>
+        function drawAllLines() {
+            const svg = document.getElementById('svg-connections-layer');
+            // Remove previous path elements, keep defs
+            const paths = svg.querySelectorAll('path');
+            paths.forEach(p => p.remove());
+
+            const canvas = document.getElementById('canvas-area');
+            const canvasRect = canvas.getBoundingClientRect();
+
+            function getCoords(el) {
+                const rect = el.getBoundingClientRect();
+                return {
+                    x: rect.left + rect.width / 2 - canvasRect.left,
+                    y: rect.top + rect.height / 2 - canvasRect.top,
+                    left: rect.left - canvasRect.left,
+                    right: rect.right - canvasRect.left,
+                    top: rect.top - canvasRect.top,
+                    bottom: rect.bottom - canvasRect.top,
+                    width: rect.width,
+                    height: rect.height
+                };
+            }
+
+            const client = getCoords(document.getElementById('node-client'));
+            const frontend = getCoords(document.getElementById('container-frontend'));
+            const spring = getCoords(document.getElementById('container-spring'));
+            const fastapi = getCoords(document.getElementById('container-fastapi'));
+            const keycloak = getCoords(document.getElementById('container-keycloak'));
+            const postgres = getCoords(document.getElementById('container-postgres'));
+            
+            const azure = getCoords(document.getElementById('node-azure'));
+            const ollama = getCoords(document.getElementById('node-ollama'));
+
+            const volKeycloak = getCoords(document.getElementById('vol-keycloak'));
+            const volSpring = getCoords(document.getElementById('vol-spring'));
+            const volPostgres = getCoords(document.getElementById('vol-postgres'));
+
+            function addPath(d, color, isDashed = false, marker = 'arrow', glowClass = '') {
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', d);
+                path.setAttribute('class', `line ${isDashed ? 'dashed' : ''} ${glowClass}`);
+                path.setAttribute('stroke', color);
+                if (marker) {
+                    path.setAttribute('marker-end', `url(#${marker})`);
+                }
+                svg.appendChild(path);
+            }
+
+            function positionLabel(labelId, x1, y1, x2, y2, ox = 0, oy = 0) {
+                const label = document.getElementById(labelId);
+                if (label) {
+                    label.style.left = `${(x1 + x2) / 2 + ox}px`;
+                    label.style.top = `${(y1 + y2) / 2 + oy}px`;
+                }
+            }
+
+            // 1. Client Browser -> Frontend Nginx (HTTP :8081)
+            addPath(`M ${client.x - 40} ${client.bottom} C ${client.x - 40} ${client.bottom + 30}, ${frontend.x} ${frontend.top - 30}, ${frontend.x} ${frontend.top}`, '#00c8ff', false, 'arrow-blue', 'glow-blue');
+            positionLabel('lbl-client-fe', client.x - 40, client.bottom, frontend.x, frontend.top, -40, -10);
+
+            // 2. Client Browser -> Keycloak Login (Auth :8090)
+            addPath(`M ${client.x - 20} ${client.bottom} C ${client.x - 20} ${client.bottom + 40}, ${keycloak.left + 50} ${keycloak.top - 40}, ${keycloak.left + 50} ${keycloak.top}`, '#f43f5e', false, 'arrow-pink', 'glow-pink');
+            positionLabel('lbl-client-kc', client.x - 20, client.bottom, keycloak.left + 50, keycloak.top, -65, 10);
+
+            // 3. Frontend (Right-Center) -> Spring Boot (Left-Center)
+            addPath(`M ${frontend.right} ${frontend.y} C ${frontend.right + 20} ${frontend.y}, ${spring.left - 20} ${spring.y}, ${spring.left} ${spring.y}`, '#4ade80', false, 'arrow-green', 'glow-green');
+            positionLabel('lbl-fe-spring', frontend.right, frontend.y, spring.left, spring.y, 0, -12);
+
+            // 4. Spring Boot (Right-Top Corner) -> FastAPI (Left-Center)
+            addPath(`M ${spring.right} ${spring.y - 20} C ${spring.right + 20} ${spring.y - 20}, ${fastapi.left - 20} ${fastapi.y}, ${fastapi.left} ${fastapi.y}`, '#a855f7', false, 'arrow-purple', 'glow-purple');
+            positionLabel('lbl-spring-fastapi', spring.right, spring.y - 20, fastapi.left, fastapi.y, 0, -12);
+
+            // 5. Spring Boot (Right-Bottom Corner) -> Postgres (Left-Center)
+            addPath(`M ${spring.right} ${spring.y + 20} C ${spring.right + 20} ${spring.y + 20}, ${postgres.left - 20} ${postgres.y}, ${postgres.left} ${postgres.y}`, '#fbbf24', false, 'arrow-yellow', 'glow-yellow');
+            positionLabel('lbl-spring-postgres', spring.right, spring.y + 20, postgres.left, postgres.y, 5, -12);
+
+            // 6. Spring Boot (Left-Bottom Corner) -> Keycloak (Right-Center)
+            addPath(`M ${spring.left} ${spring.y + 30} C ${spring.left - 20} ${spring.y + 30}, ${keycloak.right + 20} ${keycloak.y}, ${keycloak.right} ${keycloak.y}`, '#4e5575', true, 'arrow-gray', 'glow-gray');
+            positionLabel('lbl-spring-kc', spring.left, spring.y + 30, keycloak.right, keycloak.y, -10, 15);
+
+            // 7. Spring Boot -> Azure OpenAI Cloud (HTTPS)
+            const azureTargetX = azure.left;
+            const azureTargetY = azure.y;
+            addPath(`M ${fastapi.right} ${fastapi.y - 15} C ${fastapi.right + 40} ${fastapi.y - 15}, ${azureTargetX - 40} ${azureTargetY}, ${azureTargetX} ${azureTargetY}`, '#818cf8', false, 'arrow-indigo', 'glow-indigo');
+            positionLabel('lbl-spring-azure', fastapi.right, fastapi.y - 15, azureTargetX, azureTargetY, 20, -12);
+
+            // 8. Spring Boot -> Ollama Local (Host Daemon)
+            const ollamaTargetX = ollama.left;
+            const ollamaTargetY = ollama.y;
+            addPath(`M ${postgres.right} ${postgres.y + 15} C ${postgres.right + 40} ${postgres.y + 15}, ${ollamaTargetX - 40} ${ollamaTargetY}, ${ollamaTargetX} ${ollamaTargetY}`, '#c084fc', false, 'arrow-purple', 'glow-purple');
+            positionLabel('lbl-spring-ollama', postgres.right, postgres.y + 15, ollamaTargetX, ollamaTargetY, 20, 15);
+
+            // 9. Keycloak Container (Bottom Center) -> keycloak_data volume (Top Center)
+            addPath(`M ${keycloak.x} ${keycloak.bottom} L ${volKeycloak.x} ${volKeycloak.top}`, '#fbbf24', true, null, 'glow-yellow');
+            
+            // 10. Spring Boot Container (Bottom Center) -> spring_storage volume (Top Center)
+            addPath(`M ${spring.x} ${spring.bottom} L ${volSpring.x} ${volSpring.top}`, '#fbbf24', true, null, 'glow-yellow');
+            
+            // 11. Postgres Container (Bottom Center) -> postgres_data volume (Top Center)
+            addPath(`M ${postgres.x} ${postgres.bottom} L ${volPostgres.x} ${volPostgres.top}`, '#fbbf24', true, null, 'glow-yellow');
+        }
+
+        window.onload = drawAllLines;
+        window.onresize = drawAllLines;
+    </script>
+</body>
+</html>

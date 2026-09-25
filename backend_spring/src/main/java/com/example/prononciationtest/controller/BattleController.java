@@ -137,9 +137,8 @@ public class BattleController {
             return ResponseEntity.status(404).body(Map.of("error", "Battle introuvable"));
         if (!"WAITING".equals(b.status))
             return ResponseEntity.status(409).body(Map.of("error", "Battle déjà en cours ou terminée"));
-        if (email.equals(b.creatorEmail))
-            return ResponseEntity.status(409).body(Map.of("error", "Tu es déjà le créateur de cette battle"));
-
+            
+        // Autoriser de jouer contre soi-même pour les tests
         b.challengerEmail = email;
         b.status          = "ACTIVE";
 
@@ -175,7 +174,16 @@ public class BattleController {
         if ("WAITING".equals(b.status))
             return ResponseEntity.status(409).body(Map.of("error", "L'adversaire n'a pas encore rejoint"));
 
-        if (email.equals(b.creatorEmail)) {
+        boolean selfPlay = email.equals(b.creatorEmail) && email.equals(b.challengerEmail);
+
+        if (selfPlay) {
+            // Mode "Solo" : on alterne les scores pour simuler les deux joueurs
+            if (b.creatorScores.size() <= b.challengerScores.size()) {
+                if (b.creatorScores.size() < TOTAL_ROUNDS) b.creatorScores.add(score);
+            } else {
+                if (b.challengerScores.size() < TOTAL_ROUNDS) b.challengerScores.add(score);
+            }
+        } else if (email.equals(b.creatorEmail)) {
             if (b.creatorScores.size() < TOTAL_ROUNDS) b.creatorScores.add(score);
         } else if (email.equals(b.challengerEmail)) {
             if (b.challengerScores.size() < TOTAL_ROUNDS) b.challengerScores.add(score);

@@ -1,0 +1,73 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class CEFRSession {
+  - id: Long
+  - sessionId: String
+  - userId: Long
+  - lang: String
+  - status: String
+  - finalLevel: String
+  - avgScore: Integer
+  - startedAt: LocalDateTime
+}
+
+class PlannerStepResult {
+  - id: Long
+  - sessionId: String
+  - stepNumber: Integer
+  - targetSound: String
+  - phrase: String
+  - score: Integer
+  - progressed: Boolean
+  - level: String
+}
+
+class SpacedRepetitionItem {
+  - id: Long
+  - word: String
+  - errorCount: int
+  - intervalDays: int
+  - nextReview: LocalDate
+  - itemType: String
+}
+
+class Course {
+  - id: Long
+  - title: String
+  - cefrLevel: String
+  - lang: String
+  - durationMinutes: Integer
+  - active: Boolean
+}
+
+class Lesson {
+  - id: Long
+  - title: String
+  - type: String
+  - content: String
+  - lessonOrder: Integer
+}
+
+class UserCourseProgress {
+  - progressPercent: Integer
+  - status: String
+}
+
+class LessonProgress {
+  - completed: boolean
+}
+
+class LevelTestAgent {
+  + start(sessionId, lang, userName)
+  + next(sessionId, score, phrase)
+  + finish(sessionId)
+  - computeCefr(history)
+}
+
+Course "1" *-- "0..*" Lesson
+LevelTestAgent ..> CEFRSession : "Mise à jour"
+LevelTestAgent ..> PlannerStepResult : "Enregistre étapes"
+CEFRSession "1" *-- "0..*" PlannerStepResult : "Historique"
+
+@enduml

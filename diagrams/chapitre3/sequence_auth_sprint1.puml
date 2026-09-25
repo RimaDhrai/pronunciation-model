@@ -1,0 +1,35 @@
+@startuml
+skinparam maxMessageSize 150
+actor Apprenant
+participant "Application (SpeakCoach)" as App
+participant "Serveur d'Identité (Keycloak)" as KC
+
+== Inscription (Création de compte) ==
+Apprenant -> App: Saisit ses informations (Email, Mot de passe) dans SpeakCoach
+activate App
+App -> KC: Requête API (Création de l'utilisateur)
+activate KC
+KC --> App: Compte créé avec succès
+deactivate KC
+App --> Apprenant: Inscription validée
+deactivate App
+
+== Authentification (Login Direct) ==
+Apprenant -> App: Saisit ses identifiants dans l'interface SpeakCoach
+activate App
+App -> KC: Demande de Token avec identifiants (API / Password Grant)
+activate KC
+KC -> KC: Vérification (LDAP Talan / Interne)
+KC --> App: Retourne les Tokens JWT (Access & Refresh)
+deactivate KC
+App --> Apprenant: Affiche le tableau de bord (Connecté)
+deactivate App
+
+== Accès aux ressources protégées ==
+Apprenant -> App: Requête (ex: Accéder au profil)
+activate App
+App -> App: Vérifie la validité du Token JWT
+App --> Apprenant: Retourne les données sécurisées
+deactivate App
+
+@enduml

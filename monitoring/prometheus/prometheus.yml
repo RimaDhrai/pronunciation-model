@@ -1,0 +1,77 @@
+global:
+  scrape_interval:     15s   # Intervalle de collecte des métriques
+  evaluation_interval: 15s   # Intervalle d'évaluation des règles d'alerte
+  scrape_timeout:      10s
+
+  # Labels ajoutés à toutes les séries temporelles
+  external_labels:
+    monitor: 'speakcoach-monitor'
+    environment: 'production'
+
+# ── Règles d'alerte ──────────────────────────────────────────────────────────
+rule_files:
+  - "alerts/*.yml"
+
+# ── Alertmanager ─────────────────────────────────────────────────────────────
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# ── Jobs de collecte ─────────────────────────────────────────────────────────
+scrape_configs:
+
+  # Prometheus lui-même
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # ── Spring Boot (Micrometer + Actuator) ─────────────────────────────────────
+  - job_name: 'spring-boot'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['spring-boot:8080']
+        labels:
+          service: 'speakcoach-spring'
+          component: 'backend'
+
+  # ── FastAPI (prometheus-fastapi-instrumentator) ───────────────────────────
+  - job_name: 'fastapi'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['fastapi:8000']
+        labels:
+          service: 'speakcoach-fastapi'
+          component: 'ai-engine'
+
+  # ── PostgreSQL Exporter ───────────────────────────────────────────────────
+  - job_name: 'postgres'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'speakcoach-postgres'
+          component: 'database'
+
+  # ── Node Exporter (métriques hôte : CPU, RAM, disque, réseau) ────────────
+  - job_name: 'node-exporter'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'host-system'
+          component: 'infrastructure'
+
+  # ── cAdvisor (métriques containers Docker) ────────────────────────────────
+  - job_name: 'cadvisor'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'docker-containers'
+          component: 'infrastructure'

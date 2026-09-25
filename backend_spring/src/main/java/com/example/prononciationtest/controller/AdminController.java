@@ -22,7 +22,7 @@ public class AdminController {
 
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
 
-    @Value("${ollama.model:#{'qwen2.5:7b'}}")
+    @Value("${ollama.model:#{'qwen2.5:3b'}}")
     private String ollamaModel;
 
     @Value("${ollama.model.chatbot:#{'qwen2.5:3b'}}")

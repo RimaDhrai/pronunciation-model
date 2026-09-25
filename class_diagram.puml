@@ -1,0 +1,221 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam shadowing false
+skinparam linetype ortho
+
+title Diagramme de Classes Global - SpeakCoach
+
+class User {
+  +Long id
+  +String email
+  +String passwordHash
+  +String fullName
+  +boolean enabled
+  +String cefrLevel
+  +String cefrLevelEn
+  +Boolean cefrCompleted
+  +Boolean cefrCompletedEn
+  +String jobTitle
+  +String nativeLang
+  +Integer totalXp
+  +Integer currentStreak
+  +Integer longestStreak
+  +LocalDate lastActivityDate
+  +String weakWords
+  +Instant createdAt
+}
+
+class UserSession {
+  +Long id
+  +String type
+  +String phrase
+  +int score
+  +String lang
+  +String level
+  +String feedback
+  +LocalDateTime createdAt
+}
+
+class Attempt {
+  +Long id
+  +String expectedPhrase
+  +String transcription
+  +int score
+  +double wer
+  +String language
+  +String level
+  +String feedback
+  +String audioPath
+  +LocalDateTime createdAt
+}
+
+class CEFRSession {
+  +Long id
+  +String sessionId
+  +Long userId
+  +String lang
+  +String status
+  +String finalLevel
+  +Integer avgScore
+  +LocalDateTime startedAt
+  +LocalDateTime completedAt
+}
+
+class PhraseAttempt {
+  +Long id
+  +String sessionId
+  +String phrase
+  +String levelTested
+  +Integer score
+  +Double wer
+  +Double f1
+  +String sttClean
+  +String phase
+  +LocalDateTime attemptAt
+}
+
+class SpacedRepetitionItem {
+  +Long id
+  +Long userId
+  +String word
+  +String level
+  +int errorCount
+  +int intervalDays
+  +LocalDate nextReview
+  +LocalDate lastSeen
+  +String itemType
+  +String soundLabel
+  +String lang
+}
+
+class Course {
+  +Long id
+  +String title
+  +String description
+  +String cefrLevel
+  +String lang
+  +String category
+  +Integer durationMinutes
+  +String thumbnailUrl
+  +Integer displayOrder
+  +Boolean active
+}
+
+class Lesson {
+  +Long id
+  +String title
+  +String content
+  +String type
+  +Integer lessonOrder
+  +Integer durationMinutes
+  +Boolean active
+}
+
+class Badge {
+  +Long id
+  +Long userId
+  +String badgeKey
+  +LocalDateTime earnedAt
+}
+
+class ExerciseProgress {
+  +Long id
+  +Long userId
+  +String level
+  +String lang
+  +boolean done
+  +boolean mastered
+  +Integer lastAvgScore
+  +int completed
+  +int sessionsCount
+  +LocalDateTime updatedAt
+}
+
+class LessonProgress {
+  +Long id
+  +Long userId
+  +Long lessonId
+  +Long courseId
+  +boolean completed
+  +LocalDateTime completedAt
+}
+
+class UserCourseProgress {
+  +Long id
+  +Long userId
+  +Long courseId
+  +String status
+  +Integer progressPercent
+  +LocalDateTime enrolledAt
+  +LocalDateTime completedAt
+  +LocalDateTime lastAccessedAt
+}
+
+class MasterSession {
+  +Long id
+  +String sessionId
+  +String userEmail
+  +String lang
+  +String cefrLevel
+  +int totalXp
+  +int exerciseRound
+  +int chatRound
+  +String testSessionId
+  +String errorLogJson
+  +LocalDateTime createdAt
+  +LocalDateTime updatedAt
+}
+
+class PlannerStepResult {
+  +Long id
+  +String sessionId
+  +Long userId
+  +Integer stepNumber
+  +String targetSound
+  +String phrase
+  +Integer score
+  +Boolean progressed
+  +String lang
+  +String level
+  +LocalDateTime attemptedAt
+}
+
+class PasswordResetToken {
+  +Long id
+  +String token
+  +String email
+  +LocalDateTime expiresAt
+  +boolean used
+}
+
+class MailSettings {
+  +Long id
+  +String host
+  +int port
+  +String username
+  +String password
+  +String fromName
+}
+
+' ── Relations JPA réelles (@ManyToOne) ──
+User "1" -- "*" UserSession : possède >
+User "1" -- "*" Attempt : réalise >
+Course "1" -- "*" Lesson : contient >
+
+' ── Relations logiques (FK userId) ──
+User "1" .down. "*" CEFRSession : passe >
+User "1" .down. "*" SpacedRepetitionItem : possède >
+User "1" .down. "*" Badge : gagne >
+User "1" .down. "*" ExerciseProgress : suit >
+User "1" .down. "*" LessonProgress : complète >
+User "1" .down. "*" UserCourseProgress : s'inscrit >
+User "1" .down. "*" PlannerStepResult : réalise >
+
+' ── Relations entre entités ──
+CEFRSession "1" .. "*" PhraseAttempt : contient >
+Course "1" .. "*" UserCourseProgress : concerne >
+Course "1" .. "*" LessonProgress : concerne >
+Lesson "1" .. "*" LessonProgress : concerne >
+
+@enduml

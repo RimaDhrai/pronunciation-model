@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+
+actor "Apprenant" as A
+actor "Administrateur" as Adm
+
+rectangle "SpeakCoach -- Sprint 1" {
+  usecase "S'inscrire" as UC1
+  usecase "Se connecter" as UC2
+  usecase "Reinitialiser mot de passe" as UC3
+  usecase "Gerer son profil" as UC4
+  usecase "Gerer les utilisateurs" as UC5
+  usecase "Activer / Desactiver un compte" as UC6
+}
+
+A -- UC1
+A -- UC2
+A -- UC3
+A -- UC4
+
+Adm -- UC5
+Adm -- UC6
+
+UC5 ..> UC6 : <<extend>>
+
+@enduml

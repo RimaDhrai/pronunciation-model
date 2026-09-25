@@ -1,0 +1,101 @@
+@startuml Architecture_Agentique_SpeakCoach
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam ArrowColor #555555
+skinparam ArrowFontSize 9
+skinparam ArrowFontColor #333333
+skinparam PackageBorderThickness 2
+skinparam RectangleBorderThickness 2
+skinparam ComponentBorderThickness 2
+skinparam NoteBackgroundColor #FFFDE7
+skinparam NoteBorderColor #F9A825
+
+title Architecture Agentique — SpeakCoach AI
+
+' ══════════════════════════════════════════════
+'  ACTEUR
+' ══════════════════════════════════════════════
+actor Apprenant as user
+
+' ══════════════════════════════════════════════
+'  COUCHE ACTION (vert)
+' ══════════════════════════════════════════════
+package "Couche Action" #D5F5D5 {
+
+  component "Agent Harness\n──────────────\nMasterAgent · Routeur\nThread pools" as harness #A8D5A2
+
+  component "Agent Loop\n──────────────\nLangGraph4J\nThink → Plan → Act" as agentloop #A8D5A2
+
+  component "Tool Call\n──────────────\nWhisper STT\nEdge TTS · Eval. phonetique" as toolcall #A8D5A2
+
+  harness -down-> agentloop : delegue aux agents
+  agentloop -down-> toolcall : appelle les outils
+}
+
+' ══════════════════════════════════════════════
+'  COUCHE COGNITIVE (bleu/violet)
+' ══════════════════════════════════════════════
+package "Couche Cognitive" #D0D8F0 {
+
+  component "Prompt Engineering\n──────────────\nTemplates CECRL\nRoles · Prompt LLM" as prompteng #B0B8E8
+
+  component "Safety & Guardrails\n──────────────\nCache · Fallbacks\nFiltre I/O" as safety #F4B8B8
+
+  component "Context Engineering\n──────────────\nMemoire session\nScore prononciation" as context #B0B8E8
+
+  prompteng -down-> context : prompt enrichi
+  safety -right-> agentloop : filtre les sorties
+}
+
+' ══════════════════════════════════════════════
+'  COUCHE INFRASTRUCTURE (orange)
+' ══════════════════════════════════════════════
+package "Couche Infrastructure" #FFE0A0 {
+
+  component "Persistance\n──────────────\nSessions · Scores\nHistorique" as persist #FFD080
+
+  component "Observability\n──────────────\nLogs SLF4J\nMetriques · Latences API" as observ #FFD080
+
+}
+
+' ══════════════════════════════════════════════
+'  CONNEXIONS APPRENANT <-> SYSTEME
+' ══════════════════════════════════════════════
+user -right-> prompteng : requete vocale
+toolcall -left-> user : feedback corrige (TTS)
+
+' ══════════════════════════════════════════════
+'  CONNEXIONS COGNITIVE -> ACTION
+' ══════════════════════════════════════════════
+context -up-> agentloop : contexte complet injecte
+
+' ══════════════════════════════════════════════
+'  CONNEXIONS ACTION -> INFRASTRUCTURE
+' ══════════════════════════════════════════════
+toolcall -down-> persist : sauvegarde session\n(scores + historique)
+harness -right-> observ : traces & metriques\n(logs SLF4J)
+
+' ══════════════════════════════════════════════
+'  NOTES EXPLICATIVES
+' ══════════════════════════════════════════════
+note bottom of harness
+  Agent Harness = orchestrateur principal
+  Il appartient a la Couche Action
+  (pas a l'infrastructure)
+end note
+
+note bottom of safety
+  Safety active a chaque tour :
+  verifie la sortie avant
+  de la renvoyer a l'apprenant
+end note
+
+note bottom of persist
+  MemorySaver (LangGraph4J)
+  sauvegarde l'etat de la session
+  apres chaque iteration
+end note
+
+@enduml

@@ -5,6 +5,10 @@ networks:
     driver: bridge
   sonar-net:
     driver: bridge
+  # ── Réseau dédié monitoring (Prometheus, Grafana, Exporters) ────────────────
+  monitoring-net:
+    driver: bridge
+
 
 volumes:
   postgres_data:
@@ -14,6 +18,9 @@ volumes:
   sonarqube_logs:
   sonarqube_extensions:
   sonar_postgres_data:
+  # ── Monitoring ──────────────────────────────────────────────────────────────
+  prometheus_data:
+  grafana_data:
 
 services:
 
@@ -85,6 +92,7 @@ services:
       - "8000:8000"
     networks:
       - speakcoach-net
+      - monitoring-net
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
@@ -111,16 +119,16 @@ services:
       # FastAPI
       PYTHON_BASE_URL: http://fastapi:8000
 
-      # Ollama (desactive - remplace par Azure OpenAI)
-      # OLLAMA_BASE_URL: http://host.docker.internal:11434
-      # OLLAMA_MODEL: qwen2.5:3b
-      # OLLAMA_MODEL_CHATBOT: qwen2.5:3b
+      # Ollama (Qwen 2.5 3B - LOCAL)
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: qwen2.5:3b
+      OLLAMA_MODEL_CHATBOT: qwen2.5:3b
 
-      # Azure OpenAI gpt-4.1-mini
+      # Azure OpenAI GPT-5.1 (ENABLED - deployment GlobalStandard sur Azure AI Foundry)
       AZURE_OPENAI_ENABLED: "true"
-      AZURE_OPENAI_ENDPOINT: https://rima-mp3uulbs-eastus2.cognitiveservices.azure.com/
+      AZURE_OPENAI_ENDPOINT: https://rima-openai-talannn.services.ai.azure.com
       AZURE_OPENAI_KEY: ${AZURE_OPENAI_KEY}
-      AZURE_OPENAI_DEPLOYMENT: gpt-4.1-mini-2
+      AZURE_OPENAI_DEPLOYMENT: gpt-5.1
 
       # Keycloak — ✅ UNIQUEMENT le JWK URI via réseau Docker interne
       # On supprime ISSUER_URI → plus de validation du claim iss
@@ -139,6 +147,11 @@ services:
       APP_STORAGE_AUDIO_DIR: /app/storage/audio
       APP_STORAGE_VIDEO_DIR: /app/storage/videos
       APP_STORAGE_IMAGE_DIR: /app/storage/images
+
+      # ── Actuator / Prometheus monitoring ──────────────────────────────────────
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,prometheus,metrics"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: always
+      MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
 
     volumes:
       - spring_storage:/app/storage
@@ -161,6 +174,7 @@ services:
       start_period: 60s
     networks:
       - speakcoach-net
+      - monitoring-net
 
   # ── Frontend (React + nginx) ────────────────────────────────────────────────
   frontend:
@@ -244,3 +258,124 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # MONITORING STACK — Prometheus + Grafana + Exporters
+  # ════════════════════════════════════════════════════════════════════════════
+
+  # ── Prometheus — collecte et stockage des métriques ──────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: speakcoach-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alerts:/etc/prometheus/alerts:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - speakcoach-net
+      - monitoring-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - spring-boot
+      - fastapi
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Grafana — dashboards de visualisation ────────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: speakcoach-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-Admin1234!}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_DOMAIN: localhost
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      # Pré-installer les plugins utiles (grafana-simple-json-datasource retiré: Angular deprecated)
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring-net
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Node Exporter — métriques CPU/RAM du container (compatible Windows/Docker Desktop)
+  # NOTE: Sur Windows, le mount /:/host:ro,rslave n'est pas supporté.
+  # Node Exporter tourne dans son propre namespace mais expose les métriques
+  # du container (utile pour alertes CPU/mémoire au niveau container).
+  node-exporter:
+    image: prom/node-exporter:v1.8.1
+    container_name: speakcoach-node-exporter
+    restart: unless-stopped
+    # Pas de --path.rootfs ni de volume / sur Windows (non supporté)
+    command:
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.disable-defaults'
+      - '--collector.cpu'
+      - '--collector.meminfo'
+      - '--collector.netdev'
+      - '--collector.time'
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring-net
+
+  # ── cAdvisor — métriques des containers Docker (compatible Windows/Docker Desktop)
+  # NOTE: Sur Windows, privileged + /dev/kmsg + volumes système Linux ne sont pas supportés.
+  # cAdvisor tourne en mode limité mais reste capable de rapporter les métriques
+  # CPU/mémoire des containers via l'API Docker socket.
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: speakcoach-cadvisor
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "9200:8080"
+    networks:
+      - monitoring-net
+
+  # ── PostgreSQL Exporter — métriques base de données ──────────────────────────
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: speakcoach-postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/pronunciation_db?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - speakcoach-net
+      - monitoring-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+

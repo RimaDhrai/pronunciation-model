@@ -96,6 +96,22 @@
         }
       ],
       "realmRoles": ["collaborateur"]
+    },
+    {
+      "username": "rima",
+      "email": "rima@talan.com",
+      "firstName": "Rima",
+      "lastName": "Dhrai",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Rima1234!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["collaborateur"]
     }
   ],
   "components": {

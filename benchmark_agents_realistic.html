@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benchmark réaliste — Types d'agents</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --glass: rgba(255,255,255,0.06);
+            --border: rgba(255,255,255,0.08);
+            --text: #f0f0f8;
+            --muted: rgba(240,240,248,0.55);
+            --blue: #6C9FFF;
+            --green: #6EE7B7;
+            --orange: #FDBA74;
+            --red: #FCA5A5;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            background-image:
+                linear-gradient(rgba(108,159,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(108,159,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .slide {
+            width: 1100px;
+            max-width: 100%;
+        }
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 12px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 24px;
+            max-width: 900px;
+            line-height: 1.5;
+        }
+        .table-wrap {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            padding: 14px 18px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--blue);
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            background: rgba(108,159,255,0.08);
+        }
+        td {
+            padding: 13px 18px;
+            font-size: 13px;
+            color: var(--muted);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: middle;
+        }
+        tr.highlight {
+            background: rgba(108,159,255,0.07);
+        }
+        tr.highlight td { color: var(--text); }
+        .fw-name { font-weight: 700; color: var(--text); }
+        .bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bar {
+            height: 6px;
+            border-radius: 3px;
+            min-width: 4px;
+        }
+        .bar-excellent { background: linear-gradient(90deg, #10B981, #6EE7B7); }
+        .bar-good { background: linear-gradient(90deg, #3B82F6, #6C9FFF); }
+        .bar-ok { background: linear-gradient(90deg, #F97316, #FDBA74); }
+        .bar-low { background: linear-gradient(90deg, #EF4444, #FCA5A5); }
+        .bar-label { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; }
+        .verdict {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .v-chosen { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+        .v-viable { background: rgba(108,159,255,0.12); color: var(--blue); border: 1px solid rgba(108,159,255,0.2); }
+        .v-limit { background: rgba(253,186,116,0.12); color: var(--orange); border: 1px solid rgba(253,186,116,0.2); }
+        .v-nope { background: rgba(252,165,165,0.12); color: var(--red); border: 1px solid rgba(252,165,165,0.2); }
+        .footnote {
+            margin-top: 16px;
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.6;
+            max-width: 900px;
+        }
+        .footnote strong { color: rgba(240,240,248,0.75); }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="tag">Benchmark</div>
+        <h1>Benchmark des types d'agents — version réaliste</h1>
+        <p class="subtitle">
+            Comparaison sur un scénario SpeakCoach : 1 tour agent (LLM + routage + 1 tool audio).
+            Latence et coût sont surtout dictés par le <strong style="color:#f0f0f8">modèle LLM</strong>, pas par le framework d'orchestration.
+        </p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Framework</th>
+                        <th>Latence (1 tour)*</th>
+                        <th>Contrôle orchestration</th>
+                        <th>Intégration Java / Spring</th>
+                        <th>Coût / session**</th>
+                        <th>Verdict</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight">
+                        <td><span class="fw-name">LangGraph4J</span></td>
+                        <td>1,2 – 2,8 s</td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-excellent" style="width:120px"></div>
+                                <span class="bar-label">Excellent</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-excellent" style="width:120px"></div>
+                                <span class="bar-label">Native</span>
+                            </div>
+                        </td>
+                        <td>~$0,003 – 0,02</td>
+                        <td><span class="verdict v-chosen">✓ Choisi</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="fw-name">Semantic Kernel</span></td>
+                        <td>1,3 – 2,9 s</td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-good" style="width:100px"></div>
+                                <span class="bar-label">Bon</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-good" style="width:95px"></div>
+                                <span class="bar-label">Bon</span>
+                            </div>
+                        </td>
+                        <td>~$0,003 – 0,02</td>
+                        <td><span class="verdict v-viable">Viable (MS)</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="fw-name">Spring AI (ReAct simple)</span></td>
+                        <td>1,0 – 2,5 s</td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-ok" style="width:65px"></div>
+                                <span class="bar-label">Limité</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-excellent" style="width:120px"></div>
+                                <span class="bar-label">Native</span>
+                            </div>
+                        </td>
+                        <td>~$0,003 – 0,02</td>
+                        <td><span class="verdict v-viable">MVP / prototype</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="fw-name">LangGraph (Python)</span></td>
+                        <td>1,2 – 2,8 s</td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-excellent" style="width:120px"></div>
+                                <span class="bar-label">Excellent</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-low" style="width:35px"></div>
+                                <span class="bar-label">Faible</span>
+                            </div>
+                        </td>
+                        <td>~$0,003 – 0,02</td>
+                        <td><span class="verdict v-limit">Stack Python</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="fw-name">Azure AI Agent Service</span></td>
+                        <td>1,5 – 3,5 s</td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-good" style="width:90px"></div>
+                                <span class="bar-label">Bon</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-ok" style="width:60px"></div>
+                                <span class="bar-label">Moyen</span>
+                            </div>
+                        </td>
+                        <td>~$0,01 – 0,06</td>
+                        <td><span class="verdict v-limit">Vendor lock-in</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="fw-name">Claude API (direct)</span></td>
+                        <td>1,0 – 3,0 s</td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-ok" style="width:55px"></div>
+                                <span class="bar-label">Manuel</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-good" style="width:80px"></div>
+                                <span class="bar-label">Via SDK</span>
+                            </div>
+                        </td>
+                        <td>~$0,02 – 0,08</td>
+                        <td><span class="verdict v-limit">Coût LLM élevé</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="fw-name">AutoGPT</span></td>
+                        <td>15 – 60 s</td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-good" style="width:85px"></div>
+                                <span class="bar-label">Autonome</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-low" style="width:25px"></div>
+                                <span class="bar-label">Faible</span>
+                            </div>
+                        </td>
+                        <td>~$0,10 – 0,50</td>
+                        <td><span class="verdict v-nope">Hors scope UX</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="fw-name">MCTS</span></td>
+                        <td>5 – 15 s</td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-ok" style="width:70px"></div>
+                                <span class="bar-label">Spécialisé</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bar-wrap">
+                                <div class="bar bar-low" style="width:30px"></div>
+                                <span class="bar-label">Faible</span>
+                            </div>
+                        </td>
+                        <td>~$0,05 – 0,20</td>
+                        <td><span class="verdict v-nope">Hors scope coaching</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="footnote">
+            * Latence bout-en-bout estimée avec le <strong>même backend LLM</strong> (GPT-4o-mini ou Qwen 2.5 3B) + 1 appel Whisper.
+            Overhead du framework seul : ~10–30 ms — négligeable vs le LLM.<br>
+            ** Coût pour ~5 tours de conversation. Identique entre frameworks si même modèle.
+            Ollama local ≈ $0 · Cloud GPT-4o-mini ≈ $0,003–0,02 · Claude Sonnet ≈ $0,02–0,08.<br>
+            <strong>Pourquoi LangGraph4J ?</strong> Meilleur compromis pour SpeakCoach : graphe d'état explicite (Think-Plan-Act),
+            intégration Spring Boot native, et contrôle fin des boucles — pas une supériorité magique en latence/coût.
+        </p>
+    </div>
+</body>
+</html>

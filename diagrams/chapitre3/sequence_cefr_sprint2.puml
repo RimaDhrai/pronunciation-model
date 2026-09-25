@@ -1,0 +1,38 @@
+@startuml
+actor Apprenant
+participant "Frontend" as FE
+participant "LevelTestAgentController" as Ctrl
+participant "LevelTestAgent\n(LangGraph)" as Agent
+participant "OllamaService" as Ollama
+participant "Base de Données" as DB
+
+Apprenant -> FE: Démarre le test CEFR
+FE -> Ctrl: POST /api/level-test/start
+Ctrl -> DB: Crée CEFRSession (IN_PROGRESS)
+Ctrl -> Agent: start(sessionId)
+Agent -> Agent: pickSoundNode()\nSélectionne son
+Agent -> Ollama: generatePhrase() & generateTip()
+Ollama --> Agent: Phrase & Conseil générés
+Agent --> Ctrl: AgentState (phrase, conseil)
+Ctrl --> FE: Affiche la phrase et le conseil
+
+Apprenant -> FE: Lit la phrase (Enregistrement vocal)
+FE -> FE: STT & Évaluation (score)
+FE -> Ctrl: POST /api/level-test/next (score, phrase)
+Ctrl -> Agent: next(sessionId, score)
+Agent -> Ollama: generateFeedback()
+Ollama --> Agent: Feedback généré
+Agent -> Agent: computeLevel()
+Agent -> Agent: pickSoundNode() (prochain son)
+Agent --> Ctrl: AgentState (prochaine phrase, feedback)
+Ctrl --> FE: Affiche le feedback et la nouvelle phrase
+
+note over Agent: Si 20 sons atteints ou abandon
+Agent -> Ollama: generateSynthesis()
+Agent -> Agent: computeCefr() (Moyenne pondérée)
+Agent --> Ctrl: Synthèse et niveau final
+Ctrl -> DB: MAJ CEFRSession (COMPLETED, niveau)
+Ctrl -> DB: Sauvegarde PlannerStepResult (20x)
+Ctrl -> DB: Sauvegarde SpacedRepetitionItem (erreurs)
+Ctrl --> FE: Résultat final et synthèse
+@enduml

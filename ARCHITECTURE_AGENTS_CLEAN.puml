@@ -1,0 +1,111 @@
+@startuml SpeakCoach_Architecture_Agents
+!define SPCOLOR #6C9FFF
+!define DBCOLOR #34D399
+!define APICOLOR #FDBA74
+!define LLMCOLOR #A78BFA
+
+skinparam backgroundColor #0a0a1a
+skinparam defaultFontColor #f0f0f8
+skinparam defaultFontName Inter
+skinparam linetype ortho
+skinparam roundcorner 10
+skinparam ArrowColor #6C9FFF
+skinparam BorderColor #6C9FFF
+
+title SpeakCoach - Architecture Agents IA
+' Une architecture clean et organisée
+
+package "Frontend" #f0f0f8 {
+    component [React App]
+    note right of [React App]
+        SSE Streaming
+        Audio Recording
+    end note
+}
+
+package "Backend Orchestration" #LLMCOLOR {
+    component "Master Agent\n(LangGraph4J)" as MasterAgent
+    note bottom of MasterAgent
+        Router Central
+        Distribue requêtes
+        Gère state
+    end note
+}
+
+package "Agents Spécialisés" #SPCOLOR {
+    component "Chatbot\nAgent" as ChatAgent
+    note bottom of ChatAgent
+        Conversations
+        Filtre contexte
+        Personnalisation
+    end note
+    
+    component "LevelTest\nAgent" as TestAgent
+    note bottom of TestAgent
+        Évaluation CECRL
+        pick_sound
+        Diagnostic
+    end note
+    
+    component "Exercise\nAgent" as ExerciseAgent
+    note bottom of ExerciseAgent
+        Exercices guidés
+        Feedback itératif
+        Progress tracking
+    end note
+}
+
+package "Services Externes" #APICOLOR {
+    component "FastAPI\n(Voice Eval)" as FastAPI
+    note bottom of FastAPI
+        Audio Processing
+        Score phonétique
+        WER / F1
+    end note
+    
+    component "PostgreSQL\n(Database)" as PostgreSQL
+    note bottom of PostgreSQL
+        Users
+        Sessions
+        Attempts
+        XP / Progress
+    end note
+}
+
+package "LLM Layer" #LLMCOLOR {
+    component "Spring AI\nChatClient" as SpringAI
+    note bottom of SpringAI
+        Abstraction
+        Interchangeable
+    end note
+    
+    component "Ollama\n(Qwen 2.5)" as Ollama
+    component "Azure AI\n(GPT-4)" as Azure
+}
+
+' Connexions Frontend
+[React App] --> MasterAgent : REST/SSE
+
+' Master → Agents
+MasterAgent --> ChatAgent : route_chat
+MasterAgent --> TestAgent : route_test
+MasterAgent --> ExerciseAgent : route_exercise
+
+' Agents → Services
+ChatAgent --> SpringAI
+TestAgent --> SpringAI
+TestAgent --> FastAPI
+TestAgent --> PostgreSQL
+ExerciseAgent --> SpringAI
+ExerciseAgent --> FastAPI
+ExerciseAgent --> PostgreSQL
+
+' LLM Layer
+SpringAI --> Ollama : dev
+SpringAI --> Azure : prod
+SpringAI --> PostgreSQL : state
+
+' Database connections
+FastAPI --> PostgreSQL : results
+
+@enduml

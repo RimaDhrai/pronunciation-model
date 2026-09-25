@@ -1,0 +1,516 @@
+============================================================================
+SCHEMAS PLANTUML - HOW AGENTIC AI WORKS IN SPEAKCOACH PLATFORM
+============================================================================
+
+================== SCHEMA 1: AGENT ARCHITECTURE OVERVIEW ==================
+
+@startuml Agent_Architecture_Overview
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam componentBackgroundColor #E6F2FF
+skinparam componentBorderColor #003366
+skinparam arrowColor #003366
+
+title How Agentic AI Works - SpeakCoach Platform Architecture
+
+package "User Layer" {
+  actor "Learner" as USER
+  component [Mobile/Web\nInterface] as UI
+}
+
+package "Agent Orchestration Layer" {
+  component [MasterAgent\n(Spring Boot)] as MA
+  component [State Manager\n(LangGraph4J)] as SM
+  component [Memory Store\n(PostgreSQL)] as MEM
+}
+
+package "AI Cognitive Layer" {
+  component [Prompt Engine\n(CECRL Templates)] as PE
+  component [LLM Provider\n(ChatGPT/Claude)] as LLM
+  component [Context Injector\n(Weak Words)] as CI
+}
+
+package "Tool Execution Layer" {
+  component [Whisper STT\n(Audio->Text)] as STT
+  component [Phonetic Evaluator\n(Python)] as EVAL
+  component [Edge-TTS\n(Text->Audio)] as TTS
+}
+
+package "Observability & Control" {
+  component [Logging (SLF4J)] as LOG
+  component [Metrics (Actuator)] as MET
+  component [Circuit Breaker] as CB
+}
+
+USER --> UI: "1. Say something"
+UI --> MA: "2. POST audio"
+MA --> SM: "3. Init State Graph"
+SM --> MEM: "4. Load context"
+MEM --> SM: "5. User profile + history"
+
+SM --> PE: "6. Build prompt"
+PE --> LLM: "7. Inject context + templates"
+LLM --> CI: "8. LLM thinks & plans"
+
+CI --> STT: "9. Transcribe audio"
+STT --> EVAL: "10. Score pronunciation"
+EVAL --> CB: "11. Check circuit breaker"
+
+CB --> MEM: "12a. Score >= 70?"
+MEM --> TTS: "12b. Generate response"
+TTS --> UI: "13. Play audio + XP"
+UI --> USER: "14. Learner hears feedback"
+
+LOG -.-> MA: "Logs all steps"
+MET -.-> SM: "Tracks metrics"
+CB -.-> EVAL: "Limits retries"
+
+@enduml
+
+--- END SCHEMA 1 ---
+
+================== SCHEMA 2: AGENT LOOP - DETAILED WORKFLOW ==================
+
+@startuml Agent_Loop_Detailed_Workflow
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam activityBackgroundColor #F0F8FF
+skinparam activityBorderColor #003366
+
+title Agent Loop - Think Plan Act Observe Cycle
+
+(*) --> (THINK\nLoad profile\nSelect template\nInject weak words\nCreate prompt) #E6F2FF
+--> (PLAN\nLLM analyzes\nRoutes to agent\nDecides strategy\nPrepares tools) #FFFACD
+--> (ACT\nCall Whisper STT\nExtract phonemes\nCall Evaluator\nGet score /100) #E1F5EE
+--> (OBSERVE\nCheck: score >= 70?) #FFF8DC
+--> {Score >= 70?}
+--> if "YES" is (SUCCESS)
+  --> (Save XP\nUpdate profile\nSuccess audio) #C8E6C9
+  --> (+ 20 XP)
+  --> (*)
+else "NO" is (RETRY)
+  --> (Generate advice\nCall TTS voice) #FFE4E1
+  --> {Attempts < 3?}
+  --> if "YES" is (LOOP_BACK)
+    --> (THINK\nLoad profile\nInject advice) #E6F2FF
+    --> [Back to PLAN]
+    --> (PLAN...)
+    --> (ACT...)
+    --> (OBSERVE...)
+    --> {Score >= 70?}
+    --> if "YES" is (SUCCESS_RETRY) else "NO" is (RETRY_AGAIN) endif
+  else "NO" is (FAILURE)
+    --> (Fallback\nPartial XP\nSuggest break) #FFCDD2
+    --> (5-10 XP)
+    --> (*)
+  endif
+endif
+
+@enduml
+
+--- END SCHEMA 2 ---
+
+================== SCHEMA 3: DATA FLOW - REQUEST TO RESPONSE ==================
+
+@startuml Data_Flow_Request_Response
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign direction
+
+title Data Flow - From Learner Speech to AI Response
+
+participant "Client\n(React)" as C
+participant "MasterAgent\n(Spring Boot)" as MA
+participant "StateGraph\n(LangGraph4J)" as SG
+participant "Cognitive\n(Prompts)" as COG
+participant "Tools\n(FastAPI)" as TOOLS
+participant "Memory\n(PostgreSQL)" as DB
+participant "Safety\n(Filters)" as SAFE
+
+C -> C: Record audio
+C -> MA: POST /agent/session\n{audio: bytes, user_id: 123}
+activate MA
+
+MA -> SAFE: Validate input
+SAFE -> SAFE: Check for injection/spam
+SAFE --> MA: OK
+
+MA -> DB: SELECT user_profile\nWHERE user_id = 123
+DB --> MA: {level: B1, weak_words: [...]}\nhistory: [...]
+
+MA -> SG: Initialize StateGraph\nwith user context
+
+activate SG
+SG -> COG: Build prompt
+activate COG
+COG -> COG: Select CECRL template B1
+COG -> COG: Inject weak_words
+COG -> COG: Add few-shot examples
+COG --> SG: completed_prompt
+
+SG -> TOOLS: Transcribe audio
+activate TOOLS
+TOOLS -> TOOLS: Whisper API\nAudio -> Text
+TOOLS --> SG: {transcript: "Hello teacher"}
+
+SG -> TOOLS: Evaluate pronunciation
+activate TOOLS
+TOOLS -> TOOLS: Python Evaluator\nExtract phonemes
+TOOLS -> TOOLS: Compare with standard
+TOOLS -> TOOLS: Calculate score
+TOOLS --> SG: {score: 68, phonemes: [...]}
+
+SG -> SG: CHECK score >= 70?
+alt Score < 70
+  SG -> SG: Generate advice
+  SG -> TOOLS: TTS advice
+  TOOLS --> SG: audio_advice
+  SG -> SG: reboucle_count++
+  SG -> SG: Loop back to THINK
+  note over SG: Advice injected into new prompt
+else Score >= 70
+  SG -> DB: UPDATE user_sessions\nSET xp = xp + 20
+  SG -> TOOLS: TTS success response
+  TOOLS --> SG: audio_success
+  SG -> SG: DONE - SUCCESS
+end
+
+SG -> SAFE: Validate output
+SAFE --> SG: Output clean
+
+SG --> MA: {success: true, xp: 20,\naudio: base64, score: 75}
+deactivate SG
+
+MA -> C: HTTP 200\n{session_id: xxx,\nscore: 75,\naudio_url: /audio/xxx}
+deactivate MA
+
+C -> C: Play audio response
+C -> C: Update UI (XP bar)
+
+@enduml
+
+--- END SCHEMA 3 ---
+
+================== SCHEMA 4: STATE MACHINE - INTERNAL STATES ==================
+
+@startuml State_Machine_Internal
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam stateBorderColor #003366
+skinparam stateBackgroundColor #E6F2FF
+
+title Internal State Machine - LangGraph4J Implementation
+
+[*] --> LOAD_CONTEXT
+
+state LOAD_CONTEXT as "Load Context" {
+  [*] --> FetchUser
+  FetchUser --> FetchHistory
+  FetchHistory --> [*]
+}
+
+state PROMPT_ENGINEER as "Prompt Engineer" {
+  [*] --> SelectTemplate
+  SelectTemplate --> InjectWeakWords
+  InjectWeakWords --> AddExamples
+  AddExamples --> [*]
+}
+
+state LLM_THINK as "LLM Think" {
+  [*] --> CallLLM
+  CallLLM --> AnalyzeTask
+  AnalyzeTask --> [*]
+}
+
+state PLAN_ACTION as "Plan Action" {
+  [*] --> ChooseTool
+  ChooseTool --> PrepareParams
+  PrepareParams --> [*]
+}
+
+state EXECUTE_TOOL as "Execute Tool" {
+  [*] --> CallWhisper
+  CallWhisper --> ExtractPhonemes
+  ExtractPhonemes --> CallEvaluator
+  CallEvaluator --> GetScore
+  GetScore --> [*]
+}
+
+state EVALUATE_SCORE as "Evaluate Score" {
+  [*] --> CheckThreshold
+  CheckThreshold --> [*]
+}
+
+state DECIDE as "Decision Point" {
+  [*] --> DecideNext
+  DecideNext --> [*]
+}
+
+state SUCCESS as "Success" {
+  [*] --> SaveXP
+  SaveXP --> GenFeedback
+  GenFeedback --> [*]
+}
+
+state RETRY as "Retry" {
+  [*] --> GenAdvice
+  GenAdvice --> IncrementCounter
+  IncrementCounter --> [*]
+}
+
+state FAILURE as "Failure" {
+  [*] --> Fallback
+  Fallback --> SaveAttempt
+  SaveAttempt --> [*]
+}
+
+LOAD_CONTEXT --> PROMPT_ENGINEER
+PROMPT_ENGINEER --> LLM_THINK
+LLM_THINK --> PLAN_ACTION
+PLAN_ACTION --> EXECUTE_TOOL
+EXECUTE_TOOL --> EVALUATE_SCORE
+EVALUATE_SCORE --> DECIDE
+
+DECIDE --> SUCCESS: score >= 70
+DECIDE --> RETRY: score < 70 AND count < 3
+DECIDE --> FAILURE: count >= 3
+
+RETRY --> PROMPT_ENGINEER: reboucle
+SUCCESS --> [*]
+FAILURE --> [*]
+
+@enduml
+
+--- END SCHEMA 4 ---
+
+================== SCHEMA 5: COMPONENTS INTERACTION ==================
+
+@startuml Components_Interaction
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowColor #003366
+skinparam sequenceBoxBorderColor #003366
+
+title Components Interaction - How They Work Together
+
+box "INPUT" #E8F4F8
+  participant "Audio\nLearner" as INPUT
+end box
+
+box "COGNITIVE LAYER" #FFFACD
+  participant "Prompt\nBuilder" as PB
+  participant "CECRL\nTemplates" as CECRL
+  participant "Weak Words\nStore" as WWS
+  participant "LLM\n(ChatGPT)" as LLM
+end box
+
+box "ORCHESTRATION" #E6F2FF
+  participant "Agent Loop\nExecutor" as ALE
+  participant "State\nManager" as SM
+  participant "Memory\nMgmt" as MM
+end box
+
+box "EXECUTION" #E1F5EE
+  participant "Whisper\nSTT" as WSP
+  participant "Phonetic\nEvaluator" as PE
+  participant "Edge-TTS" as TTS
+end box
+
+box "PERSISTENCE" #FFF8DC
+  database "PostgreSQL" as PDB
+end box
+
+box "SAFETY" #FFE4E1
+  participant "Input\nFilter" as IF
+  participant "Output\nValidator" as OV
+  participant "Circuit\nBreaker" as CB
+end box
+
+INPUT --> IF: Raw audio
+IF --> ALE: Validated
+
+ALE --> SM: State changes
+SM --> MM: Save/load
+MM --> PDB: Checkpoint
+
+ALE --> PB: Build prompt
+PB --> CECRL: Select
+PB --> WWS: Get words
+CECRL --> LLM: Inject
+WWS --> LLM: Inject
+
+LLM --> ALE: Think & plan
+ALE --> WSP: Transcribe
+WSP --> PE: Extract
+PE --> CB: Check
+CB --> ALE: Score
+
+ALE --> TTS: Generate
+TTS --> OV: Validate
+OV --> INPUT: Send audio
+
+MM -.-> PDB: Persist
+
+@enduml
+
+--- END SCHEMA 5 ---
+
+================== SCHEMA 6: ERROR HANDLING & CIRCUIT BREAKER ==================
+
+@startuml Error_Handling_Circuit_Breaker
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam stateBorderColor #003366
+skinparam stateBackgroundColor #E6F2FF
+
+title Error Handling & Circuit Breaker Pattern
+
+[*] --> FIRST_ATTEMPT
+
+state FIRST_ATTEMPT as "Attempt 1/3" {
+  attempt1a: "Score calculation"
+  attempt1b: "Check: score >= 70?"
+  attempt1a --> attempt1b
+}
+
+state DECISION1 {
+  [*] --> d1
+  d1: "Success?"
+}
+
+FIRST_ATTEMPT --> DECISION1
+
+DECISION1 --> SUCCESS: YES
+DECISION1 --> REBOUCLE_1: NO
+
+state REBOUCLE_1 as "Reboucle 1" {
+  reb1a: "Generate advice"
+  reb1b: "Call TTS (advice)"
+  reb1c: "counter = 1"
+  reb1a --> reb1b
+  reb1b --> reb1c
+}
+
+REBOUCLE_1 --> SECOND_ATTEMPT
+
+state SECOND_ATTEMPT as "Attempt 2/3" {
+  attempt2a: "Score calculation"
+  attempt2b: "Check: score >= 70?"
+  attempt2a --> attempt2b
+}
+
+state DECISION2 {
+  [*] --> d2
+  d2: "Success?"
+}
+
+SECOND_ATTEMPT --> DECISION2
+
+DECISION2 --> SUCCESS: YES
+DECISION2 --> REBOUCLE_2: NO
+
+state REBOUCLE_2 as "Reboucle 2" {
+  reb2a: "Generate better advice"
+  reb2b: "Call TTS (advice)"
+  reb2c: "counter = 2"
+  reb2a --> reb2b
+  reb2b --> reb2c
+}
+
+REBOUCLE_2 --> THIRD_ATTEMPT
+
+state THIRD_ATTEMPT as "Attempt 3/3" {
+  attempt3a: "Score calculation"
+  attempt3b: "Check: score >= 70?"
+  attempt3a --> attempt3b
+}
+
+state DECISION3 {
+  [*] --> d3
+  d3: "Success?"
+}
+
+THIRD_ATTEMPT --> DECISION3
+
+DECISION3 --> SUCCESS: YES
+DECISION3 --> CIRCUIT_BREAKER: NO
+
+state CIRCUIT_BREAKER as "CIRCUIT BREAKER TRIGGERED" {
+  cb1: "Max retries (3) reached"
+  cb2: "Fallback response"
+  cb3: "Partial XP awarded"
+  cb4: "Session saved"
+  cb1 --> cb2
+  cb2 --> cb3
+  cb3 --> cb4
+}
+
+state SUCCESS as "SUCCESS" {
+  s1: "Score >= 70"
+  s2: "Full XP awarded"
+  s3: "Session saved"
+  s4: "Success audio"
+  s1 --> s2
+  s2 --> s3
+  s3 --> s4
+}
+
+CIRCUIT_BREAKER --> [*]
+SUCCESS --> [*]
+
+note right of CIRCUIT_BREAKER
+  After 3 failed attempts:
+  - Stop retrying
+  - Give feedback
+  - Suggest break
+  - Log for analysis
+end note
+
+@enduml
+
+--- END SCHEMA 6 ---
+
+============================================================================
+HOW TO USE THESE SCHEMAS:
+
+1. Copy any schema from @startuml to @enduml
+2. Paste on https://www.plantuml.com/plantuml/uml/
+3. Export as PNG/SVG
+
+SCHEMAS BREAKDOWN:
+
+Schema 1 (AGENT_ARCHITECTURE_OVERVIEW)
+  - High-level system architecture
+  - How all components connect
+  - Best for: Jury overview
+
+Schema 2 (AGENT_LOOP_DETAILED_WORKFLOW)
+  - Think-Plan-Act-Observe cycle
+  - All 4 steps explained
+  - Retry loop with max 3
+  - Best for: Explaining core logic
+
+Schema 3 (DATA_FLOW_REQUEST_RESPONSE)
+  - From learner speech to response
+  - Complete request/response flow
+  - All API calls shown
+  - Best for: Technical details
+
+Schema 4 (STATE_MACHINE_INTERNAL)
+  - LangGraph4J state transitions
+  - All internal states
+  - State decisions
+  - Best for: Developers
+
+Schema 5 (COMPONENTS_INTERACTION)
+  - How components work together
+  - Data flows between parts
+  - Best for: Architecture understanding
+
+Schema 6 (ERROR_HANDLING_CIRCUIT_BREAKER)
+  - Retry logic with circuit breaker
+  - Max 3 attempts
+  - Fallback on failure
+  - Best for: Robustness explanation
+
+============================================================================

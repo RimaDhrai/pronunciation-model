@@ -1,0 +1,58 @@
+@startuml SpeakCoach_7_Pillars_Framework
+!define C1 #6C9FFF
+!define C2 #A78BFA
+!define C3 #67E8F9
+!define C4 #6EE7B7
+!define C5 #FDBA74
+!define C6 #F9A8D4
+!define C7 #FCA5A5
+
+skinparam backgroundColor #0a0a1a
+skinparam defaultFontColor #f0f0f8
+skinparam defaultFontName Inter
+skinparam roundcorner 12
+skinparam ArrowColor #6C9FFF
+skinparam BorderColor #6C9FFF
+
+title "Les 7 Piliers de l'Agentique IA — SpeakCoach"
+' Architecture conceptuelle des 7 piliers essentiels
+
+' Layer 0: Core LLM (au centre)
+card "🧠 **LLM**\nMoteur de\nRaisonnement" as LLM #6C9FFF/f0f0f8
+
+' Layer 1: Les 7 piliers autour
+card "📝 **1. Prompt\nEngineering**\n\n✓ Role-based\n✓ Constraints\n✓ Format JSON" as P1 #6C9FFF/f0f0f8
+card "🧠 **2. Context\nEngineering**\n\nMemory:\n✓ Short-term\n✓ Long-term" as P2 #A78BFA/f0f0f8
+card "🔧 **3. Tool\nCalling**\n\nOutils:\n✓ FastAPI\n✓ PostgreSQL" as P3 #67E8F9/f0f0f8
+card "📊 **4. Observability**\n\nVibilité:\n✓ Logs\n✓ Traces\n✓ State" as P4 #6EE7B7/f0f0f8
+card "🔄 **5. Agent\nLoop**\n\nCycle:\n✓ Perception\n✓ Raisonnement\n✓ Action" as P5 #FDBA74/f0f0f8
+card "🛡️ **6. Safety**\n\nGarde-fou:\n✓ Limits\n✓ Validation\n✓ Rate-limit" as P6 #F9A8D4/f0f0f8
+card "⚙️ **7. Agent\nHarness**\n\nInfra:\n✓ LangGraph\n✓ Spring AI" as P7 #FCA5A5/f0f0f8
+
+' Connexions des piliers au centre
+P1 --> LLM
+P2 --> LLM
+P3 --> LLM
+P4 --> LLM
+P5 --> LLM
+P6 --> LLM
+P7 --> LLM
+
+' Interactions entre piliers
+P1 <--> P2 : Contexte\nenrichi
+P2 <--> P3 : Tools\naccess
+P3 <--> P4 : Logging\nresults
+P4 <--> P5 : Trace\nloop
+P5 <--> P6 : Safety\nchecks
+P6 <--> P7 : Harness\nexecute
+P7 <--> P1 : Deploy
+
+' Vue des agents spécialisés qui utilisent ce framework
+note bottom of LLM
+    Agents spécialisés (utilisant tous les 7 piliers):
+    • Chatbot Agent (Piliers 1,2,4,5,7)
+    • LevelTest Agent (Piliers 1,2,3,4,5,6,7)
+    • Exercise Agent (Piliers 1,2,3,4,5,6,7)
+end note
+
+caption <b>Tous les 7 piliers interconnectés</b> → Framework complet d'agentique IA

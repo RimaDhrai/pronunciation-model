@@ -30,31 +30,49 @@ public class LevelTestService {
         String w2 = words.length > 2 ? words[2].strip() : w0;
 
         String cefrSpec = "fr".equals(lang) ? switch (level) {
-            case "A1" -> "niveau CECR A1 : phrase de 4-6 mots, present simple, vocabulaire de base (maison, famille, couleurs). Exemple de structure : \"Le [nom] est [adjectif].\"";
-            case "A2" -> "niveau CECR A2 : phrase de 6-9 mots, verbes courants, lieux et activités du quotidien. Exemple : \"Je vais [lieu] avec [personne] chaque [moment]\"";
-            case "B1" -> "niveau CECR B1 : phrase de 9-13 mots, proposition subordonnee simple, vocabulaire thematique (voyage, travail, loisirs)";
-            case "B2" -> "niveau CECR B2 : phrase de 12-16 mots, structures complexes, vocabulaire varie et precis, connecteurs logiques";
-            case "C1" -> "niveau CECR C1 : phrase de 15-19 mots, subjonctif ou conditionnel, vocabulaire soutenu, idiotismes naturels";
-            case "C2" -> "niveau CECR C2 : phrase de 18-22 mots, registre soutenu, structures syntaxiques elaborees, vocabulaire riche";
-            default -> "niveau CECR B1 : phrase naturelle de 9-13 mots";
+            case "A1" -> "niveau CECR A1 : 2-3 phrases (15-20 mots), présent simple, vocabulaire d'entreprise basique (bureau, réunion, équipe). TOUJOURS dans un contexte professionnel sérieux.";
+            case "A2" -> "niveau CECR A2 : paragraphe de 20-30 mots, verbes professionnels, routines de travail en entreprise. AUCUN vocabulaire familier ou d'enfant.";
+            case "B1" -> "niveau CECR B1 : paragraphe de 30-45 mots, vocabulaire corporate (gestion de projet, IT, développement).";
+            case "B2" -> "niveau CECR B2 : paragraphe de 45-60 mots, structures complexes, vocabulaire métier précis (agile, architecture, stratégie).";
+            case "C1" -> "niveau CECR C1 : paragraphe de 60-80 mots, vocabulaire très soutenu, expressions corporate idiomatiques, contexte d'entreprise pointu.";
+            case "C2" -> "niveau CECR C2 : paragraphe de 80-100 mots, registre expert, enjeux stratégiques, technologiques et management de haut niveau.";
+            default -> "niveau CECR B1 : paragraphe professionnel de 30-45 mots";
         } : switch (level) {
-            case "A1" -> "CEFR A1: 4-6 words, present simple, basic vocabulary (home, family, colors). Example: \"The [noun] is [adjective].\"";
-            case "A2" -> "CEFR A2: 6-9 words, common verbs, daily places and activities";
-            case "B1" -> "CEFR B1: 9-13 words, simple subordinate clause, thematic vocabulary (travel, work, leisure)";
-            case "B2" -> "CEFR B2: 12-16 words, complex structures, precise varied vocabulary, logical connectors";
-            case "C1" -> "CEFR C1: 15-19 words, sophisticated grammar, natural idioms, formal vocabulary";
-            case "C2" -> "CEFR C2: 18-22 words, elevated register, elaborate syntax, rich vocabulary";
-            default -> "CEFR B1: natural sentence of 9-13 words";
+            case "A1" -> "CEFR A1: 2-3 sentences (15-20 words), present simple, basic corporate vocabulary (office, meeting). ALWAYS in a serious business context.";
+            case "A2" -> "CEFR A2: paragraph of 20-30 words, professional verbs, corporate work routines. NO casual or childish vocabulary.";
+            case "B1" -> "CEFR B1: paragraph of 30-45 words, corporate vocabulary (project management, IT, development).";
+            case "B2" -> "CEFR B2: paragraph of 45-60 words, complex structures, precise business vocabulary (agile, architecture, strategy).";
+            case "C1" -> "CEFR C1: paragraph of 60-80 words, highly sophisticated corporate grammar, natural business idioms.";
+            case "C2" -> "CEFR C2: paragraph of 80-100 words, expert register, strategic and technological challenges at the executive level.";
+            default -> "CEFR B1: professional paragraph of 30-45 words";
         };
 
         String system = "fr".equals(lang)
-                ? "Tu génères UNE phrase française orale, " + cefrSpec + ". La phrase doit contenir au moins 2 des mots cibles. INTERDIT : introduction, guillemets, explication. Reponds UNIQUEMENT avec la phrase."
-                : "Generate ONE spoken English sentence, " + cefrSpec + ". The sentence must contain at least 2 target words. FORBIDDEN: introduction, quotes, explanation. Reply with the sentence ONLY.";
+                ? "Tu génères UN texte parlé professionnel, " + cefrSpec + ". Le texte doit contenir au moins 2 des mots cibles. "
+                  + "Termine TOUJOURS par un point. INTERDIT : introduction, guillemets, explication. Réponds UNIQUEMENT avec le texte."
+                : "Generate ONE professional spoken text, " + cefrSpec + ". The text must contain at least 2 target words. "
+                  + "ALWAYS end with a period. FORBIDDEN: introduction, quotes, explanation. Reply with the text ONLY.";
         String prompt = "fr".equals(lang)
-                ? "Mots cibles : " + w0 + ", " + w1 + ", " + w2 + ". Phrase :"
-                : "Target words: " + w0 + ", " + w1 + ", " + w2 + ". Sentence:";
+                ? "Mots cibles : " + w0 + ", " + w1 + ", " + w2 + ". Texte :"
+                : "Target words: " + w0 + ", " + w1 + ", " + w2 + ". Text:";
 
-        String cleaned = cleanLevelTestPhrase(ollamaClientService.callOllama(system, prompt, 45, 0.7));
+        // Tokens adaptés au niveau pour ne jamais couper une phrase
+        int maxTokens = switch (level) {
+            case "A1" -> 80;
+            case "A2" -> 120;
+            case "B1" -> 180;
+            case "B2" -> 250;
+            case "C1" -> 320;
+            case "C2" -> 400;
+            default   -> 180;
+        };
+
+        String raw = ollamaClientService.callOllama(system, prompt, maxTokens, 0.7);
+        String cleaned = cleanLevelTestPhrase(raw);
+        // Ajoute un point final si la phrase est coupée
+        if (!cleaned.isEmpty() && !cleaned.matches(".*[.!?]$")) {
+            cleaned = cleaned + ".";
+        }
         if (cleaned.length() < 8 || taxonomy.isHallucination(cleaned, lang) || cleaned.contains("indisponible")) {
             return taxonomy.getFallback(lang, level, "general");
         }

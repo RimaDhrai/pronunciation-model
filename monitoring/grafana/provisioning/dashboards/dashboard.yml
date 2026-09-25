@@ -1,0 +1,14 @@
+# Configuration Grafana — Provisioning des dashboards
+# Les dashboards JSON dans le dossier dashboards/ sont chargés automatiquement
+
+apiVersion: 1
+
+providers:
+  - name: 'SpeakCoach Dashboards'
+    orgId: 1
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+
+start
+:Initialiser la session d'evaluation;
+:Charger l'historique de l'apprenant;
+
+partition "boucle" {
+  while (Nombre d'etapes < 20 ?) is (Oui)
+    :Selectionner le prochain phoneme cible;
+    
+    if (Phoneme maitrise (score >= 75) ?) then (Oui)
+      :Ignorer;
+    else (Non)
+      :Generer phrase\net conseil (LLM);
+      :Analyser reponse\nenregistrement & STT;
+      :Generer feedback\npedagogique (LLM);
+      :Mettre a jour memoire;
+    endif
+  endwhile (Non)
+}
+
+:Generer le bilan de l'evaluation;
+:Calculer niveau CEFR final\nmoyenne ponderee des scores;
+:Enregistrer les resultats finaux;
+stop
+@enduml
